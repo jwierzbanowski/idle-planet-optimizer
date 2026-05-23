@@ -42,7 +42,7 @@ import {
   effectivePrice, calcMaterialCost, calcTotalTime,
   getModifier, renderTree, buildTree
 } from './utils/calc'
-import { fmtPrice, fmtTime } from './utils/format'
+import { fmtPrice, fmtTime, fmtQty } from './utils/format'
 import { MARKET_VALS } from './utils/config'
 
 const { DB, ORDER, getEntity } = useData()
@@ -147,7 +147,7 @@ const alloysHtml = computed(() => {
     const ingStr = row.ingredients.map(i => {
       const e = getEntity(i.id)
       const q = ufMod ? (i.qty * ufMod) : i.qty
-      return (q > 1 ? q.toFixed(1) + '× ' : '') + (e ? e.name : i.id)
+      return (q > 1 ? fmtQty(q) + '× ' : '') + (e ? e.name : i.id)
     }).join('<br>')
     html += '<tr onclick="window.__showDetail(\'' + id + '\',\'alloy\')">'
     html += '<td class="name-cell"><span class="type-badge alloy">A</span>' + row.name + starControlsHtml(id) + '</td>'
@@ -185,7 +185,7 @@ const itemsHtml = computed(() => {
     const ingStr = row.ingredients.map(i => {
       const e = getEntity(i.id)
       const q = dormMod ? (i.qty * dormMod) : i.qty
-      return (q > 1 ? q.toFixed(1) + '× ' : '') + (e ? e.name : i.id)
+      return (q > 1 ? fmtQty(q) + '× ' : '') + (e ? e.name : i.id)
     }).join('<br>')
     html += '<tr onclick="window.__showDetail(\'' + id + '\',\'item\')">'
     html += '<td class="name-cell"><span class="type-badge item">I</span>' + row.name + starControlsHtml(id) + '</td>'

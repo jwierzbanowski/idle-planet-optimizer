@@ -1,6 +1,6 @@
 import { SETTINGS_CONFIG } from './config'
 import { getEntity } from '../composables/useData'
-import { fmtPrice, fmtTime } from './format'
+import { fmtPrice, fmtTime, fmtQty } from './format'
 
 function getStars(overrides, id) { return overrides[id]?.stars ?? 0 }
 function getMarket(overrides, id) { return overrides[id]?.market ?? 1 }
@@ -68,7 +68,7 @@ export function calcTotalTime(id, qty, overrides, settings, visited) {
       t += calcTotalTime(ing.id, ingQty * qty, overrides, settings, visited)
     }
   }
-  return t
+  return Math.floor(t)
 }
 
 export function calcDirectIngredientCost(id, qty, overrides, settings) {
@@ -108,7 +108,7 @@ export function renderTree(node, overrides) {
   const mktStr = market !== 1 ? ' <span style="color:#4fc3f7">x' + market + '</span>' : ''
   let html = '<div class="tree-node' + (node.children.length === 0 ? ' root' : '') + '">'
   html += '<div class="tree-item">'
-  html += '<span class="tree-qty">' + (node.qty > 1 ? node.qty + '×' : '') + '</span>'
+  html += '<span class="tree-qty">' + (node.qty > 1 ? fmtQty(node.qty) + '×' : '') + '</span>'
   html += '<span class="tree-name">' + node.name + '</span>'
   html += '<span class="tree-price">' + fmtPrice(node.basePrice) + starStr + mktStr + '</span>'
   if (node.time > 0) html += '<span class="tree-time">' + fmtTime(node.time) + '</span>'
