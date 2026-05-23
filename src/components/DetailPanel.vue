@@ -35,7 +35,7 @@
       </div>
       <div class="stat-box">
         <div class="stat-label">Processing Time</div>
-        <div class="stat-value">{{ fmtTime(entity?.time || 0) }}</div>
+        <div class="stat-value">{{ fmtTime(effectiveTime) }}</div>
       </div>
       <div class="stat-box">
         <div class="stat-label">Total Chain Time</div>
@@ -61,7 +61,7 @@ import { computed } from 'vue'
 import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
-import { effectivePrice, calcMaterialCost, calcTotalTime, calcDirectIngredientCost, buildTree, renderTree } from '../utils/calc'
+import { effectivePrice, calcMaterialCost, calcTotalTime, calcDirectIngredientCost, getSmeltSpeedMult, getCraftSpeedMult, buildTree, renderTree } from '../utils/calc'
 import { fmtPrice, fmtTime } from '../utils/format'
 
 const props = defineProps({
@@ -87,6 +87,21 @@ const tt = computed(() => calcTotalTime(props.detailId, 1, overrides, settings))
 const profit = computed(() => eff.value - oc.value)
 const pps = computed(() => tt.value > 0 ? profit.value / tt.value : 0)
 const dc = computed(() => calcDirectIngredientCost(props.detailId, 1, overrides, settings))
+
+const effectiveTime = computed(() => {
+  const e = entity.value
+  if (!e || !e.time) return 0
+  let time = e.time
+  if (e.type === 'alloy') {
+    const m = getSmeltSpeedMult(settings)
+    if (m) time = time / m
+  }
+  if (e.type === 'item') {
+    const m = getCraftSpeedMult(settings)
+    if (m) time = time / m
+  }
+  return Math.floor(time)
+})
 
 const treeHtml = computed(() => {
   if (!props.detailId) return ''

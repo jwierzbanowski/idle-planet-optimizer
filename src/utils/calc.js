@@ -14,6 +14,40 @@ export function getModifier(cat, key, settings) {
   return item.baseEffect + item.perLevel * (capped - 1)
 }
 
+function getProjectModifier(settings, key) {
+  if (!settings.projects?.[key]) return null
+  const item = SETTINGS_CONFIG.projects.find(i => i.key === key)
+  if (!item || item.baseEffect == null) return null
+  return item.baseEffect
+}
+
+function getProjectMultiplier(settings, keys) {
+  let mult = 1
+  for (const key of keys) {
+    const mod = getProjectModifier(settings, key)
+    if (mod) mult *= mod
+  }
+  return mult > 1 ? mult : null
+}
+
+export function getSmeltSpeedMult(settings) {
+  let mult = 1
+  const forgeMod = getModifier('rooms', 'forge', settings)
+  if (forgeMod) mult *= forgeMod
+  const furnaceProj = getProjectMultiplier(settings, ['advancedFurnace', 'superiorFurnace'])
+  if (furnaceProj) mult *= furnaceProj
+  return mult > 1 ? mult : null
+}
+
+export function getCraftSpeedMult(settings) {
+  let mult = 1
+  const workshopMod = getModifier('rooms', 'workshop', settings)
+  if (workshopMod) mult *= workshopMod
+  const crafterProj = getProjectMultiplier(settings, ['advancedCrafter', 'superiorCrafter'])
+  if (crafterProj) mult *= crafterProj
+  return mult > 1 ? mult : null
+}
+
 export function effectivePrice(id, overrides, settings) {
   const e = getEntity(id)
   if (!e) return 0
@@ -53,12 +87,12 @@ export function calcTotalTime(id, qty, overrides, settings, visited) {
   if (!e || e.type === 'ore') return 0
   let t = (e.time || 0) * qty
   if (e.type === 'alloy' && e.time) {
-    const forgeMod = getModifier('rooms', 'forge', settings)
-    if (forgeMod) t = t / forgeMod
+    const smeltMult = getSmeltSpeedMult(settings)
+    if (smeltMult) t = t / smeltMult
   }
   if (e.type === 'item' && e.time) {
-    const workshopMod = getModifier('rooms', 'workshop', settings)
-    if (workshopMod) t = t / workshopMod
+    const craftMult = getCraftSpeedMult(settings)
+    if (craftMult) t = t / craftMult
   }
   if (e.ingredients) {
     const underforgeMod2 = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
@@ -87,7 +121,16 @@ export function buildTree(id, qty, overrides, settings, visited) {
   visited.add(id)
   const e = getEntity(id)
   if (!e) return null
-  const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: e.time || 0, children: [] }
+  let effTime = e.time || 0
+  if (e.type === 'alloy' && effTime) {
+    const smeltMult = getSmeltSpeedMult(settings)
+    if (smeltMult) effTime = effTime / smeltMult
+  }
+  if (e.type === 'item' && effTime) {
+    const craftMult = getCraftSpeedMult(settings)
+    if (craftMult) effTime = effTime / craftMult
+  }
+  const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: Math.floor(effTime), children: [] }
   if (e.ingredients) {
     const ufMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
     const dormMod3 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null

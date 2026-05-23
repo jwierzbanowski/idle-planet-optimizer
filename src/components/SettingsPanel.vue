@@ -17,23 +17,32 @@
           <span class="settings-label">{{ item.label }}</span>
           <span v-if="item.desc" class="settings-desc">{{ item.desc }}</span>
         </div>
-        <div class="star-controls">
-          <button class="star-btn" :disabled="(getVal(item.key)) <= 0"
-            @click="change(item.key, -1)">−</button>
-          <span class="star-count">{{ getVal(item.key) }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span>
-          <button class="star-btn" :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-            @click="change(item.key, 1)">+</button>
-        </div>
-        <span v-if="item.baseEffect != null && getVal(item.key) > 0" class="settings-effect"
-          :style="{ color: item.baseEffect < 1 ? '#4caf50' : undefined }">
-          <template v-if="item.baseEffect >= 1">
-            {{ (item.baseEffect + item.perLevel * (getVal(item.key) - 1)).toFixed(2) }}×
-          </template>
-          <template v-else>
-            -{{ Math.round((1 - (item.baseEffect + item.perLevel * (getVal(item.key) - 1))) * 100) }}%
-          </template>
-        </span>
-        <span v-else-if="item.baseEffect != null" class="settings-effect" style="color:#6b7a8f">—</span>
+        <template v-if="isNumeric(item)">
+          <div class="star-controls">
+            <button class="star-btn" :disabled="(getVal(item.key)) <= 0"
+              @click="change(item.key, -1)">−</button>
+            <span class="star-count">{{ getVal(item.key) }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span>
+            <button class="star-btn" :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
+              @click="change(item.key, 1)">+</button>
+          </div>
+          <span v-if="item.baseEffect != null && getVal(item.key) > 0" class="settings-effect"
+            :style="{ color: item.baseEffect < 1 ? '#4caf50' : undefined }">
+            <template v-if="item.baseEffect >= 1">
+              {{ (item.baseEffect + item.perLevel * (getVal(item.key) - 1)).toFixed(2) }}×
+            </template>
+            <template v-else>
+              -{{ Math.round((1 - (item.baseEffect + item.perLevel * (getVal(item.key) - 1))) * 100) }}%
+            </template>
+          </span>
+          <span v-else-if="item.baseEffect != null" class="settings-effect" style="color:#6b7a8f">—</span>
+        </template>
+        <template v-else>
+          <button class="toggle-btn" :class="{ active: getVal(item.key) }" @click="toggleItem(item.key)">
+            <span class="toggle-knob"></span>
+          </button>
+          <span v-if="getVal(item.key) && item.baseEffect != null" class="settings-effect">{{ item.baseEffect }}×</span>
+          <span v-else-if="item.baseEffect != null" class="settings-effect" style="color:#6b7a8f">—</span>
+        </template>
       </div>
     </div>
   </div>
@@ -57,11 +66,18 @@ const categories = [
 
 const currentConfig = computed(() => SETTINGS_CONFIG[activeCat.value] || [])
 
+function isNumeric(item) { return item.maxLevel != null }
+
 function getVal(key) { return getRawSetting(activeCat.value, key) }
 
 function change(key, delta) {
   const current = getRawSetting(activeCat.value, key)
   setSetting(activeCat.value, key, current + delta)
+}
+
+function toggleItem(key) {
+  const current = getRawSetting(activeCat.value, key)
+  setSetting(activeCat.value, key, current ? 0 : 1)
 }
 
 function toggle() { open.value = !open.value }

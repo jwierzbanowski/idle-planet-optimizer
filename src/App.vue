@@ -40,7 +40,7 @@ import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
 import {
   effectivePrice, calcMaterialCost, calcTotalTime,
-  getModifier, renderTree, buildTree
+  getModifier, getSmeltSpeedMult, getCraftSpeedMult, renderTree, buildTree
 } from './utils/calc'
 import { fmtPrice, fmtTime, fmtQty } from './utils/format'
 import { MARKET_VALS } from './utils/config'
@@ -142,7 +142,7 @@ const alloysHtml = computed(() => {
     const eff = effectivePrice(id, overrides, settings)
     const profit = eff - oc
     const pps = t > 0 ? profit / t : 0
-    const forgeMod = getModifier('rooms', 'forge', settings)
+    const smeltMult = getSmeltSpeedMult(settings)
     const ufMod = getModifier('rooms', 'underforge', settings)
     const ingStr = row.ingredients.map(i => {
       const e = getEntity(i.id)
@@ -151,7 +151,7 @@ const alloysHtml = computed(() => {
     }).join('<br>')
     html += '<tr onclick="window.__showDetail(\'' + id + '\',\'alloy\')">'
     html += '<td class="name-cell"><span class="type-badge alloy">A</span>' + row.name + starControlsHtml(id) + '</td>'
-    html += '<td>' + fmtTime((forgeMod && row.time) ? row.time / forgeMod : row.time) + '</td>'
+    html += '<td>' + fmtTime((smeltMult && row.time) ? row.time / smeltMult : row.time) + '</td>'
     html += '<td><span class="ingredient-list">' + ingStr + '</span></td>'
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
     html += '<td>' + marketControlsHtml(id) + '</td>'
@@ -180,7 +180,7 @@ const itemsHtml = computed(() => {
     const eff = effectivePrice(id, overrides, settings)
     const profit = eff - oc
     const pps = t > 0 ? profit / t : 0
-    const workshopMod = getModifier('rooms', 'workshop', settings)
+    const craftMult = getCraftSpeedMult(settings)
     const dormMod = getModifier('rooms', 'dorm', settings)
     const ingStr = row.ingredients.map(i => {
       const e = getEntity(i.id)
@@ -189,7 +189,7 @@ const itemsHtml = computed(() => {
     }).join('<br>')
     html += '<tr onclick="window.__showDetail(\'' + id + '\',\'item\')">'
     html += '<td class="name-cell"><span class="type-badge item">I</span>' + row.name + starControlsHtml(id) + '</td>'
-    html += '<td>' + fmtTime((workshopMod && row.time) ? row.time / workshopMod : row.time) + '</td>'
+    html += '<td>' + fmtTime((craftMult && row.time) ? row.time / craftMult : row.time) + '</td>'
     html += '<td><span class="ingredient-list">' + ingStr + '</span></td>'
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
     html += '<td>' + marketControlsHtml(id) + '</td>'
@@ -403,6 +403,18 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
   color: #4fc3f7; font-size: 14px; font-weight: 600;
   min-width: 56px; text-align: right;
 }
+.toggle-btn {
+  width: 40px; height: 22px; border-radius: 11px; border: 1px solid #2a3a4a;
+  background: #0d1520; cursor: pointer; position: relative; transition: all 0.2s;
+  padding: 0; flex-shrink: 0;
+}
+.toggle-btn.active { background: #1e88e5; border-color: #1e88e5; }
+.toggle-knob {
+  display: block; width: 16px; height: 16px; border-radius: 50%;
+  background: #6b7a8f; position: absolute; top: 2px; left: 2px;
+  transition: all 0.2s;
+}
+.toggle-btn.active .toggle-knob { background: #fff; left: 20px; }
 
 @media (max-width: 768px) {
   body { padding: 12px; }
