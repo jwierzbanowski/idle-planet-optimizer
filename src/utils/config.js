@@ -1,3 +1,9 @@
+export const MANAGER_SKILLS = [
+  { value: 'empty', label: '— Empty —' },
+  { value: 'allCraftSpeed', label: 'All Craft Speed' },
+  { value: 'allSmeltSpeed', label: 'All Smelt Speed' },
+]
+
 export const SETTINGS_CONFIG = {
   rooms: [
     { key: 'engineering', label: 'Engineering', desc: 'Increase mine speed', baseEffect: 1.25, perLevel: 0.15, maxLevel: 60 },
@@ -39,6 +45,7 @@ export const SETTINGS_CONFIG = {
     { key: 'alloyItem6', label: 'Alloy & Item 6' },
     { key: 'alloyItem7', label: 'Alloy & Item 7' },
   ],
+  managers: [],
 }
 
 export const MARKET_VALS = [0.33, 0.5, 1, 2, 3, 4, 5]

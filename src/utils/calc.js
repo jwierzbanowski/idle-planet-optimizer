@@ -42,6 +42,16 @@ export function getStationMult(settings, keys) {
   return total > 0 ? 1 + total : null
 }
 
+function getManagerMult(settings, skill) {
+  const mgrs = settings.managers
+  if (!Array.isArray(mgrs)) return null
+  let mult = 1
+  for (const m of mgrs) {
+    if (m.skill === skill && m.value > 0) mult *= m.value
+  }
+  return mult > 1 ? mult : null
+}
+
 export function getSmeltSpeedMult(settings) {
   let mult = 1
   const forgeMod = getModifier('rooms', 'forge', settings)
@@ -50,6 +60,8 @@ export function getSmeltSpeedMult(settings) {
   if (furnaceProj) mult *= furnaceProj
   const stationSmelt = getStationMult(settings, ['smelting1', 'smelting2', 'smelting3', 'smelting4', 'smelting5'])
   if (stationSmelt) mult *= stationSmelt
+  const mgrSmelt = getManagerMult(settings, 'allSmeltSpeed')
+  if (mgrSmelt) mult *= mgrSmelt
   return mult > 1 ? mult : null
 }
 
@@ -61,6 +73,8 @@ export function getCraftSpeedMult(settings) {
   if (crafterProj) mult *= crafterProj
   const stationCraft = getStationMult(settings, ['crafting1', 'crafting2', 'crafting3', 'crafting4', 'crafting5'])
   if (stationCraft) mult *= stationCraft
+  const mgrCraft = getManagerMult(settings, 'allCraftSpeed')
+  if (mgrCraft) mult *= mgrCraft
   return mult > 1 ? mult : null
 }
 
@@ -118,7 +132,7 @@ export function calcTotalTime(id, qty, overrides, settings, visited) {
       t += calcTotalTime(ing.id, ingQty * qty, overrides, settings, visited)
     }
   }
-  return Math.floor(t)
+  return Math.round(t)
 }
 
 export function calcDirectIngredientCost(id, qty, overrides, settings) {
@@ -146,7 +160,7 @@ export function buildTree(id, qty, overrides, settings, visited) {
     const craftMult = getCraftSpeedMult(settings)
     if (craftMult) effTime = effTime / craftMult
   }
-  const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: Math.floor(effTime), children: [] }
+  const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: Math.round(effTime), children: [] }
   if (e.ingredients) {
     const ufMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
     const dormMod3 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null

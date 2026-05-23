@@ -1,5 +1,5 @@
 export function fmtTime(sec) {
-  const s = Math.floor(sec)
+  const s = Math.round(sec)
   if (s < 60) return s + 's'
   if (s < 3600) return Math.floor(s / 60) + 'm ' + (s % 60) + 's'
   const h = Math.floor(s / 3600)

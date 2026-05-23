@@ -66,7 +66,7 @@ import { MARKET_VALS } from './utils/config'
 
 const { DB, ORDER, getEntity } = useData()
 const { overrides, getStars, getMarket, setOverride, resetOverrides } = useOverrides()
-const { settings } = useSettings()
+const { settings, managerVersion } = useSettings()
 
 const activeTab = ref('ores')
 const detailId = ref(null)
@@ -95,6 +95,7 @@ loadData()
 
 // ===== DEBUG STATS =====
 const debugStats = computed(() => {
+  managerVersion.value // force re-evaluate on manager changes
   const smeltRate = getSmeltSpeedMult(settings)
   const craftRate = getCraftSpeedMult(settings)
   const smeltCost = getModifier('rooms', 'underforge', settings)
@@ -119,6 +120,8 @@ function breakdownSmelt(s) {
   if (fp) parts.push('Proj×' + fp.toFixed(2))
   const ss = getStationMult(s, ['smelting1','smelting2','smelting3','smelting4','smelting5'])
   if (ss && ss > 1) parts.push('Stn×' + ss.toFixed(2))
+  const mgrS = countManagers(s, 'allSmeltSpeed')
+  if (mgrS) parts.push('Mgr×' + mgrS.toFixed(2))
   return parts.length ? parts.join(' + ') : 'none'
 }
 
@@ -130,7 +133,19 @@ function breakdownCraft(s) {
   if (cp) parts.push('Proj×' + cp.toFixed(2))
   const sc = getStationMult(s, ['crafting1','crafting2','crafting3','crafting4','crafting5'])
   if (sc && sc > 1) parts.push('Stn×' + sc.toFixed(2))
+  const mgrC = countManagers(s, 'allCraftSpeed')
+  if (mgrC) parts.push('Mgr×' + mgrC.toFixed(2))
   return parts.length ? parts.join(' + ') : 'none'
+}
+
+function countManagers(s, skill) {
+  const mgrs = s.managers
+  if (!Array.isArray(mgrs)) return 0
+  let mult = 1
+  for (const m of mgrs) {
+    if (m.skill === skill && m.value > 0) mult *= m.value
+  }
+  return mult > 1 ? mult : 0
 }
 
 function switchTab(tab) { activeTab.value = tab }
@@ -189,6 +204,7 @@ const oresHtml = computed(() => {
 
 // ===== ALLOYS TABLE =====
 const alloysHtml = computed(() => {
+  managerVersion.value
   let html = '<div class="table-wrap"><table>'
   html += '<thead><tr>'
   html += '<th>Name</th><th>Smelt Time</th><th>Ingredients</th><th>Base Price</th><th>Market</th>'
@@ -227,6 +243,7 @@ const alloysHtml = computed(() => {
 
 // ===== ITEMS TABLE =====
 const itemsHtml = computed(() => {
+  managerVersion.value
   let html = '<div class="table-wrap"><table>'
   html += '<thead><tr>'
   html += '<th>Name</th><th>Craft Time</th><th>Ingredients</th><th>Base Price</th><th>Market</th>'
@@ -468,6 +485,38 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
   color: #4fc3f7; font-size: 14px; font-weight: 600;
   min-width: 56px; text-align: right;
 }
+.manager-select {
+  background: #0d1520; border: 1px solid #2a3a4a; border-radius: 6px;
+  color: #c8d0dc; font-size: 12px; padding: 6px 8px; cursor: pointer;
+  min-width: 140px;
+}
+.manager-select:hover { border-color: #4fc3f7; }
+.manager-select option { background: #0d1520; color: #c8d0dc; }
+.mgr-card {
+  display: flex; align-items: center; gap: 8px;
+  background: #0d1520; border-radius: 6px; padding: 8px 12px;
+  border: 1px solid #1a2235; grid-column: 1 / -1;
+}
+.mgr-select {
+  flex: 1; background: #121824; border: 1px solid #2a3a4a; border-radius: 4px;
+  color: #c8d0dc; font-size: 13px; padding: 6px 8px; cursor: pointer;
+}
+.mgr-value {
+  width: 80px; background: #121824; border: 1px solid #2a3a4a; border-radius: 4px;
+  color: #c8d0dc; font-size: 13px; padding: 6px 8px; text-align: center;
+}
+.mgr-remove {
+  width: 28px; height: 28px; border: 1px solid #2a3a4a; border-radius: 4px;
+  background: transparent; color: #ef5350; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.mgr-remove:hover { border-color: #ef5350; background: rgba(239,83,80,0.1); }
+.mgr-add {
+  grid-column: 1 / -1; padding: 8px; border: 1px dashed #2a3a4a; border-radius: 6px;
+  background: transparent; color: #4fc3f7; font-size: 13px; cursor: pointer;
+  text-align: center;
+}
+.mgr-add:hover { border-color: #4fc3f7; background: rgba(79,195,247,0.05); }
 .toggle-btn {
   width: 40px; height: 22px; border-radius: 11px; border: 1px solid #2a3a4a;
   background: #0d1520; cursor: pointer; position: relative; transition: all 0.2s;

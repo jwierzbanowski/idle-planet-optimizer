@@ -72,7 +72,7 @@ defineEmits(['close'])
 
 const { getEntity } = useData()
 const { overrides, getStars, getMarket } = useOverrides()
-const { settings } = useSettings()
+const { settings, managerVersion } = useSettings()
 
 const entity = computed(() => props.detailId ? getEntity(props.detailId) : null)
 
@@ -81,14 +81,15 @@ const starDisplay = computed(() => {
   return s > 0 ? '★'.repeat(Math.min(s, 10)) + (s > 10 ? ' +' + (s - 10) : '') : '0'
 })
 
-const eff = computed(() => effectivePrice(props.detailId, overrides, settings))
-const oc = computed(() => calcMaterialCost(props.detailId, 1, overrides, settings))
-const tt = computed(() => calcTotalTime(props.detailId, 1, overrides, settings))
+const eff = computed(() => { managerVersion.value; return effectivePrice(props.detailId, overrides, settings) })
+const oc = computed(() => { managerVersion.value; return calcMaterialCost(props.detailId, 1, overrides, settings) })
+const tt = computed(() => { managerVersion.value; return calcTotalTime(props.detailId, 1, overrides, settings) })
 const profit = computed(() => eff.value - oc.value)
 const pps = computed(() => tt.value > 0 ? profit.value / tt.value : 0)
-const dc = computed(() => calcDirectIngredientCost(props.detailId, 1, overrides, settings))
+const dc = computed(() => { managerVersion.value; return calcDirectIngredientCost(props.detailId, 1, overrides, settings) })
 
 const effectiveTime = computed(() => {
+  managerVersion.value
   const e = entity.value
   if (!e || !e.time) return 0
   let time = e.time
