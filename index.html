@@ -147,6 +147,59 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
+/* Settings panel */
+.settings-bar { margin-bottom: 12px; }
+#settingsToggle {
+  padding: 8px 16px; background: transparent; border: 1px solid #2a3a4a;
+  border-radius: 6px; color: #6b7a8f; font-size: 13px; cursor: pointer;
+  width: 100%; text-align: left; font-weight: 600;
+}
+#settingsToggle:hover { border-color: #4fc3f7; color: #4fc3f7; }
+.settings-panel {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: #121824; border-radius: 10px;
+  border: 1px solid #1e2a3a; margin-bottom: 16px;
+}
+.settings-panel.open { max-height: 2000px; }
+.settings-categories {
+  display: flex; gap: 4px; padding: 12px 12px 0;
+}
+.settings-cat {
+  padding: 8px 20px; border: none; background: transparent;
+  color: #6b7a8f; font-size: 13px; font-weight: 600;
+  cursor: pointer; border-radius: 6px; transition: all 0.2s;
+}
+.settings-cat:hover { color: #c8d0dc; background: #1a2235; }
+.settings-cat.active { color: #fff; background: #1e88e5; }
+.settings-content {
+  padding: 12px; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+}
+.settings-empty {
+  grid-column: 1 / -1; text-align: center; padding: 20px;
+  color: #6b7a8f;
+}
+.settings-row {
+  display: flex; align-items: center; gap: 12px;
+  background: #0d1520; border-radius: 6px; padding: 8px 12px;
+  border: 1px solid #1a2235;
+}
+.settings-info {
+  flex: 1; min-width: 0;
+}
+.settings-label {
+  color: #c8d0dc; font-size: 13px; font-weight: 500;
+}
+.settings-desc {
+  display: block; color: #6b7a8f; font-size: 11px; margin-top: 2px;
+}
+.settings-effect {
+  color: #4fc3f7; font-size: 14px; font-weight: 600;
+  min-width: 56px; text-align: right;
+}
+
 @media (max-width: 768px) {
   body { padding: 12px; }
   h1 { font-size: 22px; }
@@ -162,6 +215,19 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 <div class="container">
   <h1>IPM ROI Calculator</h1>
   <div class="subtitle">Idle Planet Miner — optimal crafting &amp; smelting</div>
+
+  <div class="settings-bar">
+    <button id="settingsToggle" onclick="toggleSettings()">▶ Settings</button>
+  </div>
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-categories">
+      <button class="settings-cat active" data-cat="rooms" onclick="switchSettingsTab('rooms')">Rooms</button>
+      <button class="settings-cat" data-cat="projects" onclick="switchSettingsTab('projects')">Projects</button>
+      <button class="settings-cat" data-cat="beacon" onclick="switchSettingsTab('beacon')">Beacon</button>
+      <button class="settings-cat" data-cat="station" onclick="switchSettingsTab('station')">Station</button>
+    </div>
+    <div class="settings-content" id="settingsContent"></div>
+  </div>
 
   <div class="header-row">
     <div class="tabs" id="tabs">
@@ -212,6 +278,7 @@ async function init() {
   });
 
   renderTab('ores');
+  renderSettings();
 }
 
 function getEntity(id) { return DB.ores[id] || DB.alloys[id] || DB.items[id]; }
@@ -245,7 +312,150 @@ function resetOverrides() {
 function effectivePrice(id) {
   const e = getEntity(id);
   if (!e) return 0;
-  return e.basePrice * (1 + 0.2 * getStars(id)) * getMarket(id);
+  let price = e.basePrice * (1 + 0.2 * getStars(id)) * getMarket(id);
+  if (e.type === 'alloy' || e.type === 'item') {
+    const salesMod = getModifier('rooms', 'sales');
+    if (salesMod) price *= salesMod;
+  }
+  return price;
+}
+
+// ===== SETTINGS =====
+let activeSettingsTab = 'rooms';
+const SETTINGS_CONFIG = {
+  rooms: [
+    { key: 'engineering', label: 'Engineering', desc: 'Increase mine speed', baseEffect: 1.25, perLevel: 0.15, maxLevel: 60 },
+    { key: 'forge', label: 'Forge', desc: 'Increase smelt speed', baseEffect: 1.20, perLevel: 0.10, maxLevel: 60 },
+    { key: 'workshop', label: 'Workshop', desc: 'Increase craft speed', baseEffect: 1.20, perLevel: 0.10, maxLevel: 60 },
+    { key: 'underforge', label: 'Underforge', desc: 'Decrease smelter ingredients', baseEffect: 0.90, perLevel: -0.04, maxLevel: 11 },
+    { key: 'dorm', label: 'Dorm', desc: 'Decrease crafter ingredients', baseEffect: 0.90, perLevel: -0.04, maxLevel: 11 },
+    { key: 'sales', label: 'Sales', desc: 'Increase alloy and item value', baseEffect: 1.15, perLevel: 0.05, maxLevel: 60 },
+  ],
+  projects: [
+    { key: 'advancedMining', label: 'Advanced Mining' },
+    { key: 'superiorMining', label: 'Superior Mining' },
+    { key: 'advancedFurnace', label: 'Advanced Furnace' },
+    { key: 'superiorFurnace', label: 'Superior Furnace' },
+    { key: 'advancedCrafter', label: 'Advanced Crafter' },
+    { key: 'superiorCrafter', label: 'Superior Crafter' },
+    { key: 'advancedItemValue', label: 'Advanced Item Value' },
+    { key: 'superiorItemValue', label: 'Superior Item Value' },
+  ],
+  beacon: [],
+  station: [
+    { key: 'crafting1', label: 'Crafting 1' },
+    { key: 'crafting2', label: 'Crafting 2' },
+    { key: 'crafting3', label: 'Crafting 3' },
+    { key: 'crafting4', label: 'Crafting 4' },
+    { key: 'crafting5', label: 'Crafting 5' },
+    { key: 'smelting1', label: 'Smelting 1' },
+    { key: 'smelting2', label: 'Smelting 2' },
+    { key: 'smelting3', label: 'Smelting 3' },
+    { key: 'smelting4', label: 'Smelting 4' },
+    { key: 'smelting5', label: 'Smelting 5' },
+    { key: 'mining1', label: 'Mining 1' },
+    { key: 'mining2', label: 'Mining 2' },
+    { key: 'alloyItem1', label: 'Alloy & Item 1' },
+    { key: 'alloyItem2', label: 'Alloy & Item 2' },
+    { key: 'alloyItem3', label: 'Alloy & Item 3' },
+    { key: 'alloyItem4', label: 'Alloy & Item 4' },
+    { key: 'alloyItem5', label: 'Alloy & Item 5' },
+    { key: 'alloyItem6', label: 'Alloy & Item 6' },
+    { key: 'alloyItem7', label: 'Alloy & Item 7' },
+  ],
+};
+
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem('ipm_settings')) || {}; }
+  catch { return {}; }
+}
+function saveSettings(s) {
+  localStorage.setItem('ipm_settings', JSON.stringify(s));
+}
+let settings = loadSettings();
+
+function getSetting(cat, key) {
+  return settings[cat]?.[key] ?? 0;
+}
+function getModifier(cat, key) {
+  const item = (SETTINGS_CONFIG[cat] || []).find(i => i.key === key);
+  if (!item || item.baseEffect == null) return null;
+  const val = getSetting(cat, key);
+  const capped = item.maxLevel != null ? Math.min(val, item.maxLevel) : val;
+  if (capped <= 0) return null;
+  return item.baseEffect + item.perLevel * (capped - 1);
+}
+function setSetting(cat, key, value) {
+  const item = (SETTINGS_CONFIG[cat] || []).find(i => i.key === key);
+  const max = item?.maxLevel;
+  if (max != null) value = Math.min(value, max);
+  value = Math.max(0, value);
+  if (!settings[cat]) settings[cat] = {};
+  settings[cat][key] = value;
+  saveSettings(settings);
+  renderSettingsContent(activeSettingsTab);
+  renderTab(activeTab);
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  const btn = document.getElementById('settingsToggle');
+  const open = panel.classList.toggle('open');
+  btn.textContent = open ? '▼ Settings' : '▶ Settings';
+}
+
+function switchSettingsTab(cat) {
+  activeSettingsTab = cat;
+  document.querySelectorAll('.settings-cat').forEach(el => {
+    el.classList.toggle('active', el.dataset.cat === cat);
+  });
+  renderSettingsContent(cat);
+}
+
+function renderSettings() {
+  renderSettingsContent(activeSettingsTab);
+}
+
+function renderSettingsContent(cat) {
+  const container = document.getElementById('settingsContent');
+  const configs = SETTINGS_CONFIG[cat];
+  if (!configs || configs.length === 0) {
+    container.innerHTML = '<div class="settings-empty">No settings yet</div>';
+    return;
+  }
+  let html = '';
+  for (const item of configs) {
+    const val = getSetting(cat, item.key);
+    const max = item.maxLevel;
+    const capped = max != null ? Math.min(val, max) : val;
+    const atMax = max != null && capped >= max;
+
+    html += '<div class="settings-row">';
+    html += '<div class="settings-info">';
+    html += '<span class="settings-label">' + item.label + '</span>';
+    if (item.desc) html += '<span class="settings-desc">' + item.desc + '</span>';
+    html += '</div>';
+    html += '<div class="star-controls">';
+    html += '<button class="star-btn" onclick="event.stopPropagation();setSetting(\'' + cat + '\',\'' + item.key + '\',' + (capped - 1) + ')"' + (capped <= 0 ? ' disabled' : '') + '>−</button>';
+    html += '<span class="star-count">' + capped + (max != null ? '/' + max : '') + '</span>';
+    html += '<button class="star-btn" onclick="event.stopPropagation();setSetting(\'' + cat + '\',\'' + item.key + '\',' + (capped + 1) + ')"' + (atMax ? ' disabled' : '') + '>+</button>';
+    html += '</div>';
+    if (item.baseEffect != null) {
+      if (capped > 0) {
+        const effect = item.baseEffect + item.perLevel * (capped - 1);
+        if (item.baseEffect >= 1) {
+          html += '<span class="settings-effect">' + effect.toFixed(2) + '×</span>';
+        } else {
+          const pct = Math.round((1 - effect) * 100);
+          html += '<span class="settings-effect" style="color:#4caf50">-' + pct + '%</span>';
+        }
+      } else {
+        html += '<span class="settings-effect" style="color:#6b7a8f">—</span>';
+      }
+    }
+    html += '</div>';
+  }
+  container.innerHTML = html;
 }
 
 // ===== CALCULATOR =====
@@ -261,7 +471,12 @@ function calcMaterialCost(id, qty, visited) {
   }
   if (!e.ingredients) return 0;
   let cost = 0;
-  for (const ing of e.ingredients) cost += calcMaterialCost(ing.id, ing.qty * qty, visited);
+  const underforgeMod = e.type === 'alloy' ? getModifier('rooms', 'underforge') : null;
+  const dormMod = e.type === 'item' ? getModifier('rooms', 'dorm') : null;
+  for (const ing of e.ingredients) {
+    const ingQty = (underforgeMod || dormMod) ? ing.qty * (underforgeMod || dormMod) : ing.qty;
+    cost += calcMaterialCost(ing.id, ingQty * qty, visited);
+  }
   return cost;
 }
 
@@ -272,7 +487,22 @@ function calcTotalTime(id, qty, visited) {
   const e = getEntity(id);
   if (!e || e.type === 'ore') return 0;
   let t = (e.time || 0) * qty;
-  if (e.ingredients) for (const ing of e.ingredients) t += calcTotalTime(ing.id, ing.qty * qty, visited);
+  if (e.type === 'alloy' && e.time) {
+    const forgeMod = getModifier('rooms', 'forge');
+    if (forgeMod) t = t / forgeMod;
+  }
+  if (e.type === 'item' && e.time) {
+    const workshopMod = getModifier('rooms', 'workshop');
+    if (workshopMod) t = t / workshopMod;
+  }
+  if (e.ingredients) {
+    const underforgeMod2 = e.type === 'alloy' ? getModifier('rooms', 'underforge') : null;
+    const dormMod2 = e.type === 'item' ? getModifier('rooms', 'dorm') : null;
+    for (const ing of e.ingredients) {
+      const ingQty = (underforgeMod2 || dormMod2) ? ing.qty * (underforgeMod2 || dormMod2) : ing.qty;
+      t += calcTotalTime(ing.id, ingQty * qty, visited);
+    }
+  }
   return t;
 }
 
@@ -320,8 +550,11 @@ function buildTree(id, qty, visited) {
   if (!e) return null;
   const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: e.time || 0, children: [] };
   if (e.ingredients) {
+    const ufMod = e.type === 'alloy' ? getModifier('rooms', 'underforge') : null;
+    const dormMod3 = e.type === 'item' ? getModifier('rooms', 'dorm') : null;
     for (const ing of e.ingredients) {
-      const child = buildTree(ing.id, ing.qty * qty, new Set(visited));
+      const ingQty = (ufMod || dormMod3) ? ing.qty * (ufMod || dormMod3) : ing.qty;
+      const child = buildTree(ing.id, ingQty * qty, new Set(visited));
       if (child) node.children.push(child);
     }
   }
@@ -427,10 +660,12 @@ function renderAlloysTable() {
     const eff = effectivePrice(id);
     const profit = eff - oc;
     const pps = t > 0 ? profit / t : 0;
-    const ingStr = row.ingredients.map(i => { const e = getEntity(i.id); return (i.qty>1?i.qty+'× ':'') + (e?e.name:i.id); }).join('<br>');
+    const ufMod = getModifier('rooms', 'underforge');
+    const forgeMod = getModifier('rooms', 'forge');
+    const ingStr = row.ingredients.map(i => { const e = getEntity(i.id); const q = ufMod ? (i.qty * ufMod) : i.qty; return (q>1?q.toFixed(1)+'× ':'') + (e?e.name:i.id); }).join('<br>');
     html += '<tr onclick="showDetail(\'' + id + '\',\'alloy\')">';
     html += '<td class="name-cell"><span class="type-badge alloy">A</span>' + row.name + starControls(id) + '</td>';
-    html += '<td>' + fmtTime(row.time) + '</td>';
+    html += '<td>' + fmtTime((forgeMod && row.time) ? row.time / forgeMod : row.time) + '</td>';
     html += '<td><span class="ingredient-list">' + ingStr + '</span></td>';
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>';
     html += '<td>' + marketControls(id) + '</td>';
@@ -466,10 +701,12 @@ function renderItemsTable() {
     const eff = effectivePrice(id);
     const profit = eff - oc;
     const pps = t > 0 ? profit / t : 0;
-    const ingStr = row.ingredients.map(i => { const e = getEntity(i.id); return (i.qty>1?i.qty+'× ':'') + (e?e.name:i.id); }).join('<br>');
+    const dormMod4 = getModifier('rooms', 'dorm');
+    const workshopMod2 = getModifier('rooms', 'workshop');
+    const ingStr = row.ingredients.map(i => { const e = getEntity(i.id); const q = dormMod4 ? (i.qty * dormMod4) : i.qty; return (q>1?q.toFixed(1)+'× ':'') + (e?e.name:i.id); }).join('<br>');
     html += '<tr onclick="showDetail(\'' + id + '\',\'item\')">';
     html += '<td class="name-cell"><span class="type-badge item">I</span>' + row.name + starControls(id) + '</td>';
-    html += '<td>' + fmtTime(row.time) + '</td>';
+    html += '<td>' + fmtTime((workshopMod2 && row.time) ? row.time / workshopMod2 : row.time) + '</td>';
     html += '<td><span class="ingredient-list">' + ingStr + '</span></td>';
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>';
     html += '<td>' + marketControls(id) + '</td>';
