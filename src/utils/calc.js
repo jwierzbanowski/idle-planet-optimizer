@@ -21,7 +21,7 @@ function getProjectModifier(settings, key) {
   return item.baseEffect
 }
 
-function getProjectMultiplier(settings, keys) {
+export function getProjectMultiplier(settings, keys) {
   let mult = 1
   for (const key of keys) {
     const mod = getProjectModifier(settings, key)
@@ -30,7 +30,7 @@ function getProjectMultiplier(settings, keys) {
   return mult > 1 ? mult : null
 }
 
-function getStationMult(settings, keys) {
+export function getStationMult(settings, keys) {
   let total = 0
   for (const key of keys) {
     const item = SETTINGS_CONFIG.station.find(i => i.key === key)

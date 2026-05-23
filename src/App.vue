@@ -5,6 +5,24 @@
 
     <SettingsPanel />
 
+    <div v-if="!loading" class="debug-bar">
+      <span class="debug-item" title="Smelt Rate: {{ debugStats.smeltBreakdown }}">
+        Smelt: <strong>{{ debugStats.smeltRate }}</strong>
+      </span>
+      <span class="debug-item" title="Craft Rate: {{ debugStats.craftBreakdown }}">
+        Craft: <strong>{{ debugStats.craftRate }}</strong>
+      </span>
+      <span class="debug-item">
+        Smelt Cost: <strong>{{ debugStats.smeltCost }}</strong>
+      </span>
+      <span class="debug-item">
+        Craft Cost: <strong>{{ debugStats.craftCost }}</strong>
+      </span>
+      <span class="debug-item">
+        Val+: <strong>{{ debugStats.alloyItemVal }}</strong>
+      </span>
+    </div>
+
     <div class="header-row">
       <div class="tabs">
         <button v-for="t in tabs" :key="t.key" class="tab"
@@ -40,7 +58,8 @@ import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
 import {
   effectivePrice, calcMaterialCost, calcTotalTime,
-  getModifier, getSmeltSpeedMult, getCraftSpeedMult, renderTree, buildTree
+  getModifier, getSmeltSpeedMult, getCraftSpeedMult,
+  getProjectMultiplier, getStationMult, renderTree, buildTree
 } from './utils/calc'
 import { fmtPrice, fmtTime, fmtQty } from './utils/format'
 import { MARKET_VALS } from './utils/config'
@@ -73,6 +92,46 @@ loadData()
     console.error('Failed to load data:', e)
     loading.value = false
   })
+
+// ===== DEBUG STATS =====
+const debugStats = computed(() => {
+  const smeltRate = getSmeltSpeedMult(settings)
+  const craftRate = getCraftSpeedMult(settings)
+  const smeltCost = getModifier('rooms', 'underforge', settings)
+  const craftCost = getModifier('rooms', 'dorm', settings)
+  const alloyItemVal = getModifier('rooms', 'sales', settings)
+  return {
+    smeltRate: smeltRate ? smeltRate.toFixed(2) + '×' : '1.00×',
+    smeltBreakdown: breakdownSmelt(settings),
+    craftRate: craftRate ? craftRate.toFixed(2) + '×' : '1.00×',
+    craftBreakdown: breakdownCraft(settings),
+    smeltCost: smeltCost ? smeltCost.toFixed(2) + '×' : '1.00×',
+    craftCost: craftCost ? craftCost.toFixed(2) + '×' : '1.00×',
+    alloyItemVal: alloyItemVal ? alloyItemVal.toFixed(2) + '×' : '1.00×',
+  }
+})
+
+function breakdownSmelt(s) {
+  const parts = []
+  const f = getModifier('rooms', 'forge', s)
+  if (f) parts.push('Forge×' + f.toFixed(2))
+  const fp = getProjectMultiplier(s, ['advancedFurnace', 'superiorFurnace'])
+  if (fp) parts.push('Proj×' + fp.toFixed(2))
+  const ss = getStationMult(s, ['smelting1','smelting2','smelting3','smelting4','smelting5'])
+  if (ss && ss > 1) parts.push('Stn×' + ss.toFixed(2))
+  return parts.length ? parts.join(' + ') : 'none'
+}
+
+function breakdownCraft(s) {
+  const parts = []
+  const w = getModifier('rooms', 'workshop', s)
+  if (w) parts.push('Workshop×' + w.toFixed(2))
+  const cp = getProjectMultiplier(s, ['advancedCrafter', 'superiorCrafter'])
+  if (cp) parts.push('Proj×' + cp.toFixed(2))
+  const sc = getStationMult(s, ['crafting1','crafting2','crafting3','crafting4','crafting5'])
+  if (sc && sc > 1) parts.push('Stn×' + sc.toFixed(2))
+  return parts.length ? parts.join(' + ') : 'none'
+}
 
 function switchTab(tab) { activeTab.value = tab }
 
@@ -241,6 +300,12 @@ h1 {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
 }
+.debug-bar {
+  display: flex; gap: 16px; margin-bottom: 12px; padding: 8px 12px;
+  background: #0d1520; border-radius: 6px; border: 1px solid #1a2235;
+  font-size: 12px; color: #6b7a8f; flex-wrap: wrap;
+}
+.debug-item strong { color: #4fc3f7; font-weight: 600; }
 .table-wrap {
   overflow-x: auto; background: #121824; border-radius: 10px;
   border: 1px solid #1e2a3a;
