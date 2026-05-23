@@ -1,0 +1,119 @@
+import { SETTINGS_CONFIG } from './config'
+import { getEntity } from '../composables/useData'
+import { fmtPrice, fmtTime } from './format'
+
+function getStars(overrides, id) { return overrides[id]?.stars ?? 0 }
+function getMarket(overrides, id) { return overrides[id]?.market ?? 1 }
+
+export function getModifier(cat, key, settings) {
+  const item = (SETTINGS_CONFIG[cat] || []).find(i => i.key === key)
+  if (!item || item.baseEffect == null) return null
+  const val = settings[cat]?.[key] ?? 0
+  const capped = item.maxLevel != null ? Math.min(val, item.maxLevel) : val
+  if (capped <= 0) return null
+  return item.baseEffect + item.perLevel * (capped - 1)
+}
+
+export function effectivePrice(id, overrides, settings) {
+  const e = getEntity(id)
+  if (!e) return 0
+  let price = e.basePrice * (1 + 0.2 * getStars(overrides, id)) * getMarket(overrides, id)
+  if (e.type === 'alloy' || e.type === 'item') {
+    const salesMod = getModifier('rooms', 'sales', settings)
+    if (salesMod) price *= salesMod
+  }
+  return price
+}
+
+export function calcMaterialCost(id, qty, overrides, settings, visited) {
+  visited = visited || new Set()
+  if (visited.has(id)) return 0
+  visited.add(id)
+  const e = getEntity(id)
+  if (!e) return 0
+  if (e.type === 'ore') {
+    return e.basePrice * (1 + 0.2 * getStars(overrides, id)) * qty
+  }
+  if (!e.ingredients) return 0
+  let cost = 0
+  const underforgeMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
+  const dormMod = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
+  for (const ing of e.ingredients) {
+    const ingQty = (underforgeMod || dormMod) ? ing.qty * (underforgeMod || dormMod) : ing.qty
+    cost += calcMaterialCost(ing.id, ingQty * qty, overrides, settings, visited)
+  }
+  return cost
+}
+
+export function calcTotalTime(id, qty, overrides, settings, visited) {
+  visited = visited || new Set()
+  if (visited.has(id)) return 0
+  visited.add(id)
+  const e = getEntity(id)
+  if (!e || e.type === 'ore') return 0
+  let t = (e.time || 0) * qty
+  if (e.type === 'alloy' && e.time) {
+    const forgeMod = getModifier('rooms', 'forge', settings)
+    if (forgeMod) t = t / forgeMod
+  }
+  if (e.type === 'item' && e.time) {
+    const workshopMod = getModifier('rooms', 'workshop', settings)
+    if (workshopMod) t = t / workshopMod
+  }
+  if (e.ingredients) {
+    const underforgeMod2 = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
+    const dormMod2 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
+    for (const ing of e.ingredients) {
+      const ingQty = (underforgeMod2 || dormMod2) ? ing.qty * (underforgeMod2 || dormMod2) : ing.qty
+      t += calcTotalTime(ing.id, ingQty * qty, overrides, settings, visited)
+    }
+  }
+  return t
+}
+
+export function calcDirectIngredientCost(id, qty, overrides, settings) {
+  const e = getEntity(id)
+  if (!e || !e.ingredients) return 0
+  let cost = 0
+  for (const ing of e.ingredients) {
+    cost += effectivePrice(ing.id, overrides, settings) * ing.qty * qty
+  }
+  return cost
+}
+
+export function buildTree(id, qty, overrides, settings, visited) {
+  visited = visited || new Set()
+  if (visited.has(id)) return null
+  visited.add(id)
+  const e = getEntity(id)
+  if (!e) return null
+  const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: e.time || 0, children: [] }
+  if (e.ingredients) {
+    const ufMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
+    const dormMod3 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
+    for (const ing of e.ingredients) {
+      const ingQty = (ufMod || dormMod3) ? ing.qty * (ufMod || dormMod3) : ing.qty
+      const child = buildTree(ing.id, ingQty * qty, overrides, settings, new Set(visited))
+      if (child) node.children.push(child)
+    }
+  }
+  return node
+}
+
+export function renderTree(node, overrides) {
+  if (!node) return ''
+  const stars = overrides[node.id]?.stars ?? 0
+  const market = overrides[node.id]?.market ?? 1
+  const starStr = stars > 0 ? ' <span style="color:#ffd54f">' + '★'.repeat(Math.min(stars, 5)) + (stars > 5 ? '+' + (stars - 5) : '') + '</span>' : ''
+  const mktStr = market !== 1 ? ' <span style="color:#4fc3f7">x' + market + '</span>' : ''
+  let html = '<div class="tree-node' + (node.children.length === 0 ? ' root' : '') + '">'
+  html += '<div class="tree-item">'
+  html += '<span class="tree-qty">' + (node.qty > 1 ? node.qty + '×' : '') + '</span>'
+  html += '<span class="tree-name">' + node.name + '</span>'
+  html += '<span class="tree-price">' + fmtPrice(node.basePrice) + starStr + mktStr + '</span>'
+  if (node.time > 0) html += '<span class="tree-time">' + fmtTime(node.time) + '</span>'
+  html += '</div>'
+  for (const child of node.children) html += renderTree(child, overrides)
+  html += '</div>'
+  return html
+}
