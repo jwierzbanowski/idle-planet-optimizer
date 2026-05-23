@@ -30,12 +30,26 @@ function getProjectMultiplier(settings, keys) {
   return mult > 1 ? mult : null
 }
 
+function getStationMult(settings, keys) {
+  let total = 0
+  for (const key of keys) {
+    const item = SETTINGS_CONFIG.station.find(i => i.key === key)
+    if (!item || item.perLevel == null) continue
+    const val = settings.station?.[key] ?? 0
+    const capped = Math.min(val, item.maxLevel)
+    total += item.perLevel * capped
+  }
+  return total > 0 ? 1 + total : null
+}
+
 export function getSmeltSpeedMult(settings) {
   let mult = 1
   const forgeMod = getModifier('rooms', 'forge', settings)
   if (forgeMod) mult *= forgeMod
   const furnaceProj = getProjectMultiplier(settings, ['advancedFurnace', 'superiorFurnace'])
   if (furnaceProj) mult *= furnaceProj
+  const stationSmelt = getStationMult(settings, ['smelting1', 'smelting2', 'smelting3', 'smelting4', 'smelting5'])
+  if (stationSmelt) mult *= stationSmelt
   return mult > 1 ? mult : null
 }
 
@@ -45,6 +59,8 @@ export function getCraftSpeedMult(settings) {
   if (workshopMod) mult *= workshopMod
   const crafterProj = getProjectMultiplier(settings, ['advancedCrafter', 'superiorCrafter'])
   if (crafterProj) mult *= crafterProj
+  const stationCraft = getStationMult(settings, ['crafting1', 'crafting2', 'crafting3', 'crafting4', 'crafting5'])
+  if (stationCraft) mult *= stationCraft
   return mult > 1 ? mult : null
 }
 

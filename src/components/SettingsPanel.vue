@@ -35,6 +35,10 @@
             </template>
           </span>
           <span v-else-if="item.baseEffect != null" class="settings-effect" style="color:#6b7a8f">—</span>
+          <span v-else-if="item.perLevel != null && getVal(item.key) > 0" class="settings-effect"
+            style="color:#4caf50">
+            {{ (1 + item.perLevel * getVal(item.key)).toFixed(2) }}×
+          </span>
         </template>
         <template v-else>
           <button class="toggle-btn" :class="{ active: getVal(item.key) }" @click="toggleItem(item.key)">
@@ -59,9 +63,9 @@ const open = ref(false)
 const activeCat = ref('rooms')
 const categories = [
   { key: 'rooms', label: 'Rooms' },
+  { key: 'station', label: 'Station' },
   { key: 'projects', label: 'Projects' },
   { key: 'beacon', label: 'Beacon' },
-  { key: 'station', label: 'Station' },
 ]
 
 const currentConfig = computed(() => SETTINGS_CONFIG[activeCat.value] || [])
