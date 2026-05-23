@@ -59,7 +59,7 @@ import { useSettings } from './composables/useSettings'
 import {
   effectivePrice, calcMaterialCost, calcTotalTime,
   getModifier, getSmeltSpeedMult, getCraftSpeedMult,
-  getProjectMultiplier, getStationMult, renderTree, buildTree
+  getProjectMultiplier, getStationMult, getStationValueMult, renderTree, buildTree
 } from './utils/calc'
 import { fmtPrice, fmtTime, fmtQty } from './utils/format'
 import { MARKET_VALS } from './utils/config'
@@ -101,6 +101,8 @@ const debugStats = computed(() => {
   const smeltCost = getModifier('rooms', 'underforge', settings)
   const craftCost = getModifier('rooms', 'dorm', settings)
   const alloyItemVal = getModifier('rooms', 'sales', settings)
+  const stnVal = getStationValueMult(settings)
+  const totalVal = (alloyItemVal || 1) * (stnVal || 1)
   return {
     smeltRate: smeltRate ? smeltRate.toFixed(2) + '×' : '1.00×',
     smeltBreakdown: breakdownSmelt(settings),
@@ -108,7 +110,7 @@ const debugStats = computed(() => {
     craftBreakdown: breakdownCraft(settings),
     smeltCost: smeltCost ? smeltCost.toFixed(2) + '×' : '1.00×',
     craftCost: craftCost ? craftCost.toFixed(2) + '×' : '1.00×',
-    alloyItemVal: alloyItemVal ? alloyItemVal.toFixed(2) + '×' : '1.00×',
+    alloyItemVal: totalVal > 1 ? totalVal.toFixed(2) + '×' : '1.00×',
   }
 })
 

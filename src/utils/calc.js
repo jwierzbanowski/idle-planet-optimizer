@@ -42,6 +42,19 @@ export function getStationMult(settings, keys) {
   return total > 0 ? 1 + total : null
 }
 
+export function getStationValueMult(settings) {
+  const keys = ['alloyItem1','alloyItem2','alloyItem3','alloyItem4','alloyItem5','alloyItem6','alloyItem7']
+  let total = 0
+  for (const key of keys) {
+    const item = SETTINGS_CONFIG.station.find(i => i.key === key)
+    if (!item || item.perLevel == null) continue
+    const val = settings.station?.[key] ?? 0
+    const capped = Math.min(val, item.maxLevel)
+    total += item.perLevel * capped
+  }
+  return total > 0 ? 1 + total : null
+}
+
 function getManagerMult(settings, skill) {
   const mgrs = settings.managers
   if (!Array.isArray(mgrs)) return null
@@ -85,6 +98,8 @@ export function effectivePrice(id, overrides, settings) {
   if (e.type === 'alloy' || e.type === 'item') {
     const salesMod = getModifier('rooms', 'sales', settings)
     if (salesMod) price *= salesMod
+    const stnVal = getStationValueMult(settings)
+    if (stnVal) price *= stnVal
   }
   return price
 }
