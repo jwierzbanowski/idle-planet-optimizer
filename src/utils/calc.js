@@ -111,7 +111,7 @@ export function calcMaterialCost(id, qty, overrides, settings, visited) {
   const e = getEntity(id)
   if (!e) return 0
   if (e.type === 'ore') {
-    return e.basePrice * (1 + 0.2 * getStars(overrides, id)) * qty
+    return effectivePrice(id, overrides, settings) * qty
   }
   if (!e.ingredients) return 0
   let cost = 0
@@ -119,7 +119,7 @@ export function calcMaterialCost(id, qty, overrides, settings, visited) {
   const dormMod = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
   for (const ing of e.ingredients) {
     const ingQty = (underforgeMod || dormMod) ? ing.qty * (underforgeMod || dormMod) : ing.qty
-    cost += calcMaterialCost(ing.id, ingQty * qty, overrides, settings, visited)
+    cost += effectivePrice(ing.id, overrides, settings) * ingQty * qty
   }
   return cost
 }
