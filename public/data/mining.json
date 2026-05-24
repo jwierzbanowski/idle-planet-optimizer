@@ -1,0 +1,702 @@
+﻿[
+    {
+        "level":  1,
+        "rate":  0.25,
+        "speed":  1,
+        "cargo":  5,
+        "price":  0.05
+    },
+    {
+        "level":  2,
+        "rate":  0.367,
+        "speed":  1.21,
+        "cargo":  7,
+        "price":  0.065
+    },
+    {
+        "level":  3,
+        "rate":  0.518,
+        "speed":  1.45,
+        "cargo":  9,
+        "price":  0.0845
+    },
+    {
+        "level":  4,
+        "rate":  0.703,
+        "speed":  1.72,
+        "cargo":  12,
+        "price":  0.10985
+    },
+    {
+        "level":  5,
+        "rate":  0.922,
+        "speed":  2.01,
+        "cargo":  15,
+        "price":  0.142805
+    },
+    {
+        "level":  6,
+        "rate":  1.175,
+        "speed":  2.33,
+        "cargo":  18,
+        "price":  0.185647
+    },
+    {
+        "level":  7,
+        "rate":  1.462,
+        "speed":  2.68,
+        "cargo":  21,
+        "price":  0.24134
+    },
+    {
+        "level":  8,
+        "rate":  1.783,
+        "speed":  3.05,
+        "cargo":  24,
+        "price":  0.313743
+    },
+    {
+        "level":  9,
+        "rate":  2.138,
+        "speed":  3.45,
+        "cargo":  27,
+        "price":  0.407865
+    },
+    {
+        "level":  10,
+        "rate":  2.527,
+        "speed":  3.88,
+        "cargo":  31,
+        "price":  0.530225
+    },
+    {
+        "level":  11,
+        "rate":  2.95,
+        "speed":  4.33,
+        "cargo":  35,
+        "price":  0.689292
+    },
+    {
+        "level":  12,
+        "rate":  3.407,
+        "speed":  4.81,
+        "cargo":  39,
+        "price":  0.89608
+    },
+    {
+        "level":  13,
+        "rate":  3.898,
+        "speed":  5.32,
+        "cargo":  43,
+        "price":  1.165
+    },
+    {
+        "level":  14,
+        "rate":  4.423,
+        "speed":  5.85,
+        "cargo":  48,
+        "price":  1.514
+    },
+    {
+        "level":  15,
+        "rate":  4.982,
+        "speed":  6.41,
+        "cargo":  53,
+        "price":  1.969
+    },
+    {
+        "level":  16,
+        "rate":  5.575,
+        "speed":  7,
+        "cargo":  58,
+        "price":  2.559
+    },
+    {
+        "level":  17,
+        "rate":  6.202,
+        "speed":  7.61,
+        "cargo":  63,
+        "price":  3.327
+    },
+    {
+        "level":  18,
+        "rate":  6.863,
+        "speed":  8.25,
+        "cargo":  68,
+        "price":  4.325
+    },
+    {
+        "level":  19,
+        "rate":  7.558,
+        "speed":  8.92,
+        "cargo":  73,
+        "price":  5.623
+    },
+    {
+        "level":  20,
+        "rate":  8.287,
+        "speed":  9.61,
+        "cargo":  79,
+        "price":  7.31
+    },
+    {
+        "level":  21,
+        "rate":  9.05,
+        "speed":  10.33,
+        "cargo":  85,
+        "price":  9.502
+    },
+    {
+        "level":  22,
+        "rate":  9.847,
+        "speed":  11.08,
+        "cargo":  91,
+        "price":  12.353
+    },
+    {
+        "level":  23,
+        "rate":  10.678,
+        "speed":  11.85,
+        "cargo":  97,
+        "price":  16.059
+    },
+    {
+        "level":  24,
+        "rate":  11.543,
+        "speed":  12.65,
+        "cargo":  104,
+        "price":  20.877
+    },
+    {
+        "level":  25,
+        "rate":  12.442,
+        "speed":  13.48,
+        "cargo":  111,
+        "price":  27.14
+    },
+    {
+        "level":  26,
+        "rate":  13.375,
+        "speed":  14.33,
+        "cargo":  118,
+        "price":  35.282
+    },
+    {
+        "level":  27,
+        "rate":  14.342,
+        "speed":  15.21,
+        "cargo":  125,
+        "price":  45.867
+    },
+    {
+        "level":  28,
+        "rate":  15.343,
+        "speed":  16.12,
+        "cargo":  132,
+        "price":  59.627
+    },
+    {
+        "level":  29,
+        "rate":  16.378,
+        "speed":  17.05,
+        "cargo":  139,
+        "price":  77.515
+    },
+    {
+        "level":  30,
+        "rate":  17.447,
+        "speed":  18.01,
+        "cargo":  147,
+        "price":  100.769
+    },
+    {
+        "level":  31,
+        "rate":  18.55,
+        "speed":  19,
+        "cargo":  155,
+        "price":  131
+    },
+    {
+        "level":  32,
+        "rate":  19.687,
+        "speed":  20.01,
+        "cargo":  163,
+        "price":  170.3
+    },
+    {
+        "level":  33,
+        "rate":  20.858,
+        "speed":  21.05,
+        "cargo":  171,
+        "price":  221.39
+    },
+    {
+        "level":  34,
+        "rate":  22.063,
+        "speed":  22.12,
+        "cargo":  180,
+        "price":  287.807
+    },
+    {
+        "level":  35,
+        "rate":  23.302,
+        "speed":  23.21,
+        "cargo":  189,
+        "price":  374.148
+    },
+    {
+        "level":  36,
+        "rate":  24.575,
+        "speed":  24.33,
+        "cargo":  198,
+        "price":  486.393
+    },
+    {
+        "level":  37,
+        "rate":  25.882,
+        "speed":  25.48,
+        "cargo":  207,
+        "price":  632.311
+    },
+    {
+        "level":  38,
+        "rate":  27.223,
+        "speed":  26.65,
+        "cargo":  216,
+        "price":  822.004
+    },
+    {
+        "level":  39,
+        "rate":  28.598,
+        "speed":  27.85,
+        "cargo":  225,
+        "price":  1068.61
+    },
+    {
+        "level":  40,
+        "rate":  30.007,
+        "speed":  29.08,
+        "cargo":  235,
+        "price":  1389.19
+    },
+    {
+        "level":  41,
+        "rate":  31.45,
+        "speed":  30.33,
+        "cargo":  245,
+        "price":  1805.94
+    },
+    {
+        "level":  42,
+        "rate":  32.927,
+        "speed":  31.61,
+        "cargo":  255,
+        "price":  2347.73
+    },
+    {
+        "level":  43,
+        "rate":  34.438,
+        "speed":  32.92,
+        "cargo":  265,
+        "price":  3052.04
+    },
+    {
+        "level":  44,
+        "rate":  35.983,
+        "speed":  34.25,
+        "cargo":  276,
+        "price":  3967.66
+    },
+    {
+        "level":  45,
+        "rate":  37.562,
+        "speed":  35.61,
+        "cargo":  287,
+        "price":  5157.95
+    },
+    {
+        "level":  46,
+        "rate":  39.175,
+        "speed":  37,
+        "cargo":  298,
+        "price":  6705.34
+    },
+    {
+        "level":  47,
+        "rate":  40.822,
+        "speed":  38.41,
+        "cargo":  309,
+        "price":  8716.94
+    },
+    {
+        "level":  48,
+        "rate":  42.503,
+        "speed":  39.85,
+        "cargo":  320,
+        "price":  11332.03
+    },
+    {
+        "level":  49,
+        "rate":  44.218,
+        "speed":  41.32,
+        "cargo":  331,
+        "price":  14731.63
+    },
+    {
+        "level":  50,
+        "rate":  45.967,
+        "speed":  42.81,
+        "cargo":  343,
+        "price":  19151.12
+    },
+    {
+        "level":  51,
+        "rate":  47.75,
+        "speed":  44.33,
+        "cargo":  355,
+        "price":  24896.46
+    },
+    {
+        "level":  52,
+        "rate":  49.567,
+        "speed":  45.88,
+        "cargo":  367,
+        "price":  32365.4
+    },
+    {
+        "level":  53,
+        "rate":  51.418,
+        "speed":  47.45,
+        "cargo":  379,
+        "price":  42075.02
+    },
+    {
+        "level":  54,
+        "rate":  53.303,
+        "speed":  49.05,
+        "cargo":  392,
+        "price":  54697.53
+    },
+    {
+        "level":  55,
+        "rate":  55.222,
+        "speed":  50.68,
+        "cargo":  405,
+        "price":  71106.78
+    },
+    {
+        "level":  56,
+        "rate":  57.175,
+        "speed":  52.33,
+        "cargo":  418,
+        "price":  92438.82
+    },
+    {
+        "level":  57,
+        "rate":  59.162,
+        "speed":  54.01,
+        "cargo":  431,
+        "price":  120170.46
+    },
+    {
+        "level":  58,
+        "rate":  61.183,
+        "speed":  55.72,
+        "cargo":  444,
+        "price":  156221.6
+    },
+    {
+        "level":  59,
+        "rate":  63.238,
+        "speed":  57.45,
+        "cargo":  457,
+        "price":  203088.08
+    },
+    {
+        "level":  60,
+        "rate":  65.327,
+        "speed":  59.21,
+        "cargo":  471,
+        "price":  264014.51
+    },
+    {
+        "level":  61,
+        "rate":  67.45,
+        "speed":  61,
+        "cargo":  485,
+        "price":  343218.86
+    },
+    {
+        "level":  62,
+        "rate":  69.607,
+        "speed":  62.81,
+        "cargo":  499,
+        "price":  446184.52
+    },
+    {
+        "level":  63,
+        "rate":  71.798,
+        "speed":  64.65,
+        "cargo":  513,
+        "price":  580039.87
+    },
+    {
+        "level":  64,
+        "rate":  74.023,
+        "speed":  66.52,
+        "cargo":  528,
+        "price":  754051.83
+    },
+    {
+        "level":  65,
+        "rate":  76.282,
+        "speed":  68.41,
+        "cargo":  543,
+        "price":  980267.38
+    },
+    {
+        "level":  66,
+        "rate":  78.575,
+        "speed":  70.33,
+        "cargo":  558,
+        "price":  1274347.6
+    },
+    {
+        "level":  67,
+        "rate":  80.902,
+        "speed":  72.28,
+        "cargo":  573,
+        "price":  1656651.88
+    },
+    {
+        "level":  68,
+        "rate":  83.263,
+        "speed":  74.25,
+        "cargo":  588,
+        "price":  2153647.44
+    },
+    {
+        "level":  69,
+        "rate":  85.658,
+        "speed":  76.25,
+        "cargo":  603,
+        "price":  2799741.67
+    },
+    {
+        "level":  70,
+        "rate":  88.087,
+        "speed":  78.28,
+        "cargo":  619,
+        "price":  3639664.17
+    },
+    {
+        "level":  71,
+        "rate":  90.55,
+        "speed":  80.33,
+        "cargo":  635,
+        "price":  4731563.42
+    },
+    {
+        "level":  72,
+        "rate":  93.047,
+        "speed":  82.41,
+        "cargo":  651,
+        "price":  6151032.45
+    },
+    {
+        "level":  73,
+        "rate":  95.578,
+        "speed":  84.52,
+        "cargo":  667,
+        "price":  7996342.18
+    },
+    {
+        "level":  74,
+        "rate":  98.143,
+        "speed":  86.65,
+        "cargo":  684,
+        "price":  10395244.84
+    },
+    {
+        "level":  75,
+        "rate":  100.742,
+        "speed":  88.81,
+        "cargo":  701,
+        "price":  13513818.29
+    },
+    {
+        "level":  76,
+        "rate":  103.375,
+        "speed":  91,
+        "cargo":  718,
+        "price":  17567963.78
+    },
+    {
+        "level":  77,
+        "rate":  106.042,
+        "speed":  93.21,
+        "cargo":  735,
+        "price":  22838352.91
+    },
+    {
+        "level":  78,
+        "rate":  108.743,
+        "speed":  95.45,
+        "cargo":  752,
+        "price":  29689858.79
+    },
+    {
+        "level":  79,
+        "rate":  111.478,
+        "speed":  97.72,
+        "cargo":  769,
+        "price":  38596816.42
+    },
+    {
+        "level":  80,
+        "rate":  114.247,
+        "speed":  100.01,
+        "cargo":  787,
+        "price":  50175861.35
+    },
+    {
+        "level":  81,
+        "rate":  117.05,
+        "speed":  102.33,
+        "cargo":  805,
+        "price":  65228619.75
+    },
+    {
+        "level":  82,
+        "rate":  119.887,
+        "speed":  104.68,
+        "cargo":  823,
+        "price":  84797205.68
+    },
+    {
+        "level":  83,
+        "rate":  122.758,
+        "speed":  107.05,
+        "cargo":  841,
+        "price":  110236367.38
+    },
+    {
+        "level":  84,
+        "rate":  125.663,
+        "speed":  109.45,
+        "cargo":  860,
+        "price":  143307277.6
+    },
+    {
+        "level":  85,
+        "rate":  128.602,
+        "speed":  111.88,
+        "cargo":  879,
+        "price":  186299460.88
+    },
+    {
+        "level":  86,
+        "rate":  131.575,
+        "speed":  114.33,
+        "cargo":  898,
+        "price":  242189299.14
+    },
+    {
+        "level":  87,
+        "rate":  134.582,
+        "speed":  116.81,
+        "cargo":  917,
+        "price":  314846088.88
+    },
+    {
+        "level":  88,
+        "rate":  137.623,
+        "speed":  119.32,
+        "cargo":  936,
+        "price":  409299915.54
+    },
+    {
+        "level":  89,
+        "rate":  140.698,
+        "speed":  121.85,
+        "cargo":  955,
+        "price":  532089890.21
+    },
+    {
+        "level":  90,
+        "rate":  143.807,
+        "speed":  124.41,
+        "cargo":  975,
+        "price":  691716857.27
+    },
+    {
+        "level":  91,
+        "rate":  146.95,
+        "speed":  127,
+        "cargo":  995,
+        "price":  899231914.45
+    },
+    {
+        "level":  92,
+        "rate":  150.127,
+        "speed":  129.61,
+        "cargo":  1015,
+        "price":  1169001488.78
+    },
+    {
+        "level":  93,
+        "rate":  153.338,
+        "speed":  132.25,
+        "cargo":  1035,
+        "price":  1519701935.42
+    },
+    {
+        "level":  94,
+        "rate":  156.583,
+        "speed":  134.92,
+        "cargo":  1056,
+        "price":  1975612516.04
+    },
+    {
+        "level":  95,
+        "rate":  159.862,
+        "speed":  137.61,
+        "cargo":  1077,
+        "price":  2568296270.86
+    },
+    {
+        "level":  96,
+        "rate":  163.175,
+        "speed":  140.33,
+        "cargo":  1098,
+        "price":  3338785152.11
+    },
+    {
+        "level":  97,
+        "rate":  166.522,
+        "speed":  143.08,
+        "cargo":  1119,
+        "price":  4340420697.75
+    },
+    {
+        "level":  98,
+        "rate":  169.903,
+        "speed":  145.85,
+        "cargo":  1140,
+        "price":  5642546907.07
+    },
+    {
+        "level":  99,
+        "rate":  173.318,
+        "speed":  148.65,
+        "cargo":  1161,
+        "price":  7335310979.19
+    },
+    {
+        "level":  100,
+        "rate":  176.767,
+        "speed":  151.48,
+        "cargo":  1183,
+        "price":  9535904272.95
+    }
+]

@@ -65,6 +65,35 @@ function getManagerMult(settings, skill) {
   return mult > 1 ? mult : null
 }
 
+const BEACON_RANGES = [
+  { min: 1, max: 4, key: 'beacon1_4' },
+  { min: 5, max: 7, key: 'beacon5_7' },
+  { min: 8, max: 10, key: 'beacon8_10' },
+  { min: 11, max: 13, key: 'beacon11_13' },
+  { min: 14, max: 16, key: 'beacon14_16' },
+  { min: 17, max: 19, key: 'beacon17_19' },
+  { min: 20, max: 22, key: 'beacon20_22' },
+]
+
+export function getBeaconMult(planetNumber, settings) {
+  const range = BEACON_RANGES.find(r => planetNumber >= r.min && planetNumber <= r.max)
+  if (!range) return 1
+  const mod = getModifier('beacon', range.key, settings)
+  return mod || 1
+}
+
+export function getMiningSpeedMult(settings) {
+  let mult = 1
+  const engMod = getModifier('rooms', 'engineering', settings)
+  if (engMod) mult *= engMod
+  const miningProj = getProjectMultiplier(settings, ['advancedMining', 'superiorMining'])
+  if (miningProj) mult *= miningProj
+  const stationMine = getStationMult(settings, ['mining1', 'mining2'])
+  if (stationMine) mult *= stationMine
+  if (settings.station?.miningGlobal) mult *= 1.2
+  return mult > 1 ? mult : null
+}
+
 export function getSmeltSpeedMult(settings) {
   let mult = 1
   const forgeMod = getModifier('rooms', 'forge', settings)
@@ -100,6 +129,9 @@ export function effectivePrice(id, overrides, settings) {
     if (salesMod) price *= salesMod
     const stnVal = getStationValueMult(settings)
     if (stnVal) price *= stnVal
+    const valProjKeys = e.type === 'alloy' ? ['advancedAlloyValue', 'superiorAlloyValue'] : ['advancedItemValue', 'superiorItemValue']
+    const valProj = getProjectMultiplier(settings, valProjKeys)
+    if (valProj) price *= valProj
   }
   return price
 }

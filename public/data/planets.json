@@ -1,0 +1,1354 @@
+﻿[
+    {
+        "id":  "balor",
+        "name":  "Balor",
+        "number":  1,
+        "telescope":  "Default",
+        "basePrice":  100,
+        "distance":  10,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "copper"
+                          }
+                      ]
+    },
+    {
+        "id":  "drasta",
+        "name":  "Drasta",
+        "number":  2,
+        "telescope":  "Default",
+        "basePrice":  200,
+        "distance":  12,
+        "resources":  [
+                          {
+                              "yield":  80,
+                              "ore":  "copper"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "iron"
+                          }
+                      ]
+    },
+    {
+        "id":  "anadius",
+        "name":  "Anadius",
+        "number":  3,
+        "telescope":  "Default",
+        "basePrice":  500,
+        "distance":  14,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "copper"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "iron"
+                          }
+                      ]
+    },
+    {
+        "id":  "dholen",
+        "name":  "Dholen",
+        "number":  4,
+        "telescope":  "Default",
+        "basePrice":  1250,
+        "distance":  15,
+        "resources":  [
+                          {
+                              "yield":  80,
+                              "ore":  "iron"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "lead"
+                          }
+                      ]
+    },
+    {
+        "id":  "verr",
+        "name":  "Verr",
+        "number":  5,
+        "telescope":  1,
+        "basePrice":  5000,
+        "distance":  16,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "lead"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "iron"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "copper"
+                          }
+                      ]
+    },
+    {
+        "id":  "newton",
+        "name":  "Newton",
+        "number":  6,
+        "telescope":  1,
+        "basePrice":  9000,
+        "distance":  18,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "lead"
+                          }
+                      ]
+    },
+    {
+        "id":  "widow",
+        "name":  "Widow",
+        "number":  7,
+        "telescope":  1,
+        "basePrice":  15000,
+        "distance":  20,
+        "resources":  [
+                          {
+                              "yield":  40,
+                              "ore":  "iron"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "copper"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "silica"
+                          }
+                      ]
+    },
+    {
+        "id":  "acheron",
+        "name":  "Acheron",
+        "number":  8,
+        "telescope":  2,
+        "basePrice":  25000,
+        "distance":  22,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "silica"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "copper"
+                          }
+                      ]
+    },
+    {
+        "id":  "yangtze",
+        "name":  "Yangtze",
+        "number":  9,
+        "telescope":  2,
+        "basePrice":  40000,
+        "distance":  23,
+        "resources":  [
+                          {
+                              "yield":  80,
+                              "ore":  "silica"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "aluminium"
+                          }
+                      ]
+    },
+    {
+        "id":  "solveig",
+        "name":  "Solveig",
+        "number":  10,
+        "telescope":  2,
+        "basePrice":  75000,
+        "distance":  25,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "aluminium"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "silica"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "lead"
+                          }
+                      ]
+    },
+    {
+        "id":  "imir",
+        "name":  "Imir",
+        "number":  11,
+        "telescope":  3,
+        "basePrice":  150000,
+        "distance":  26,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "aluminium"
+                          }
+                      ]
+    },
+    {
+        "id":  "relic",
+        "name":  "Relic",
+        "number":  12,
+        "telescope":  3,
+        "basePrice":  250000,
+        "distance":  28,
+        "resources":  [
+                          {
+                              "yield":  45,
+                              "ore":  "lead"
+                          },
+                          {
+                              "yield":  35,
+                              "ore":  "silica"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "silver"
+                          }
+                      ]
+    },
+    {
+        "id":  "nith",
+        "name":  "Nith",
+        "number":  13,
+        "telescope":  3,
+        "basePrice":  400000,
+        "distance":  30,
+        "resources":  [
+                          {
+                              "yield":  80,
+                              "ore":  "silver"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "aluminium"
+                          }
+                      ]
+    },
+    {
+        "id":  "batalla",
+        "name":  "Batalla",
+        "number":  14,
+        "telescope":  4,
+        "basePrice":  800000,
+        "distance":  33,
+        "resources":  [
+                          {
+                              "yield":  40,
+                              "ore":  "copper"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "iron"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "gold"
+                          }
+                      ]
+    },
+    {
+        "id":  "micah",
+        "name":  "Micah",
+        "number":  15,
+        "telescope":  4,
+        "basePrice":  1500000,
+        "distance":  35,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "gold"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "silver"
+                          }
+                      ]
+    },
+    {
+        "id":  "pranas",
+        "name":  "Pranas",
+        "number":  16,
+        "telescope":  4,
+        "basePrice":  3000000,
+        "distance":  37,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "gold"
+                          }
+                      ]
+    },
+    {
+        "id":  "castellus",
+        "name":  "Castellus",
+        "number":  17,
+        "telescope":  5,
+        "basePrice":  6000000,
+        "distance":  40,
+        "resources":  [
+                          {
+                              "yield":  40,
+                              "ore":  "aluminium"
+                          },
+                          {
+                              "yield":  35,
+                              "ore":  "silica"
+                          },
+                          {
+                              "yield":  25,
+                              "ore":  "diamond"
+                          }
+                      ]
+    },
+    {
+        "id":  "gorgon",
+        "name":  "Gorgon",
+        "number":  18,
+        "telescope":  5,
+        "basePrice":  12000000,
+        "distance":  43,
+        "resources":  [
+                          {
+                              "yield":  80,
+                              "ore":  "diamond"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "lead"
+                          }
+                      ]
+    },
+    {
+        "id":  "parnitha",
+        "name":  "Parnitha",
+        "number":  19,
+        "telescope":  5,
+        "basePrice":  25000000,
+        "distance":  45,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "gold"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "platinum"
+                          }
+                      ]
+    },
+    {
+        "id":  "orisoni",
+        "name":  "Orisoni",
+        "number":  20,
+        "telescope":  6,
+        "basePrice":  50000000,
+        "distance":  48,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "platinum"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "diamond"
+                          }
+                      ]
+    },
+    {
+        "id":  "theseus",
+        "name":  "Theseus",
+        "number":  21,
+        "telescope":  6,
+        "basePrice":  100000000,
+        "distance":  51,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "platinum"
+                          }
+                      ]
+    },
+    {
+        "id":  "zelene",
+        "name":  "Zelene",
+        "number":  22,
+        "telescope":  6,
+        "basePrice":  200000000,
+        "distance":  54,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "silver"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "titanium"
+                          }
+                      ]
+    },
+    {
+        "id":  "han",
+        "name":  "Han",
+        "number":  23,
+        "telescope":  7,
+        "basePrice":  400000000,
+        "distance":  57,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "titanium"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "diamond"
+                          },
+                          {
+                              "yield":  10,
+                              "ore":  "gold"
+                          }
+                      ]
+    },
+    {
+        "id":  "strennus",
+        "name":  "Strennus",
+        "number":  24,
+        "telescope":  7,
+        "basePrice":  800000000,
+        "distance":  58,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "titanium"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "platinum"
+                          }
+                      ]
+    },
+    {
+        "id":  "osun",
+        "name":  "Osun",
+        "number":  25,
+        "telescope":  7,
+        "basePrice":  1600000000,
+        "distance":  60,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "aluminium"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "iridium"
+                          }
+                      ]
+    },
+    {
+        "id":  "ploitari",
+        "name":  "Ploitari",
+        "number":  26,
+        "telescope":  8,
+        "basePrice":  3200000000,
+        "distance":  63,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "iridium"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "diamond"
+                          }
+                      ]
+    },
+    {
+        "id":  "elysta",
+        "name":  "Elysta",
+        "number":  27,
+        "telescope":  8,
+        "basePrice":  6400000000,
+        "distance":  67,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "iridium"
+                          }
+                      ]
+    },
+    {
+        "id":  "tikkun",
+        "name":  "Tikkun",
+        "number":  28,
+        "telescope":  8,
+        "basePrice":  12500000000,
+        "distance":  70,
+        "resources":  [
+                          {
+                              "yield":  40,
+                              "ore":  "iridium"
+                          },
+                          {
+                              "yield":  35,
+                              "ore":  "titanium"
+                          },
+                          {
+                              "yield":  25,
+                              "ore":  "palladium"
+                          }
+                      ]
+    },
+    {
+        "id":  "satent",
+        "name":  "Satent",
+        "number":  29,
+        "telescope":  9,
+        "basePrice":  25000000000,
+        "distance":  72,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "palladium"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "titanium"
+                          }
+                      ]
+    },
+    {
+        "id":  "urla_rast",
+        "name":  "Urla Rast",
+        "number":  30,
+        "telescope":  9,
+        "basePrice":  50000000000,
+        "distance":  73,
+        "resources":  [
+                          {
+                              "yield":  90,
+                              "ore":  "palladium"
+                          },
+                          {
+                              "yield":  10,
+                              "ore":  "diamond"
+                          }
+                      ]
+    },
+    {
+        "id":  "vular",
+        "name":  "Vular",
+        "number":  31,
+        "telescope":  9,
+        "basePrice":  100000000000,
+        "distance":  75,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "palladium"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "osmium"
+                          }
+                      ]
+    },
+    {
+        "id":  "nibiru",
+        "name":  "Nibiru",
+        "number":  32,
+        "telescope":  10,
+        "basePrice":  250000000000,
+        "distance":  76,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "osmium"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "iridium"
+                          }
+                      ]
+    },
+    {
+        "id":  "xena",
+        "name":  "Xena",
+        "number":  33,
+        "telescope":  10,
+        "basePrice":  600000000000,
+        "distance":  78,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "osmium"
+                          }
+                      ]
+    },
+    {
+        "id":  "rupert",
+        "name":  "Rupert",
+        "number":  34,
+        "telescope":  10,
+        "basePrice":  1500000000000,
+        "distance":  78,
+        "resources":  [
+                          {
+                              "yield":  55,
+                              "ore":  "palladium"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "osmium"
+                          },
+                          {
+                              "yield":  15,
+                              "ore":  "rhodium"
+                          }
+                      ]
+    },
+    {
+        "id":  "pax",
+        "name":  "Pax",
+        "number":  35,
+        "telescope":  11,
+        "basePrice":  4000000000000,
+        "distance":  80,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "rhodium"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "platinum"
+                          }
+                      ]
+    },
+    {
+        "id":  "ivyra",
+        "name":  "Ivyra",
+        "number":  36,
+        "telescope":  11,
+        "basePrice":  10000000000000,
+        "distance":  81,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "rhodium"
+                          }
+                      ]
+    },
+    {
+        "id":  "utritis",
+        "name":  "Utritis",
+        "number":  37,
+        "telescope":  11,
+        "basePrice":  25000000000000,
+        "distance":  82,
+        "resources":  [
+                          {
+                              "yield":  75,
+                              "ore":  "rhodium"
+                          },
+                          {
+                              "yield":  25,
+                              "ore":  "inerton"
+                          }
+                      ]
+    },
+    {
+        "id":  "dosie",
+        "name":  "Dosie",
+        "number":  38,
+        "telescope":  12,
+        "basePrice":  62000000000000,
+        "distance":  84,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "inerton"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "osmium"
+                          }
+                      ]
+    },
+    {
+        "id":  "zulu",
+        "name":  "Zulu",
+        "number":  39,
+        "telescope":  12,
+        "basePrice":  160000000000000,
+        "distance":  84,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "inerton"
+                          }
+                      ]
+    },
+    {
+        "id":  "unicae",
+        "name":  "Unicae",
+        "number":  40,
+        "telescope":  12,
+        "basePrice":  400000000000000,
+        "distance":  85,
+        "resources":  [
+                          {
+                              "yield":  80,
+                              "ore":  "inerton"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "quadium"
+                          }
+                      ]
+    },
+    {
+        "id":  "dune",
+        "name":  "Dune",
+        "number":  41,
+        "telescope":  13,
+        "basePrice":  1000000000000000,
+        "distance":  87,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "osmium"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "quadium"
+                          }
+                      ]
+    },
+    {
+        "id":  "naraka",
+        "name":  "Naraka",
+        "number":  42,
+        "telescope":  13,
+        "basePrice":  2500000000000000,
+        "distance":  88,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "quadium"
+                          }
+                      ]
+    },
+    {
+        "id":  "daedalus",
+        "name":  "Daedalus",
+        "number":  43,
+        "telescope":  13,
+        "basePrice":  6200000000000000,
+        "distance":  89,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "quadium"
+                          },
+                          {
+                              "yield":  25,
+                              "ore":  "inerton"
+                          },
+                          {
+                              "yield":  15,
+                              "ore":  "scrith"
+                          }
+                      ]
+    },
+    {
+        "id":  "clovis",
+        "name":  "Clovis",
+        "number":  44,
+        "telescope":  14,
+        "basePrice":  15000000000000000,
+        "distance":  91,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "scrith"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "quadium"
+                          }
+                      ]
+    },
+    {
+        "id":  "zero",
+        "name":  "Zero",
+        "number":  45,
+        "telescope":  14,
+        "basePrice":  40000000000000000,
+        "distance":  92,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "scrith"
+                          }
+                      ]
+    },
+    {
+        "id":  "sotomi",
+        "name":  "Sotomi",
+        "number":  46,
+        "telescope":  14,
+        "basePrice":  100000000000000000,
+        "distance":  92,
+        "resources":  [
+                          {
+                              "yield":  75,
+                              "ore":  "scrith"
+                          },
+                          {
+                              "yield":  25,
+                              "ore":  "uru"
+                          }
+                      ]
+    },
+    {
+        "id":  "remidian",
+        "name":  "Remidian",
+        "number":  47,
+        "telescope":  15,
+        "basePrice":  250000000000000000,
+        "distance":  93,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "uru"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "quadium"
+                          }
+                      ]
+    },
+    {
+        "id":  "muse",
+        "name":  "Muse",
+        "number":  48,
+        "telescope":  15,
+        "basePrice":  600000000000000000,
+        "distance":  95,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "uru"
+                          }
+                      ]
+    },
+    {
+        "id":  "arabis",
+        "name":  "Arabis",
+        "number":  49,
+        "telescope":  15,
+        "basePrice":  1500000000000000000,
+        "distance":  97,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "uru"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "vibranium"
+                          }
+                      ]
+    },
+    {
+        "id":  "vesna",
+        "name":  "Vesna",
+        "number":  50,
+        "telescope":  16,
+        "basePrice":  3800000000000000000,
+        "distance":  100,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "vibranium"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "scrith"
+                          }
+                      ]
+    },
+    {
+        "id":  "chandra",
+        "name":  "Chandra",
+        "number":  51,
+        "telescope":  16,
+        "basePrice":  10000000000000000000,
+        "distance":  102,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "vibranium"
+                          }
+                      ]
+    },
+    {
+        "id":  "vega",
+        "name":  "Vega",
+        "number":  52,
+        "telescope":  16,
+        "basePrice":  25000000000000000000,
+        "distance":  103,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "vibranium"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "aether"
+                          },
+                          {
+                              "yield":  10,
+                              "ore":  "rhodium"
+                          }
+                      ]
+    },
+    {
+        "id":  "crius",
+        "name":  "Crius",
+        "number":  53,
+        "telescope":  17,
+        "basePrice":  60000000000000000000,
+        "distance":  105,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "aether"
+                          },
+                          {
+                              "yield":  50,
+                              "ore":  "scrith"
+                          }
+                      ]
+    },
+    {
+        "id":  "singhana",
+        "name":  "Singhana",
+        "number":  54,
+        "telescope":  17,
+        "basePrice":  150000000000000000000,
+        "distance":  107,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "aether"
+                          }
+                      ]
+    },
+    {
+        "id":  "zumbia",
+        "name":  "Zumbia",
+        "number":  55,
+        "telescope":  17,
+        "basePrice":  360000000000000000000,
+        "distance":  108,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "aether"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "vibranium"
+                          },
+                          {
+                              "yield":  10,
+                              "ore":  "viterium"
+                          }
+                      ]
+    },
+    {
+        "id":  "elysium",
+        "name":  "Elysium",
+        "number":  56,
+        "telescope":  18,
+        "basePrice":  900000000000000000000,
+        "distance":  109,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "viterium"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "uru"
+                          }
+                      ]
+    },
+    {
+        "id":  "nyota",
+        "name":  "Nyota",
+        "number":  57,
+        "telescope":  18,
+        "basePrice":  2600000000000000000000,
+        "distance":  110,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "viterium"
+                          }
+                      ]
+    },
+    {
+        "id":  "doral",
+        "name":  "Doral",
+        "number":  58,
+        "telescope":  18,
+        "basePrice":  7500000000000000000000,
+        "distance":  112,
+        "resources":  [
+                          {
+                              "yield":  40,
+                              "ore":  "viterium"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "aether"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "xynium"
+                          }
+                      ]
+    },
+    {
+        "id":  "nikara",
+        "name":  "Nikara",
+        "number":  59,
+        "telescope":  19,
+        "basePrice":  21000000000000000000000,
+        "distance":  114,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "xynium"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "vibranium"
+                          }
+                      ]
+    },
+    {
+        "id":  "limbo",
+        "name":  "Limbo",
+        "number":  60,
+        "telescope":  19,
+        "basePrice":  59000000000000000000000,
+        "distance":  115,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "xynium"
+                          }
+                      ]
+    },
+    {
+        "id":  "bob",
+        "name":  "Bob",
+        "number":  61,
+        "telescope":  19,
+        "basePrice":  170000000000000000000000,
+        "distance":  116,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "xynium"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "quolium"
+                          }
+                      ]
+    },
+    {
+        "id":  "midas",
+        "name":  "Midas",
+        "number":  62,
+        "telescope":  20,
+        "basePrice":  460000000000000000000000,
+        "distance":  118,
+        "resources":  [
+                          {
+                              "yield":  55,
+                              "ore":  "quolium"
+                          },
+                          {
+                              "yield":  45,
+                              "ore":  "aether"
+                          }
+                      ]
+    },
+    {
+        "id":  "antigone",
+        "name":  "Antigone",
+        "number":  63,
+        "telescope":  20,
+        "basePrice":  1300000000000000000000000,
+        "distance":  120,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "quolium"
+                          }
+                      ]
+    },
+    {
+        "id":  "hecate",
+        "name":  "Hecate",
+        "number":  64,
+        "telescope":  20,
+        "basePrice":  3900000000000000000000000,
+        "distance":  122,
+        "resources":  [
+                          {
+                              "yield":  50,
+                              "ore":  "quolium"
+                          },
+                          {
+                              "yield":  25,
+                              "ore":  "xynium"
+                          },
+                          {
+                              "yield":  25,
+                              "ore":  "luterium"
+                          }
+                      ]
+    },
+    {
+        "id":  "sterop",
+        "name":  "Sterop",
+        "number":  65,
+        "telescope":  21,
+        "basePrice":  11000000000000000000000000,
+        "distance":  124,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "luterium"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "quolium"
+                          },
+                          {
+                              "yield":  17,
+                              "ore":  "viterium"
+                          }
+                      ]
+    },
+    {
+        "id":  "lavinia",
+        "name":  "Lavinia",
+        "number":  66,
+        "telescope":  21,
+        "basePrice":  33000000000000000000000000,
+        "distance":  125,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "luterium"
+                          }
+                      ]
+    },
+    {
+        "id":  "ren",
+        "name":  "Ren",
+        "number":  67,
+        "telescope":  21,
+        "basePrice":  95000000000000000000000000,
+        "distance":  127,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "luterium"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "quolium"
+                          },
+                          {
+                              "yield":  10,
+                              "ore":  "wraith"
+                          }
+                      ]
+    },
+    {
+        "id":  "gorgons",
+        "name":  "Gorgons",
+        "number":  68,
+        "telescope":  22,
+        "basePrice":  270000000000000000000000000,
+        "distance":  129,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "wraith"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "xynium"
+                          }
+                      ]
+    },
+    {
+        "id":  "pontus",
+        "name":  "Pontus",
+        "number":  69,
+        "telescope":  22,
+        "basePrice":  800000000000000000000000000,
+        "distance":  131,
+        "resources":  [
+                          {
+                              "yield":  80,
+                              "ore":  "wraith"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "luterium"
+                          }
+                      ]
+    },
+    {
+        "id":  "leto",
+        "name":  "Leto",
+        "number":  70,
+        "telescope":  22,
+        "basePrice":  2400000000000000000000000000,
+        "distance":  134,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "wraith"
+                          }
+                      ]
+    },
+    {
+        "id":  "laconia",
+        "name":  "Laconia",
+        "number":  71,
+        "telescope":  23,
+        "basePrice":  6920000000000000000000000000,
+        "distance":  null,
+        "resources":  [
+                          {
+                              "yield":  40,
+                              "ore":  "wraith"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "luterium"
+                          },
+                          {
+                              "yield":  20,
+                              "ore":  "aqualite"
+                          }
+                      ]
+    },
+    {
+        "id":  "awohali",
+        "name":  "Awohali",
+        "number":  72,
+        "telescope":  23,
+        "basePrice":  20800000000000000000000000000,
+        "distance":  null,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "aqualite"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "quolium"
+                          }
+                      ]
+    },
+    {
+        "id":  "pegasi",
+        "name":  "Pegasi",
+        "number":  73,
+        "telescope":  23,
+        "basePrice":  62300000000000000000000000000,
+        "distance":  null,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "aqualite"
+                          }
+                      ]
+    },
+    {
+        "id":  "typhon",
+        "name":  "Typhon",
+        "number":  74,
+        "telescope":  24,
+        "basePrice":  1.78E+29,
+        "distance":  null,
+        "resources":  [
+                          {
+                              "yield":  60,
+                              "ore":  "aqualite"
+                          },
+                          {
+                              "yield":  40,
+                              "ore":  "opalite"
+                          }
+                      ]
+    },
+    {
+        "id":  "surtur",
+        "name":  "Surtur",
+        "number":  75,
+        "telescope":  24,
+        "basePrice":  5.16E+29,
+        "distance":  null,
+        "resources":  [
+                          {
+                              "yield":  70,
+                              "ore":  "opalite"
+                          },
+                          {
+                              "yield":  30,
+                              "ore":  "wraith"
+                          }
+                      ]
+    },
+    {
+        "id":  "vesta",
+        "name":  "Vesta",
+        "number":  76,
+        "telescope":  24,
+        "basePrice":  1.81E+30,
+        "distance":  null,
+        "resources":  [
+                          {
+                              "yield":  100,
+                              "ore":  "opalite"
+                          }
+                      ]
+    }
+]
