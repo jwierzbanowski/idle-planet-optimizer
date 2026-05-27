@@ -28,7 +28,8 @@ export function fmtQty(n) {
   return scaled.toFixed(1) + suf[tier]
 }
 
-export function toggleTip(el) {
+export function toggleTip(e) {
+  const el = e.currentTarget
   document.querySelectorAll('.info-icon.visible').forEach(icon => {
     if (icon !== el) icon.classList.remove('visible')
   })

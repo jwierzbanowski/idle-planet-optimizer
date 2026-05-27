@@ -11,35 +11,35 @@
     <div v-if="!loading" class="debug-bar">
       <span class="debug-item">
         Smelt: <strong>{{ debugStats.smeltRate }}</strong>
-        <span class="info-icon" :data-tip="debugStats.smeltInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.smeltInfo" @click.stop="toggleTip">i</span>
       </span>
       <span class="debug-item">
         Craft: <strong>{{ debugStats.craftRate }}</strong>
-        <span class="info-icon" :data-tip="debugStats.craftInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.craftInfo" @click.stop="toggleTip">i</span>
       </span>
       <span class="debug-item">
         Smelt Cost: <strong>{{ debugStats.smeltCost }}</strong>
-        <span class="info-icon" :data-tip="debugStats.smeltCostInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.smeltCostInfo" @click.stop="toggleTip">i</span>
       </span>
       <span class="debug-item">
         Craft Cost: <strong>{{ debugStats.craftCost }}</strong>
-        <span class="info-icon" :data-tip="debugStats.craftCostInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.craftCostInfo" @click.stop="toggleTip">i</span>
       </span>
       <span class="debug-item">
         Mine Rate: <strong>{{ debugStats.mineRate }}</strong>
-        <span class="info-icon" :data-tip="debugStats.mineInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.mineInfo" @click.stop="toggleTip">i</span>
       </span>
       <span class="debug-item">
         Alloy Value: <strong>{{ debugStats.alloyVal }}</strong>
-        <span class="info-icon" :data-tip="debugStats.alloyInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.alloyInfo" @click.stop="toggleTip">i</span>
       </span>
       <span class="debug-item">
         Item Value: <strong>{{ debugStats.itemVal }}</strong>
-        <span class="info-icon" :data-tip="debugStats.itemInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.itemInfo" @click.stop="toggleTip">i</span>
       </span>
       <span class="debug-item">
         Planet Cost: <strong>{{ debugStats.planetUpgradeCost }}</strong>
-        <span class="info-icon" :data-tip="debugStats.planetCostInfo">i</span>
+        <span class="info-icon" :data-tip="debugStats.planetCostInfo" @click.stop="toggleTip">i</span>
       </span>
     </div>
 

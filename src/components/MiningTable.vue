@@ -37,14 +37,14 @@
           </td>
           <td class="price">
             {{ row.rate.toFixed(3) }}/s
-            <span class="info-icon" :data-tip="row.rateTooltip" @click.stop="toggleTip($event.currentTarget)">i</span>
+            <span class="info-icon" :data-tip="row.rateTooltip" @click.stop="toggleTip">i</span>
           </td>
           <template v-if="row.hasProfit">
             <td :class="profitClass(row.profitPerSec)" style="font-weight:600">{{ fmtPrice(row.profitPerSec) }}/s</td>
             <td v-if="isFinite(row.paybackHours)" class="price-small">
               {{ fmtDuration(row.paybackHours) }}
               <span class="info-icon" :data-tip="'Upgrade cost: ' + fmtPrice(Math.round(row.upgradeCost))"
-                @click.stop="toggleTip($event.currentTarget)">i</span>
+                @click.stop="toggleTip">i</span>
             </td>
             <td v-else class="price-small">—</td>
           </template>
