@@ -12,6 +12,7 @@ export const SETTINGS_CONFIG = {
     { key: 'underforge', label: 'Underforge', desc: 'Decrease smelter ingredients', baseEffect: 0.90, perLevel: -0.04, maxLevel: 11 },
     { key: 'dorm', label: 'Dorm', desc: 'Decrease crafter ingredients', baseEffect: 0.90, perLevel: -0.04, maxLevel: 11 },
     { key: 'sales', label: 'Sales', desc: 'Increase alloy and item value', baseEffect: 1.15, perLevel: 0.05, maxLevel: 60 },
+    { key: 'astronomy', label: 'Astronomy', desc: 'Decrease planet upgrade cost', baseEffect: 0.90, perLevel: -0.04, maxLevel: 11 },
   ],
   projects: [
     { key: 'advancedMining', label: 'Advanced Mining', desc: 'Mine speed ×1.25', baseEffect: 1.25 },

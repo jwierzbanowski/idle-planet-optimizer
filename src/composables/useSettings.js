@@ -70,5 +70,10 @@ export function useSettings() {
     saveSettings(settings)
   }
 
-  return { settings, getRawSetting, getSettingValue, setSetting, getManagers, addManager, removeManager, updateManagerSkill, updateManagerValue, managerVersion: _managerVersion }
+  function setPinnedItems(list) {
+    settings.pinnedItems = list
+    saveSettings(settings)
+  }
+
+  return { settings, getRawSetting, getSettingValue, setSetting, getManagers, addManager, removeManager, updateManagerSkill, updateManagerValue, managerVersion: _managerVersion, setPinnedItems }
 }

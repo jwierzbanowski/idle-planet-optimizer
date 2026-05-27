@@ -15,7 +15,7 @@
       </div>
       <div class="stat-box">
         <div class="stat-label">Market</div>
-        <div class="stat-value">x{{ getMarket(detailId) }}</div>
+        <div class="stat-value">{{ marketDisplay }}</div>
       </div>
       <div class="stat-box">
         <div class="stat-label">Effective Price</div>
@@ -79,6 +79,14 @@ const entity = computed(() => props.detailId ? getEntity(props.detailId) : null)
 const starDisplay = computed(() => {
   const s = getStars(props.detailId)
   return s > 0 ? '★'.repeat(Math.min(s, 10)) + (s > 10 ? ' +' + (s - 10) : '') : '0'
+})
+
+const marketDisplay = computed(() => {
+  const id = props.detailId
+  if (!id) return '×1.00'
+  const m = getMarket(id)
+  if (m === 1) return '×1.00'
+  return (m < 1 ? '' : '') + '×' + m.toFixed(2)
 })
 
 const eff = computed(() => { managerVersion.value; return effectivePrice(props.detailId, overrides, settings) })

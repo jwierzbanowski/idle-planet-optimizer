@@ -3,7 +3,10 @@
     <h1>IPM ROI Calculator</h1>
     <div class="subtitle">Idle Planet Miner — optimal crafting &amp; smelting</div>
 
-    <SettingsPanel />
+    <div class="settings-row-container">
+      <div class="settings-col-main"><SettingsPanel /></div>
+      <div class="settings-col-side"><MarketPanel /></div>
+    </div>
 
     <div v-if="!loading" class="debug-bar">
       <span class="debug-item">
@@ -33,6 +36,10 @@
       <span class="debug-item">
         Item Value: <strong>{{ debugStats.itemVal }}</strong>
         <span class="info-icon" :data-tip="debugStats.itemInfo">i</span>
+      </span>
+      <span class="debug-item">
+        Planet Cost: <strong>{{ debugStats.planetUpgradeCost }}</strong>
+        <span class="info-icon" :data-tip="debugStats.planetCostInfo">i</span>
       </span>
     </div>
 
@@ -66,6 +73,7 @@
 <script setup>
 import { ref, computed, reactive } from 'vue'
 import SettingsPanel from './components/SettingsPanel.vue'
+import MarketPanel from './components/MarketPanel.vue'
 import DetailPanel from './components/DetailPanel.vue'
 import { useData } from './composables/useData'
 import { useOverrides } from './composables/useOverrides'
@@ -76,10 +84,9 @@ import {
   getProjectMultiplier, getStationMult, getStationValueMult, renderTree, buildTree
 } from './utils/calc'
 import { fmtPrice, fmtTime, fmtQty } from './utils/format'
-import { MARKET_VALS } from './utils/config'
 
 const { DB, ORDER, getEntity } = useData()
-const { overrides, getStars, getMarket, getMiningLevel, setOverride, resetOverrides } = useOverrides()
+const { overrides, getStars, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, setOverride, resetOverrides } = useOverrides()
 const { settings, managerVersion } = useSettings()
 
 const activeTab = ref('ores')
@@ -130,6 +137,7 @@ const debugStats = computed(() => {
   const dorm = getModifier('rooms', 'dorm', settings)
   const engineering = getModifier('rooms', 'engineering', settings)
   const sales = getModifier('rooms', 'sales', settings)
+  const astronomy = getModifier('rooms', 'astronomy', settings)
 
   const furnaceProj = getProjectMultiplier(settings, ['advancedFurnace', 'superiorFurnace'])
   const crafterProj = getProjectMultiplier(settings, ['advancedCrafter', 'superiorCrafter'])
@@ -199,6 +207,10 @@ const debugStats = computed(() => {
     ['Item value projects', itemProj],
   ], salesMod * stnVal * (itemProj || 1))
 
+  const planetCostInfo = infoLines('Planet Upgrade Cost', [
+    ['Astronomy room', astronomy],
+  ], astronomy)
+
   return {
     mineRate: fmt(mineRate),
     smeltRate: fmt(smeltRate),
@@ -207,7 +219,8 @@ const debugStats = computed(() => {
     craftCost: fmt(dorm),
     alloyVal: alloyV,
     itemVal: itemV,
-    smeltInfo, craftInfo, smeltCostInfo, craftCostInfo, mineInfo, alloyInfo, itemInfo,
+    planetUpgradeCost: fmt(astronomy),
+    smeltInfo, craftInfo, smeltCostInfo, craftCostInfo, mineInfo, alloyInfo, itemInfo, planetCostInfo,
   }
 })
 
@@ -265,17 +278,6 @@ function starControlsHtml(id) {
     + '</div>'
 }
 
-function marketControlsHtml(id) {
-  let m = getMarket(id)
-  let idx = MARKET_VALS.indexOf(m)
-  if (idx === -1) { idx = 2; m = 1 }
-  return '<div class="star-controls">'
-    + '<button class="star-btn" onclick="event.stopPropagation();window.__setOverride(\'' + id + '\',\'market\',' + MARKET_VALS[idx - 1] + ')"' + (idx <= 0 ? ' disabled' : '') + '>−</button>'
-    + '<span class="star-count' + (m < 1 ? ' negative' : '') + '">x' + m.toFixed(2) + '</span>'
-    + '<button class="star-btn" onclick="event.stopPropagation();window.__setOverride(\'' + id + '\',\'market\',' + MARKET_VALS[idx + 1] + ')"' + (idx >= MARKET_VALS.length - 1 ? ' disabled' : '') + '>+</button>'
-    + '</div>'
-}
-
 // expose for onclick in HTML strings
 window.__setOverride = setOverride
 
@@ -283,7 +285,7 @@ window.__setOverride = setOverride
 const oresHtml = computed(() => {
   let html = '<div class="table-wrap"><table>'
   html += '<thead><tr>'
-  html += '<th>Name</th><th>Base Price</th><th>Smelted Into</th><th>Market</th><th>Effective Price</th>'
+  html += '<th>Name</th><th>Base Price</th><th>Smelted Into</th><th>Effective Price</th>'
   html += '</tr></thead><tbody>'
   for (const id of ORDER.value.ores) {
     const row = DB.value.ores[id]
@@ -293,7 +295,6 @@ const oresHtml = computed(() => {
     html += '<td class="name-cell">' + row.name + starControlsHtml(id) + '</td>'
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
     html += '<td>' + (smeltTarget ? smeltTarget.name : '<span class="price-small">—</span>') + '</td>'
-    html += '<td>' + marketControlsHtml(id) + '</td>'
     html += '<td class="price">' + fmtPrice(eff) + '</td>'
     html += '</tr>'
   }
@@ -306,7 +307,7 @@ const alloysHtml = computed(() => {
   managerVersion.value
   let html = '<div class="table-wrap"><table>'
   html += '<thead><tr>'
-  html += '<th>Name</th><th>Smelt Time</th><th>Ingredients</th><th>Base Price</th><th>Market</th>'
+  html += '<th>Name</th><th>Smelt Time</th><th>Ingredients</th><th>Base Price</th>'
   html += '<th>Effective Price</th><th>Material Cost</th><th>Profit / Craft</th><th>Profit / sec</th><th>Total Time</th>'
   html += '</tr></thead><tbody>'
   for (const id of ORDER.value.alloys) {
@@ -328,7 +329,6 @@ const alloysHtml = computed(() => {
     html += '<td>' + fmtTime((smeltMult && row.time) ? row.time / smeltMult : row.time) + '</td>'
     html += '<td><span class="ingredient-list">' + ingStr + '</span></td>'
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
-    html += '<td>' + marketControlsHtml(id) + '</td>'
     html += '<td class="price">' + fmtPrice(eff) + '</td>'
     html += '<td class="price-small">' + fmtPrice(oc) + '</td>'
     html += '<td class="' + (profit >= 0 ? 'positive' : 'negative') + '">' + fmtPrice(profit) + '</td>'
@@ -345,7 +345,7 @@ const itemsHtml = computed(() => {
   managerVersion.value
   let html = '<div class="table-wrap"><table>'
   html += '<thead><tr>'
-  html += '<th>Name</th><th>Craft Time</th><th>Ingredients</th><th>Base Price</th><th>Market</th>'
+  html += '<th>Name</th><th>Craft Time</th><th>Ingredients</th><th>Base Price</th>'
   html += '<th>Effective Price</th><th>Material Cost</th><th>Profit / Craft</th><th>Profit / sec</th><th>Total Time</th>'
   html += '</tr></thead><tbody>'
   for (const id of ORDER.value.items) {
@@ -367,7 +367,6 @@ const itemsHtml = computed(() => {
     html += '<td>' + fmtTime((craftMult && row.time) ? row.time / craftMult : row.time) + '</td>'
     html += '<td><span class="ingredient-list">' + ingStr + '</span></td>'
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
-    html += '<td>' + marketControlsHtml(id) + '</td>'
     html += '<td class="price">' + fmtPrice(eff) + '</td>'
     html += '<td class="price-small">' + fmtPrice(oc) + '</td>'
     html += '<td class="' + (profit >= 0 ? 'positive' : 'negative') + '">' + fmtPrice(profit) + '</td>'
@@ -381,7 +380,9 @@ const itemsHtml = computed(() => {
 
 function fmtDuration(hours) {
   if (!isFinite(hours) || hours <= 0) return '∞'
-  if (hours < 1) return (hours * 60).toFixed(0) + 'm'
+  if (hours < 1/3600) return '<1s'
+  if (hours < 1/60) return (hours * 3600).toFixed(0) + 's'
+  if (hours < 1) return (hours * 60).toFixed(1) + 'm'
   if (hours < 24) return hours.toFixed(1) + 'h'
   if (hours < 720) return (hours / 24).toFixed(1) + 'd'
   if (hours < 8760) return (hours / 720).toFixed(1) + 'mo'
@@ -390,38 +391,54 @@ function fmtDuration(hours) {
 
 // ===== MINING TABLE =====
 const miningHtml = computed(() => {
+  const engineering = getModifier('rooms', 'engineering', settings)
+  const miningProj = getProjectMultiplier(settings, ['advancedMining', 'superiorMining'])
+  const stnMine = getStationMult(settings, ['mining1', 'mining2'])
+  const global12 = settings.station?.miningGlobal ? 1.2 : null
+
+  const miningMult = getMiningSpeedMult(settings) || 1
+
   // planets table
   let html = '<div class="table-wrap"><table>'
   html += '<thead><tr>'
-  html += '<th>Planet</th><th>Base Price</th><th>Resources</th><th>Mining Lv</th><th>Rate</th><th>Profit / s</th><th>Profit / h</th><th>Payback</th>'
+  html += '<th>Planet</th><th>Base Price</th><th>Resources</th><th>Mining Lv</th><th>Colonies</th><th>Probe</th><th>Rate</th><th>Profit / s</th><th>Upgrade Payback</th>'
   html += '</tr></thead><tbody>'
 
   const rows = ORDER.value.planets.map(id => {
     const p = DB.value.planets[id]
     const lvl = getMiningLevel(id)
+    const colonies = getMiningColonies(id)
+    const probe = getProbe(id)
+    const probeMult = probe ? (getProbeSpeed(id) || 1) : 1
     const md = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
-    const miningMult = getMiningSpeedMult(settings) || 1
     const beaconMult = getBeaconMult(p.number, settings)
-    const rate = md.rate * miningMult * beaconMult, speed = md.speed, cargo = md.cargo
+    const coloniesMult = 1 + 0.3 * colonies
+    const rate = md.rate * miningMult * beaconMult * coloniesMult * probeMult
     const dist = p.distance
-    let profitPerSec = 0, profitPerHour = 0
+    let profitPerSec = 0, profitPerHour = 0, weightedPrice = 0
 
     if (dist != null && dist > 0) {
-      let weightedPrice = 0
       for (const r of p.resources) {
         const ore = DB.value.ores[r.ore]
-        if (ore) weightedPrice += (r.yield / 100) * ore.basePrice
+        if (ore) weightedPrice += (r.yield / 100) * effectivePrice(ore.id, overrides, settings)
       }
-      const cargoValue = cargo * weightedPrice
-      const mineTime = cargo / rate
-      const cycleTime = 2 * (dist / speed) + mineTime
-      profitPerSec = cycleTime > 0 ? cargoValue / cycleTime : 0
+      profitPerSec = rate * weightedPrice
       profitPerHour = profitPerSec * 3600
     }
 
-    const price = md.price
-    const paybackHours = profitPerHour > 0 ? price / profitPerHour : Infinity
-    return { id: p.id, name: p.name, number: p.number, basePrice: p.basePrice, resources: p.resources, distance: dist, lvl, rate, profitPerSec, profitPerHour, paybackHours }
+    let upgradeCost = 0
+    let paybackHours = Infinity
+    if (dist != null && dist > 0 && lvl < 100) {
+      upgradeCost = (p.basePrice / 20) * Math.pow(1.3, lvl - 1)
+      const astronomyMod = getModifier('rooms', 'astronomy', settings)
+      if (astronomyMod) upgradeCost *= astronomyMod
+      const mdNext = DB.value.mining['lvl' + (lvl + 1)] || md
+      const rateNext = mdNext.rate * miningMult * beaconMult * coloniesMult * probeMult
+      const profitPerSecNext = rateNext * weightedPrice
+      const incProfit = profitPerSecNext - profitPerSec
+      if (incProfit > 0) paybackHours = upgradeCost / (incProfit * 3600)
+    }
+    return { id: p.id, name: p.name, number: p.number, basePrice: p.basePrice, resources: p.resources, distance: dist, lvl, colonies, probe, probeMult, rate, baseRate: md.rate, profitPerSec, profitPerHour, upgradeCost, paybackHours }
   })
 
   rows.sort((a, b) => a.number - b.number)
@@ -432,7 +449,18 @@ const miningHtml = computed(() => {
       return (ore ? ore.name : r.ore) + ' ' + r.yield + '%'
     }).join('<br>')
 
-    const lvl = row.lvl
+    const lvl = row.lvl, colonies = row.colonies, probe = row.probe, probeMult = row.probeMult
+    const rowRateLines = ['Mine Rate']
+    rowRateLines.push('  baseRate (lvl' + lvl + '): ' + row.baseRate.toFixed(3) + '/s')
+    if (engineering) rowRateLines.push('  Engineering room: ' + engineering.toFixed(2) + '×')
+    if (miningProj) rowRateLines.push('  Mining projects: ' + miningProj.toFixed(2) + '×')
+    if (stnMine) rowRateLines.push('  Mining stations: ' + stnMine.toFixed(2) + '×')
+    if (global12) rowRateLines.push('  Global 1.2×: 1.20×')
+    rowRateLines.push('  Beacon: ' + getBeaconMult(row.number, settings).toFixed(2) + '×')
+    rowRateLines.push('  Colonies (×' + colonies + '): 1 + 0.3×' + colonies + ' = ' + (1 + 0.3 * colonies).toFixed(2) + '×')
+    if (probe) rowRateLines.push('  Probe: ' + probeMult.toFixed(2) + '×')
+    if (engineering || miningProj || stnMine || global12 || probe) rowRateLines.push('  ─────────────────')
+    rowRateLines.push('  Result: ' + row.rate.toFixed(3) + '/s')
     html += '<tr>'
     html += '<td class="name-cell">' + row.name + '</td>'
     html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
@@ -442,13 +470,25 @@ const miningHtml = computed(() => {
       + '<input type="number" class="mining-level-input" value="' + lvl + '" min="1" max="100" style="width:48px" onchange="event.stopPropagation();window.__setMiningLevel(\'' + row.id + '\',parseInt(this.value)||1)">'
       + '<button class="star-btn" onclick="event.stopPropagation();window.__setMiningLevel(\'' + row.id + '\',' + (lvl + 1) + ')"' + (lvl >= 100 ? ' disabled' : '') + '>+</button>'
     + '</div></td>'
-    html += '<td class="price">' + row.rate.toFixed(3) + '/s</td>'
+    html += '<td><div class="mining-level-select" style="display:inline-flex">'
+      + '<button class="star-btn" onclick="event.stopPropagation();window.__setMiningColonies(\'' + row.id + '\',' + (colonies - 1) + ')"' + (colonies <= 0 ? ' disabled' : '') + '>−</button>'
+      + '<input type="number" class="mining-level-input" value="' + colonies + '" min="0" max="100" style="width:48px" onchange="event.stopPropagation();window.__setMiningColonies(\'' + row.id + '\',Math.max(0,parseInt(this.value)||0))">'
+      + '<button class="star-btn" onclick="event.stopPropagation();window.__setMiningColonies(\'' + row.id + '\',' + (colonies + 1) + ')"' + (colonies >= 100 ? ' disabled' : '') + '>+</button>'
+    + '</div></td>'
+    html += '<td class="price">'
+      + '<input type="checkbox" class="probe-check" ' + (probe ? 'checked' : '') + ' onclick="event.stopPropagation();window.__setProbe(\'' + row.id + '\',this.checked)">'
+      + (probe ? '&nbsp;×<input type="number" class="probe-input" value="' + probeMult + '" min="0" step="0.01" onchange="event.stopPropagation();window.__setProbeSpeed(\'' + row.id + '\',parseFloat(this.value)||1)">' : '')
+    + '</td>'
+    html += '<td class="price">' + row.rate.toFixed(3) + '/s<span class="info-icon" data-tip="' + rowRateLines.join('\n') + '" onclick="event.stopPropagation();window.__toggleTooltip(this)">i</span></td>'
     if (row.distance != null && row.distance > 0) {
       html += '<td class="' + (row.profitPerSec >= 0 ? 'positive' : 'negative') + '" style="font-weight:600">' + fmtPrice(row.profitPerSec) + '/s</td>'
-      html += '<td class="' + (row.profitPerHour >= 0 ? 'positive' : 'negative') + '">' + fmtPrice(row.profitPerHour) + '/h</td>'
-      html += '<td class="price-small">' + fmtDuration(row.paybackHours) + '</td>'
+      if (row.upgradeCost > 0 && isFinite(row.paybackHours)) {
+        html += '<td class="price-small">' + fmtDuration(row.paybackHours) + '<span class="info-icon" data-tip="Upgrade cost: ' + fmtPrice(Math.round(row.upgradeCost)) + '" onclick="event.stopPropagation();window.__toggleTooltip(this)">i</span></td>'
+      } else {
+        html += '<td class="price-small">—</td>'
+      }
     } else {
-      html += '<td class="price-small">—</td><td class="price-small">—</td><td class="price-small">—</td>'
+      html += '<td class="price-small">—</td><td class="price-small">—</td>'
     }
     html += '</tr>'
   }
@@ -460,6 +500,21 @@ const miningHtml = computed(() => {
 // expose for onclick in HTML strings
 window.__showDetail = (id) => { detailId.value = id }
 window.__setMiningLevel = (id, lvl) => { setOverride(id, 'miningLevel', Math.max(1, Math.min(100, lvl))) }
+window.__setMiningColonies = (id, val) => { setOverride(id, 'colonies', Math.max(0, Math.min(100, val))) }
+window.__setProbe = (id, val) => { setOverride(id, 'probe', val); if (!val) setOverride(id, 'probeSpeed', 0) }
+window.__setProbeSpeed = (id, val) => { setOverride(id, 'probeSpeed', Math.max(0, val)) }
+
+window.__toggleTooltip = (el) => {
+  document.querySelectorAll('.info-icon.visible').forEach(icon => {
+    if (icon !== el) icon.classList.remove('visible')
+  })
+  el.classList.toggle('visible')
+}
+document.addEventListener('click', () => {
+  document.querySelectorAll('.info-icon.visible').forEach(icon => {
+    icon.classList.remove('visible')
+  })
+})
 </script>
 
 <style>
@@ -514,7 +569,7 @@ h1 {
   font-size: 10px;
   font-weight: 700;
   font-style: italic;
-  cursor: help;
+  cursor: pointer;
   margin-right: 5px;
   font-family: 'Times New Roman', serif;
   line-height: 1;
@@ -524,7 +579,7 @@ h1 {
 .info-icon::after {
   content: attr(data-tip);
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   background: #1a2235;
@@ -544,7 +599,7 @@ h1 {
   font-style: normal;
   line-height: 1.4;
 }
-.info-icon:hover::after {
+.info-icon.visible::after {
   opacity: 1;
 }
 .table-wrap {
@@ -659,8 +714,101 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .mining-level-input:focus { border-color: #4fc3f7; }
 .mining-level-input::-webkit-inner-spin-button { opacity: 0.5; }
 
+.probe-check { cursor: pointer; accent-color: #4fc3f7; }
+.probe-input {
+  width: 64px; background: #0d1520; border: 1px solid #2a3a4a; border-radius: 4px;
+  color: #e8edf5; font-size: 13px; font-weight: 600; text-align: center;
+  padding: 3px 4px; outline: none;
+}
+.probe-input:focus { border-color: #4fc3f7; }
+.probe-input::-webkit-inner-spin-button { opacity: 0.5; }
 
 
+/* Settings + Market row container */
+.settings-row-container {
+  display: flex; gap: 16px; margin-bottom: 16px;
+}
+.settings-col-main { flex: 7; min-width: 0; }
+.settings-col-side { flex: 3; min-width: 0; }
+
+/* Market panel */
+.market-bar { margin-bottom: 12px; }
+#marketToggle {
+  padding: 8px 16px; background: transparent; border: 1px solid #2a3a4a;
+  border-radius: 6px; color: #6b7a8f; font-size: 13px; cursor: pointer;
+  width: 100%; text-align: left; font-weight: 600;
+}
+#marketToggle:hover { border-color: #4caf50; color: #4caf50; }
+.market-panel {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: #121824; border-radius: 10px;
+  border: 1px solid #1e2a3a;
+}
+.market-panel.open { max-height: 3000px; overflow-y: auto; }
+.market-search-wrap { padding: 12px 12px 0; }
+.market-search {
+  width: 100%; background: #0d1520; border: 1px solid #2a3a4a; border-radius: 6px;
+  color: #e8edf5; font-size: 14px; padding: 8px 12px; outline: none;
+}
+.market-search:focus { border-color: #4caf50; }
+.market-search::placeholder { color: #4a5a6a; }
+.market-result-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; cursor: pointer; transition: background 0.15s;
+}
+.market-result-row:hover { background: #1a2235; }
+.market-result-row.selected { background: #162030; }
+.market-result-type {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 3px; min-width: 40px; text-align: center;
+}
+.market-result-type.ore { background: rgba(76,175,80,0.15); color: #4caf50; }
+.market-result-type.alloy { background: rgba(79,195,247,0.15); color: #4fc3f7; }
+.market-result-type.item { background: rgba(255,183,77,0.15); color: #ffb74d; }
+.market-result-name { flex: 1; font-size: 13px; color: #c8d0dc; }
+.market-result-pct { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #6b7a8f; }
+.market-pct-input {
+  width: 64px; background: #0d1520; border: 1px solid #2a3a4a; border-radius: 4px;
+  color: #e8edf5; font-size: 13px; font-weight: 600; text-align: center;
+  padding: 4px; outline: none;
+}
+.market-pct-input:focus { border-color: #4caf50; }
+.market-pct-input::-webkit-inner-spin-button { opacity: 0.5; }
+.market-unit { color: #6b7a8f; font-size: 12px; }
+.market-reset-btn {
+  width: 22px; height: 22px; border: 1px solid #2a3a4a; border-radius: 4px;
+  background: transparent; color: #ef5350; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; line-height: 1;
+}
+.market-reset-btn:hover { border-color: #ef5350; background: rgba(239,83,80,0.1); }
+.market-reset-btn:disabled { opacity: 0.3; cursor: default; }
+.market-no-results { padding: 12px; text-align: center; color: #6b7a8f; font-size: 13px; }
+.market-pinned { border-top: 1px solid #1a2235; padding: 8px 0; }
+.market-pinned-title {
+  font-size: 11px; font-weight: 700; color: #6b7a8f;
+  text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 12px 8px;
+}
+.market-pinned-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 12px;
+}
+.market-pinned-row .market-result-type { min-width: 36px; }
+.market-pinned-row .market-result-name { flex: 1; font-size: 13px; color: #c8d0dc; }
+.market-controls { display: flex; align-items: center; gap: 3px; }
+.market-controls .star-btn {
+  width: 24px; height: 24px; border: 1px solid #2a3a4a; border-radius: 4px;
+  background: #0d1520; color: #6b7a8f; font-size: 16px; font-weight: 700;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; padding: 0; user-select: none;
+}
+.market-controls .star-btn:hover { border-color: #4fc3f7; color: #4fc3f7; }
+.market-controls .star-btn:active { background: #1a2235; }
+.market-controls .star-btn:disabled { opacity: 0.3; cursor: default; }
+.market-val { min-width: 44px; text-align: center; font-size: 14px; font-weight: 600; color: #e8edf5; }
+.market-val.negative { color: #ef5350; }
+.market-check { color: #4caf50; font-size: 14px; font-weight: 700; }
+.market-results { padding: 4px 0; max-height: 300px; overflow-y: auto; }
 
 /* Settings panel (scoped) */
 .settings-bar { margin-bottom: 12px; }
@@ -674,11 +822,11 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
   max-height: 0; overflow: hidden;
   transition: max-height 0.3s ease;
   background: #121824; border-radius: 10px;
-  border: 1px solid #1e2a3a; margin-bottom: 16px;
+  border: 1px solid #1e2a3a;
 }
-.settings-panel.open { max-height: 2000px; }
+.settings-panel.open { max-height: 3000px; overflow-y: auto; }
 .settings-categories {
-  display: flex; gap: 4px; padding: 12px 12px 0;
+  display: flex; gap: 4px; padding: 12px 12px 0; flex-wrap: wrap;
 }
 .settings-cat {
   padding: 8px 20px; border: none; background: transparent;
@@ -689,7 +837,7 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .settings-cat.active { color: #fff; background: #1e88e5; }
 .settings-content {
   padding: 12px; display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 8px;
 }
 .station-group {
@@ -777,6 +925,10 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .project-check { accent-color: #1e88e5; cursor: pointer; }
 .project-check-row .settings-effect { margin-left: auto; }
 
+@media (max-width: 900px) {
+  .settings-row-container { flex-direction: column; }
+  .settings-content { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
 @media (max-width: 768px) {
   body { padding: 12px; }
   h1 { font-size: 22px; }
@@ -785,5 +937,10 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
   td, th { padding: 8px 8px; font-size: 12px; }
   .stars-input { width: 48px; }
   table { min-width: 700px; }
+  .settings-content { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .settings-categories { flex-direction: column; }
+  .settings-cat { text-align: center; }
 }
 </style>
