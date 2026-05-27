@@ -7,7 +7,7 @@
         {{ tab.label }} <span class="count">({{ tab.count }})</span>
       </button>
     </div>
-    <div class="table-wrap" v-for="group in visibleGroups" :key="group.label">
+    <div class="table-wrap">
       <table>
         <thead>
           <tr>
@@ -15,7 +15,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="id in group.ids" :key="id" @click="$emit('show-detail', id)">
+          <tr v-for="id in visibleIds" :key="id" @click="$emit('show-detail', id)">
             <td class="name-cell">
               {{ DB.ores[id].name }}
               <StarControls :modelValue="getStars(id)" @update:modelValue="setOverride(id, 'stars', $event)" />
@@ -79,9 +79,10 @@ const filterTabs = computed(() => {
   return tabs
 })
 
-const visibleGroups = computed(() => {
-  if (activeGroup.value === 'all') return groupedOres.value
-  return groupedOres.value.filter(g => g.key === activeGroup.value)
+const visibleIds = computed(() => {
+  if (activeGroup.value === 'all') return ORDER.value.ores
+  const group = groupedOres.value.find(g => g.key === activeGroup.value)
+  return group ? group.ids : []
 })
 </script>
 
