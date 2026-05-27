@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>IPM ROI Calculator</h1>
+    <h1>Idle Planet Optimizer</h1>
     <div class="subtitle">Idle Planet Miner — optimal crafting &amp; smelting</div>
 
     <div class="settings-row-container">
