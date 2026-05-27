@@ -71,10 +71,11 @@ const groupedOres = computed(() => {
 
 const filterTabs = computed(() => {
   const allCount = groupedOres.value.reduce((sum, g) => sum + g.ids.length, 0)
-  const tabs = [{ key: 'all', label: 'All', count: allCount }]
+  const tabs = []
   for (const g of groupedOres.value) {
     tabs.push({ key: g.key, label: g.label, count: g.ids.length })
   }
+  tabs.push({ key: 'all', label: 'All', count: allCount })
   return tabs
 })
 
