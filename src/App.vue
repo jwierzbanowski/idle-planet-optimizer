@@ -131,7 +131,7 @@ function infoLines(title, rows, total) {
   for (const [label, val] of active) {
     lines.push('  ' + label + ': ' + val.toFixed(2) + '×')
   }
-  if (active.length > 1) lines.push('  ─────────────────')
+  if (active.length >= 1) lines.push('  ─────────────────')
   lines.push('  Result: ' + (total != null ? total.toFixed(2) + '×' : '1.00×'))
   return lines.join('\n')
 }
