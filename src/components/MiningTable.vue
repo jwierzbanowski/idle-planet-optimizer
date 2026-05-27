@@ -37,14 +37,14 @@
           </td>
           <td class="price">
             {{ row.rate.toFixed(3) }}/s
-            <span class="info-icon" :data-tip="row.rateTooltip" @click.stop="toggleTooltip($event.target)">i</span>
+            <span class="info-icon" :data-tip="row.rateTooltip" @click.stop="toggleTip($event.currentTarget)">i</span>
           </td>
           <template v-if="row.hasProfit">
             <td :class="profitClass(row.profitPerSec)" style="font-weight:600">{{ fmtPrice(row.profitPerSec) }}/s</td>
             <td v-if="isFinite(row.paybackHours)" class="price-small">
               {{ fmtDuration(row.paybackHours) }}
               <span class="info-icon" :data-tip="'Upgrade cost: ' + fmtPrice(Math.round(row.upgradeCost))"
-                @click.stop="toggleTooltip($event.target)">i</span>
+                @click.stop="toggleTip($event.currentTarget)">i</span>
             </td>
             <td v-else class="price-small">—</td>
           </template>
@@ -64,7 +64,7 @@ import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
 import { effectivePrice, getMiningSpeedMult, getBeaconMult, getProjectMultiplier, getStationMult, getModifier } from '../utils/calc'
-import { fmtPrice, fmtDuration } from '../utils/format'
+import { fmtPrice, fmtDuration, toggleTip } from '../utils/format'
 
 const { DB, ORDER } = useData()
 const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, setOverride } = useOverrides()
@@ -154,12 +154,7 @@ function profitClass(v) {
   return v >= 0 ? 'positive' : 'negative'
 }
 
-function toggleTooltip(el) {
-  document.querySelectorAll('.info-icon.visible').forEach(icon => {
-    if (icon !== el) icon.classList.remove('visible')
-  })
-  el.classList.toggle('visible')
-}
+
 </script>
 
 <style scoped>

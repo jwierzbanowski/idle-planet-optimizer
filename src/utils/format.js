@@ -28,6 +28,13 @@ export function fmtQty(n) {
   return scaled.toFixed(1) + suf[tier]
 }
 
+export function toggleTip(el) {
+  document.querySelectorAll('.info-icon.visible').forEach(icon => {
+    if (icon !== el) icon.classList.remove('visible')
+  })
+  el.classList.toggle('visible')
+}
+
 export function fmtDuration(hours) {
   if (!isFinite(hours) || hours <= 0) return '∞'
   if (hours < 1/3600) return '<1s'

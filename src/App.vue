@@ -93,6 +93,7 @@ import {
   getModifier, getMiningSpeedMult, getSmeltSpeedMult, getCraftSpeedMult,
   getProjectMultiplier, getStationMult, getStationValueMult
 } from './utils/calc'
+import { toggleTip } from './utils/format'
 
 const { resetOverrides } = useOverrides()
 const { settings, managerVersion } = useSettings()
