@@ -6,8 +6,11 @@
           <th>Name</th><th>Base Price</th><th>Smelted Into</th><th>Effective Price</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="id in ORDER.ores" :key="id" @click="$emit('show-detail', id)">
+      <tbody v-for="group in groupedOres" :key="group.label">
+        <tr class="group-header">
+          <td colspan="4" class="group-label">{{ group.label }}</td>
+        </tr>
+        <tr v-for="id in group.ids" :key="id" @click="$emit('show-detail', id)">
           <td class="name-cell">
             {{ DB.ores[id].name }}
             <StarControls :modelValue="getStars(id)" @update:modelValue="setOverride(id, 'stars', $event)" />
@@ -27,6 +30,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
@@ -40,9 +44,31 @@ defineEmits(['show-detail'])
 const { DB, ORDER } = useData()
 const { overrides, getStars, setOverride } = useOverrides()
 const { settings } = useSettings()
+
+const ORE_GROUPS = [
+  { label: 'Early Game', ids: ['copper', 'iron', 'lead', 'silica', 'aluminium'] },
+  { label: 'Mid Game', ids: ['silver', 'gold', 'diamond', 'platinum', 'titanium'] },
+  { label: 'Late Game', ids: ['iridium', 'palladium', 'osmium', 'rhodium', 'inerton'] },
+  { label: 'End Game', ids: ['quadium', 'scrith', 'uru', 'vibranium', 'aether', 'viterium', 'xynium', 'quolium', 'luterium', 'wraith', 'aqualite', 'opalite'] },
+]
+
+const groupedOres = computed(() => {
+  const available = new Set(ORDER.value.ores)
+  return ORE_GROUPS.map(g => ({
+    label: g.label,
+    ids: g.ids.filter(id => available.has(id)),
+  })).filter(g => g.ids.length > 0)
+})
 </script>
 
 <style scoped>
+.group-header { cursor: default; }
+.group-header:hover { background: transparent; }
+.group-label {
+  padding: 8px 12px; font-size: 12px; font-weight: 700; color: #4fc3f7;
+  text-transform: uppercase; letter-spacing: 0.5px; background: #0d1520;
+  border-bottom: 1px solid #1e2a3a;
+}
 .star-controls { display: flex; align-items: center; gap: 3px; margin-top: 5px; }
 .star-btn {
   width: 24px; height: 24px; border: 1px solid #2a3a4a; border-radius: 4px;
