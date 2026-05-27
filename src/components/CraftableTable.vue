@@ -61,10 +61,10 @@ const GROUPS = {
     { label: 'End Game', ids: ['quadium_alloy', 'scrith_alloy', 'uru_alloy', 'vibranium_alloy', 'aether_alloy', 'viterium_alloy', 'xynium_alloy', 'quolium_alloy', 'luterium_alloy', 'wraith_alloy', 'aqualite_alloy', 'opalite_alloy'] },
   ],
   item: [
-    { label: 'Early Game', ids: ['copper_wire', 'iron_nail', 'battery', 'hammer', 'glass', 'circuit', 'lens', 'laser', 'basic_computer', 'solar_panel'] },
-    { label: 'Mid Game', ids: ['laser_torch', 'advanced_battery', 'thermal_scanner', 'advanced_computer', 'navigation_module', 'plasma_torch', 'radio_tower', 'telescope', 'satellite_dish'] },
-    { label: 'Late Game', ids: ['motor', 'accumulator', 'nuclear_capsule', 'wind_turbine', 'space_probe', 'nuclear_reactor', 'collider', 'gravity_chamber'] },
-    { label: 'End Game', ids: ['robot', 'fusion_capsule', 'teleporter', 'fusion_reactor', 'subspace_relay', 'advanced_robot', 'advanced_teleporter', 'quantum_cpu', 'deflector_shield', 'warp_core', 'deep_space_scanner', 'antimatter_cell'] },
+    { label: 'Early Game', ids: ['copper_wire', 'iron_nail', 'battery', 'hammer', 'glass', 'circuit'] },
+    { label: 'Mid Game', ids: ['lens', 'laser', 'basic_computer', 'solar_panel'] },
+    { label: 'Late Game', ids: ['laser_torch', 'advanced_battery', 'thermal_scanner', 'advanced_computer', 'navigation_module', 'plasma_torch', 'radio_tower'] },
+    { label: 'End Game', ids: ['telescope', 'satellite_dish', 'motor', 'accumulator', 'nuclear_capsule', 'wind_turbine', 'space_probe', 'nuclear_reactor', 'collider', 'gravity_chamber', 'robot', 'fusion_capsule', 'teleporter', 'fusion_reactor', 'subspace_relay', 'advanced_robot', 'advanced_teleporter', 'quantum_cpu', 'deflector_shield', 'warp_core', 'deep_space_scanner', 'antimatter_cell'] },
   ],
 }
 
