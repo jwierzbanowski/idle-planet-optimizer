@@ -1,5 +1,5 @@
 import { SETTINGS_CONFIG } from './config'
-import { getEntity } from '../composables/useData'
+import { getEntity } from './registry'
 import { fmtPrice, fmtTime, fmtQty } from './format'
 
 function getStars(overrides, id) { return overrides[id]?.stars ?? 0 }
@@ -42,17 +42,9 @@ export function getStationMult(settings, keys) {
   return total > 0 ? 1 + total : null
 }
 
+const STATION_VALUE_KEYS = ['alloyItem1','alloyItem2','alloyItem3','alloyItem4','alloyItem5','alloyItem6','alloyItem7']
 export function getStationValueMult(settings) {
-  const keys = ['alloyItem1','alloyItem2','alloyItem3','alloyItem4','alloyItem5','alloyItem6','alloyItem7']
-  let total = 0
-  for (const key of keys) {
-    const item = SETTINGS_CONFIG.station.find(i => i.key === key)
-    if (!item || item.perLevel == null) continue
-    const val = settings.station?.[key] ?? 0
-    const capped = Math.min(val, item.maxLevel)
-    total += item.perLevel * capped
-  }
-  return total > 0 ? 1 + total : null
+  return getStationMult(settings, STATION_VALUE_KEYS)
 }
 
 function getManagerMult(settings, skill) {
@@ -150,7 +142,8 @@ export function calcMaterialCost(id, qty, overrides, settings, visited) {
   const underforgeMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
   const dormMod = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
   for (const ing of e.ingredients) {
-    const ingQty = (underforgeMod || dormMod) ? ing.qty * (underforgeMod || dormMod) : ing.qty
+    const mod = underforgeMod ?? dormMod
+    const ingQty = mod != null ? ing.qty * mod : ing.qty
     cost += effectivePrice(ing.id, overrides, settings) * ingQty * qty
   }
   return cost
@@ -172,10 +165,11 @@ export function calcTotalTime(id, qty, overrides, settings, visited) {
     if (craftMult) t = t / craftMult
   }
   if (e.ingredients) {
-    const underforgeMod2 = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
+    const ufMod2 = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
     const dormMod2 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
     for (const ing of e.ingredients) {
-      const ingQty = (underforgeMod2 || dormMod2) ? ing.qty * (underforgeMod2 || dormMod2) : ing.qty
+      const mod = ufMod2 ?? dormMod2
+      const ingQty = mod != null ? ing.qty * mod : ing.qty
       t += calcTotalTime(ing.id, ingQty * qty, overrides, settings, visited)
     }
   }
@@ -212,7 +206,8 @@ export function buildTree(id, qty, overrides, settings, visited) {
     const ufMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
     const dormMod3 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
     for (const ing of e.ingredients) {
-      const ingQty = (ufMod || dormMod3) ? ing.qty * (ufMod || dormMod3) : ing.qty
+      const mod = ufMod ?? dormMod3
+      const ingQty = mod != null ? ing.qty * mod : ing.qty
       const child = buildTree(ing.id, ingQty * qty, overrides, settings, new Set(visited))
       if (child) node.children.push(child)
     }

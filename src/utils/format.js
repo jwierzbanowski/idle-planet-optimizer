@@ -27,3 +27,14 @@ export function fmtQty(n) {
   const scaled = n / Math.pow(10, tier * 3)
   return scaled.toFixed(1) + suf[tier]
 }
+
+export function fmtDuration(hours) {
+  if (!isFinite(hours) || hours <= 0) return '∞'
+  if (hours < 1/3600) return '<1s'
+  if (hours < 1/60) return (hours * 3600).toFixed(0) + 's'
+  if (hours < 1) return (hours * 60).toFixed(1) + 'm'
+  if (hours < 24) return hours.toFixed(1) + 'h'
+  if (hours < 720) return (hours / 24).toFixed(1) + 'd'
+  if (hours < 8760) return (hours / 720).toFixed(1) + 'mo'
+  return (hours / 8760).toFixed(1) + 'y'
+}

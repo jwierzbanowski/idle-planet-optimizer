@@ -22,10 +22,6 @@ export function useSettings() {
     return settings[cat]?.[key] ?? 0
   }
 
-  function getSettingValue(cat, key) {
-    return settings[cat]?.[key]
-  }
-
   function setSetting(cat, key, value) {
     const item = (SETTINGS_CONFIG[cat] || []).find(i => i.key === key)
     const max = item?.maxLevel
@@ -65,7 +61,11 @@ export function useSettings() {
   function updateManagerValue(index, value) {
     if (!settings.managers || !settings.managers[index]) return
     const n = parseFloat(value)
-    if (!isNaN(n) && n > 0) settings.managers[index].value = n
+    if (isNaN(n) || n <= 0) {
+      settings.managers[index].value = 0.01
+    } else {
+      settings.managers[index].value = n
+    }
     _managerVersion.value++
     saveSettings(settings)
   }
@@ -75,5 +75,5 @@ export function useSettings() {
     saveSettings(settings)
   }
 
-  return { settings, getRawSetting, getSettingValue, setSetting, getManagers, addManager, removeManager, updateManagerSkill, updateManagerValue, managerVersion: _managerVersion, setPinnedItems }
+  return { settings, getRawSetting, setSetting, getManagers, addManager, removeManager, updateManagerSkill, updateManagerValue, managerVersion: _managerVersion, setPinnedItems }
 }

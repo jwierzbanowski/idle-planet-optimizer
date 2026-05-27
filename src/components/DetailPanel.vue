@@ -118,3 +118,45 @@ const treeHtml = computed(() => {
   return '<h3 style="color:#e8edf5;font-size:15px;margin-bottom:8px">Recipe Tree</h3>' + renderTree(tree, overrides)
 })
 </script>
+
+<style scoped>
+.detail-panel {
+  background: #0d1520; border: 1px solid #1e2a3a;
+  border-radius: 10px; margin-top: 16px; padding: 20px;
+  display: none;
+}
+.detail-panel.open { display: block; }
+.detail-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 16px;
+}
+.detail-title { font-size: 20px; font-weight: 700; color: #e8edf5; }
+.detail-close {
+  background: none; border: none; color: #6b7a8f;
+  font-size: 22px; cursor: pointer; padding: 4px 8px; border-radius: 4px;
+}
+.detail-close:hover { color: #fff; background: #1a2235; }
+.detail-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-box {
+  background: #121824; border-radius: 8px; padding: 12px 16px;
+  border: 1px solid #1e2a3a;
+}
+.stat-label { font-size: 11px; color: #6b7a8f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.stat-value { font-size: 18px; font-weight: 600; color: #e8edf5; }
+.tree { margin-top: 12px; }
+.tree-node { padding-left: 20px; border-left: 1px solid #2a3a4a; margin: 4px 0; padding: 4px 0 4px 16px; }
+.tree-node.root { border-left: none; padding-left: 0; }
+.tree-item {
+  display: flex; align-items: center; gap: 8px; padding: 4px 8px;
+  border-radius: 4px; transition: background 0.15s;
+}
+.tree-item:hover { background: #1a2235; }
+.tree-qty { color: #6b7a8f; font-size: 12px; min-width: 48px; }
+.tree-name { color: #e8edf5; font-weight: 500; }
+.tree-price { color: #6b7a8f; font-size: 12px; margin-left: auto; }
+.tree-time { color: #6b7a8f; font-size: 12px; margin-left: 12px; }
+.tree-arrow { color: #4fc3f7; font-size: 10px; margin-right: 4px; }
+</style>

@@ -60,10 +60,18 @@
     </div>
 
     <template v-else>
-      <div class="tab-content" v-show="activeTab === 'ores'" v-html="oresHtml"></div>
-      <div class="tab-content" v-show="activeTab === 'alloys'" v-html="alloysHtml"></div>
-      <div class="tab-content" v-show="activeTab === 'items'" v-html="itemsHtml"></div>
-      <div class="tab-content" v-show="activeTab === 'mining'" v-html="miningHtml"></div>
+      <div class="tab-content" v-show="activeTab === 'ores'">
+        <OresTable @show-detail="detailId = $event" />
+      </div>
+      <div class="tab-content" v-show="activeTab === 'alloys'">
+        <CraftableTable type="alloy" @show-detail="detailId = $event" />
+      </div>
+      <div class="tab-content" v-show="activeTab === 'items'">
+        <CraftableTable type="item" @show-detail="detailId = $event" />
+      </div>
+      <div class="tab-content" v-show="activeTab === 'mining'">
+        <MiningTable />
+      </div>
     </template>
 
     <DetailPanel :detailId="detailId" @close="detailId = null" />
@@ -75,18 +83,18 @@ import { ref, computed, reactive } from 'vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import MarketPanel from './components/MarketPanel.vue'
 import DetailPanel from './components/DetailPanel.vue'
-import { useData } from './composables/useData'
+import OresTable from './components/OresTable.vue'
+import CraftableTable from './components/CraftableTable.vue'
+import MiningTable from './components/MiningTable.vue'
 import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
+import { loadData } from './composables/useData'
 import {
-  effectivePrice, calcMaterialCost, calcTotalTime,
-  getModifier, getMiningSpeedMult, getBeaconMult, getSmeltSpeedMult, getCraftSpeedMult,
-  getProjectMultiplier, getStationMult, getStationValueMult, renderTree, buildTree
+  getModifier, getMiningSpeedMult, getSmeltSpeedMult, getCraftSpeedMult,
+  getProjectMultiplier, getStationMult, getStationValueMult
 } from './utils/calc'
-import { fmtPrice, fmtTime, fmtQty } from './utils/format'
 
-const { DB, ORDER, getEntity } = useData()
-const { overrides, getStars, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, setOverride, resetOverrides } = useOverrides()
+const { resetOverrides } = useOverrides()
 const { settings, managerVersion } = useSettings()
 
 const activeTab = ref('ores')
@@ -102,7 +110,6 @@ const tabs = computed(() => [
 ])
 
 // ===== DATA LOADING =====
-import { loadData } from './composables/useData'
 loadData()
   .then(c => {
     counts.ores = c.oresCount
@@ -152,8 +159,8 @@ const debugStats = computed(() => {
 
   const global12 = settings.station?.miningGlobal ? 1.2 : null
 
-  const mgrSmelt = (m => m > 1 ? m : null)(countManagers(settings, 'allSmeltSpeed'))
-  const mgrCraft = (m => m > 1 ? m : null)(countManagers(settings, 'allCraftSpeed'))
+  const mgrSmelt = null
+  const mgrCraft = null
 
   const smeltRate = getSmeltSpeedMult(settings)
   const craftRate = getCraftSpeedMult(settings)
@@ -224,42 +231,6 @@ const debugStats = computed(() => {
   }
 })
 
-function breakdownSmelt(s) {
-  const parts = []
-  const f = getModifier('rooms', 'forge', s)
-  if (f) parts.push('Forge×' + f.toFixed(2))
-  const fp = getProjectMultiplier(s, ['advancedFurnace', 'superiorFurnace'])
-  if (fp) parts.push('Proj×' + fp.toFixed(2))
-  const ss = getStationMult(s, ['smelting1','smelting2','smelting3','smelting4','smelting5'])
-  if (ss && ss > 1) parts.push('Stn×' + ss.toFixed(2))
-  const mgrS = countManagers(s, 'allSmeltSpeed')
-  if (mgrS) parts.push('Mgr×' + mgrS.toFixed(2))
-  return parts.length ? parts.join(' + ') : 'none'
-}
-
-function breakdownCraft(s) {
-  const parts = []
-  const w = getModifier('rooms', 'workshop', s)
-  if (w) parts.push('Workshop×' + w.toFixed(2))
-  const cp = getProjectMultiplier(s, ['advancedCrafter', 'superiorCrafter'])
-  if (cp) parts.push('Proj×' + cp.toFixed(2))
-  const sc = getStationMult(s, ['crafting1','crafting2','crafting3','crafting4','crafting5'])
-  if (sc && sc > 1) parts.push('Stn×' + sc.toFixed(2))
-  const mgrC = countManagers(s, 'allCraftSpeed')
-  if (mgrC) parts.push('Mgr×' + mgrC.toFixed(2))
-  return parts.length ? parts.join(' + ') : 'none'
-}
-
-function countManagers(s, skill) {
-  const mgrs = s.managers
-  if (!Array.isArray(mgrs)) return 0
-  let mult = 1
-  for (const m of mgrs) {
-    if (m.skill === skill && m.value > 0) mult *= m.value
-  }
-  return mult > 1 ? mult : 0
-}
-
 function switchTab(tab) { activeTab.value = tab }
 
 function resetAll() {
@@ -268,248 +239,6 @@ function resetAll() {
   detailId.value = null
 }
 
-// ===== STAR / MARKET CONTROLS (HTML) =====
-function starControlsHtml(id) {
-  const s = getStars(id)
-  return '<div class="star-controls">'
-    + '<button class="star-btn" onclick="event.stopPropagation();window.__setOverride(\'' + id + '\',\'stars\',' + Math.max(0, s - 1) + ')"' + (s === 0 ? ' disabled' : '') + '>−</button>'
-    + '<span class="star-count">' + s + '</span>'
-    + '<button class="star-btn" onclick="event.stopPropagation();window.__setOverride(\'' + id + '\',\'stars\',' + (s + 1) + ')">+</button>'
-    + '</div>'
-}
-
-// expose for onclick in HTML strings
-window.__setOverride = setOverride
-
-// ===== ORES TABLE =====
-const oresHtml = computed(() => {
-  let html = '<div class="table-wrap"><table>'
-  html += '<thead><tr>'
-  html += '<th>Name</th><th>Base Price</th><th>Smelted Into</th><th>Effective Price</th>'
-  html += '</tr></thead><tbody>'
-  for (const id of ORDER.value.ores) {
-    const row = DB.value.ores[id]
-    const eff = effectivePrice(id, overrides, settings)
-    const smeltTarget = row.smeltedInto ? getEntity(row.smeltedInto) : null
-    html += '<tr onclick="window.__showDetail(\'' + id + '\',\'ore\')">'
-    html += '<td class="name-cell">' + row.name + starControlsHtml(id) + '</td>'
-    html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
-    html += '<td>' + (smeltTarget ? smeltTarget.name : '<span class="price-small">—</span>') + '</td>'
-    html += '<td class="price">' + fmtPrice(eff) + '</td>'
-    html += '</tr>'
-  }
-  html += '</tbody></table></div>'
-  return html
-})
-
-// ===== ALLOYS TABLE =====
-const alloysHtml = computed(() => {
-  managerVersion.value
-  let html = '<div class="table-wrap"><table>'
-  html += '<thead><tr>'
-  html += '<th>Name</th><th>Smelt Time</th><th>Ingredients</th><th>Base Price</th>'
-  html += '<th>Effective Price</th><th>Material Cost</th><th>Profit / Craft</th><th>Profit / sec</th><th>Total Time</th>'
-  html += '</tr></thead><tbody>'
-  for (const id of ORDER.value.alloys) {
-    const row = DB.value.alloys[id]
-    const t = calcTotalTime(id, 1, overrides, settings)
-    const oc = calcMaterialCost(id, 1, overrides, settings)
-    const eff = effectivePrice(id, overrides, settings)
-    const profit = eff - oc
-    const pps = t > 0 ? profit / t : 0
-    const smeltMult = getSmeltSpeedMult(settings)
-    const ufMod = getModifier('rooms', 'underforge', settings)
-    const ingStr = row.ingredients.map(i => {
-      const e = getEntity(i.id)
-      const q = ufMod ? (i.qty * ufMod) : i.qty
-      return (q > 1 ? fmtQty(q) + '× ' : '') + (e ? e.name : i.id)
-    }).join('<br>')
-    html += '<tr onclick="window.__showDetail(\'' + id + '\',\'alloy\')">'
-    html += '<td class="name-cell">' + row.name + starControlsHtml(id) + '</td>'
-    html += '<td>' + fmtTime((smeltMult && row.time) ? row.time / smeltMult : row.time) + '</td>'
-    html += '<td><span class="ingredient-list">' + ingStr + '</span></td>'
-    html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
-    html += '<td class="price">' + fmtPrice(eff) + '</td>'
-    html += '<td class="price-small">' + fmtPrice(oc) + '</td>'
-    html += '<td class="' + (profit >= 0 ? 'positive' : 'negative') + '">' + fmtPrice(profit) + '</td>'
-    html += '<td class="' + (pps >= 0 ? 'positive' : 'negative') + '" style="font-weight:600">' + fmtPrice(pps) + '/s</td>'
-    html += '<td class="price-small">' + fmtTime(t) + '</td>'
-    html += '</tr>'
-  }
-  html += '</tbody></table></div>'
-  return html
-})
-
-// ===== ITEMS TABLE =====
-const itemsHtml = computed(() => {
-  managerVersion.value
-  let html = '<div class="table-wrap"><table>'
-  html += '<thead><tr>'
-  html += '<th>Name</th><th>Craft Time</th><th>Ingredients</th><th>Base Price</th>'
-  html += '<th>Effective Price</th><th>Material Cost</th><th>Profit / Craft</th><th>Profit / sec</th><th>Total Time</th>'
-  html += '</tr></thead><tbody>'
-  for (const id of ORDER.value.items) {
-    const row = DB.value.items[id]
-    const t = calcTotalTime(id, 1, overrides, settings)
-    const oc = calcMaterialCost(id, 1, overrides, settings)
-    const eff = effectivePrice(id, overrides, settings)
-    const profit = eff - oc
-    const pps = t > 0 ? profit / t : 0
-    const craftMult = getCraftSpeedMult(settings)
-    const dormMod = getModifier('rooms', 'dorm', settings)
-    const ingStr = row.ingredients.map(i => {
-      const e = getEntity(i.id)
-      const q = dormMod ? (i.qty * dormMod) : i.qty
-      return (q > 1 ? fmtQty(q) + '× ' : '') + (e ? e.name : i.id)
-    }).join('<br>')
-    html += '<tr onclick="window.__showDetail(\'' + id + '\',\'item\')">'
-    html += '<td class="name-cell">' + row.name + starControlsHtml(id) + '</td>'
-    html += '<td>' + fmtTime((craftMult && row.time) ? row.time / craftMult : row.time) + '</td>'
-    html += '<td><span class="ingredient-list">' + ingStr + '</span></td>'
-    html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
-    html += '<td class="price">' + fmtPrice(eff) + '</td>'
-    html += '<td class="price-small">' + fmtPrice(oc) + '</td>'
-    html += '<td class="' + (profit >= 0 ? 'positive' : 'negative') + '">' + fmtPrice(profit) + '</td>'
-    html += '<td class="' + (pps >= 0 ? 'positive' : 'negative') + '" style="font-weight:600">' + fmtPrice(pps) + '/s</td>'
-    html += '<td class="price-small">' + fmtTime(t) + '</td>'
-    html += '</tr>'
-  }
-  html += '</tbody></table></div>'
-  return html
-})
-
-function fmtDuration(hours) {
-  if (!isFinite(hours) || hours <= 0) return '∞'
-  if (hours < 1/3600) return '<1s'
-  if (hours < 1/60) return (hours * 3600).toFixed(0) + 's'
-  if (hours < 1) return (hours * 60).toFixed(1) + 'm'
-  if (hours < 24) return hours.toFixed(1) + 'h'
-  if (hours < 720) return (hours / 24).toFixed(1) + 'd'
-  if (hours < 8760) return (hours / 720).toFixed(1) + 'mo'
-  return (hours / 8760).toFixed(1) + 'y'
-}
-
-// ===== MINING TABLE =====
-const miningHtml = computed(() => {
-  const engineering = getModifier('rooms', 'engineering', settings)
-  const miningProj = getProjectMultiplier(settings, ['advancedMining', 'superiorMining'])
-  const stnMine = getStationMult(settings, ['mining1', 'mining2'])
-  const global12 = settings.station?.miningGlobal ? 1.2 : null
-
-  const miningMult = getMiningSpeedMult(settings) || 1
-
-  // planets table
-  let html = '<div class="table-wrap"><table>'
-  html += '<thead><tr>'
-  html += '<th>Planet</th><th>Base Price</th><th>Resources</th><th>Mining Lv</th><th>Colonies</th><th>Probe</th><th>Rate</th><th>Profit / s</th><th>Upgrade Payback</th>'
-  html += '</tr></thead><tbody>'
-
-  const rows = ORDER.value.planets.map(id => {
-    const p = DB.value.planets[id]
-    const lvl = getMiningLevel(id)
-    const colonies = getMiningColonies(id)
-    const probe = getProbe(id)
-    const probeMult = probe ? (getProbeSpeed(id) || 1) : 1
-    const md = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
-    const beaconMult = getBeaconMult(p.number, settings)
-    const coloniesMult = 1 + 0.3 * colonies
-    const rate = md.rate * miningMult * beaconMult * coloniesMult * probeMult
-    const dist = p.distance
-    let profitPerSec = 0, profitPerHour = 0, weightedPrice = 0
-
-    if (dist != null && dist > 0) {
-      for (const r of p.resources) {
-        const ore = DB.value.ores[r.ore]
-        if (ore) weightedPrice += (r.yield / 100) * effectivePrice(ore.id, overrides, settings)
-      }
-      profitPerSec = rate * weightedPrice
-      profitPerHour = profitPerSec * 3600
-    }
-
-    let upgradeCost = 0
-    let paybackHours = Infinity
-    if (dist != null && dist > 0 && lvl < 100) {
-      upgradeCost = (p.basePrice / 20) * Math.pow(1.3, lvl - 1)
-      const astronomyMod = getModifier('rooms', 'astronomy', settings)
-      if (astronomyMod) upgradeCost *= astronomyMod
-      const mdNext = DB.value.mining['lvl' + (lvl + 1)] || md
-      const rateNext = mdNext.rate * miningMult * beaconMult * coloniesMult * probeMult
-      const profitPerSecNext = rateNext * weightedPrice
-      const incProfit = profitPerSecNext - profitPerSec
-      if (incProfit > 0) paybackHours = upgradeCost / (incProfit * 3600)
-    }
-    return { id: p.id, name: p.name, number: p.number, basePrice: p.basePrice, resources: p.resources, distance: dist, lvl, colonies, probe, probeMult, rate, baseRate: md.rate, profitPerSec, profitPerHour, upgradeCost, paybackHours }
-  })
-
-  rows.sort((a, b) => a.number - b.number)
-
-  for (const row of rows) {
-    const resStr = row.resources.map(r => {
-      const ore = DB.value.ores[r.ore]
-      return (ore ? ore.name : r.ore) + ' ' + r.yield + '%'
-    }).join('<br>')
-
-    const lvl = row.lvl, colonies = row.colonies, probe = row.probe, probeMult = row.probeMult
-    const rowRateLines = ['Mine Rate']
-    rowRateLines.push('  baseRate (lvl' + lvl + '): ' + row.baseRate.toFixed(3) + '/s')
-    if (engineering) rowRateLines.push('  Engineering room: ' + engineering.toFixed(2) + '×')
-    if (miningProj) rowRateLines.push('  Mining projects: ' + miningProj.toFixed(2) + '×')
-    if (stnMine) rowRateLines.push('  Mining stations: ' + stnMine.toFixed(2) + '×')
-    if (global12) rowRateLines.push('  Global 1.2×: 1.20×')
-    rowRateLines.push('  Beacon: ' + getBeaconMult(row.number, settings).toFixed(2) + '×')
-    rowRateLines.push('  Colonies (×' + colonies + '): 1 + 0.3×' + colonies + ' = ' + (1 + 0.3 * colonies).toFixed(2) + '×')
-    if (probe) rowRateLines.push('  Probe: ' + probeMult.toFixed(2) + '×')
-    if (engineering || miningProj || stnMine || global12 || probe) rowRateLines.push('  ─────────────────')
-    rowRateLines.push('  Result: ' + row.rate.toFixed(3) + '/s')
-    html += '<tr>'
-    html += '<td class="name-cell">' + row.name + '</td>'
-    html += '<td class="price">' + fmtPrice(row.basePrice) + '</td>'
-    html += '<td><span class="ingredient-list">' + resStr + '</span></td>'
-    html += '<td><div class="mining-level-select" style="display:inline-flex">'
-      + '<button class="star-btn" onclick="event.stopPropagation();window.__setMiningLevel(\'' + row.id + '\',' + (lvl - 1) + ')"' + (lvl <= 1 ? ' disabled' : '') + '>−</button>'
-      + '<input type="number" class="mining-level-input" value="' + lvl + '" min="1" max="100" style="width:48px" onchange="event.stopPropagation();window.__setMiningLevel(\'' + row.id + '\',parseInt(this.value)||1)">'
-      + '<button class="star-btn" onclick="event.stopPropagation();window.__setMiningLevel(\'' + row.id + '\',' + (lvl + 1) + ')"' + (lvl >= 100 ? ' disabled' : '') + '>+</button>'
-    + '</div></td>'
-    html += '<td><div class="mining-level-select" style="display:inline-flex">'
-      + '<button class="star-btn" onclick="event.stopPropagation();window.__setMiningColonies(\'' + row.id + '\',' + (colonies - 1) + ')"' + (colonies <= 0 ? ' disabled' : '') + '>−</button>'
-      + '<input type="number" class="mining-level-input" value="' + colonies + '" min="0" max="100" style="width:48px" onchange="event.stopPropagation();window.__setMiningColonies(\'' + row.id + '\',Math.max(0,parseInt(this.value)||0))">'
-      + '<button class="star-btn" onclick="event.stopPropagation();window.__setMiningColonies(\'' + row.id + '\',' + (colonies + 1) + ')"' + (colonies >= 100 ? ' disabled' : '') + '>+</button>'
-    + '</div></td>'
-    html += '<td class="price">'
-      + '<input type="checkbox" class="probe-check" ' + (probe ? 'checked' : '') + ' onclick="event.stopPropagation();window.__setProbe(\'' + row.id + '\',this.checked)">'
-      + (probe ? '&nbsp;×<input type="number" class="probe-input" value="' + probeMult + '" min="0" step="0.01" onchange="event.stopPropagation();window.__setProbeSpeed(\'' + row.id + '\',parseFloat(this.value)||1)">' : '')
-    + '</td>'
-    html += '<td class="price">' + row.rate.toFixed(3) + '/s<span class="info-icon" data-tip="' + rowRateLines.join('\n') + '" onclick="event.stopPropagation();window.__toggleTooltip(this)">i</span></td>'
-    if (row.distance != null && row.distance > 0) {
-      html += '<td class="' + (row.profitPerSec >= 0 ? 'positive' : 'negative') + '" style="font-weight:600">' + fmtPrice(row.profitPerSec) + '/s</td>'
-      if (row.upgradeCost > 0 && isFinite(row.paybackHours)) {
-        html += '<td class="price-small">' + fmtDuration(row.paybackHours) + '<span class="info-icon" data-tip="Upgrade cost: ' + fmtPrice(Math.round(row.upgradeCost)) + '" onclick="event.stopPropagation();window.__toggleTooltip(this)">i</span></td>'
-      } else {
-        html += '<td class="price-small">—</td>'
-      }
-    } else {
-      html += '<td class="price-small">—</td><td class="price-small">—</td>'
-    }
-    html += '</tr>'
-  }
-
-  html += '</tbody></table></div>'
-  return html
-})
-
-// expose for onclick in HTML strings
-window.__showDetail = (id) => { detailId.value = id }
-window.__setMiningLevel = (id, lvl) => { setOverride(id, 'miningLevel', Math.max(1, Math.min(100, lvl))) }
-window.__setMiningColonies = (id, val) => { setOverride(id, 'colonies', Math.max(0, Math.min(100, val))) }
-window.__setProbe = (id, val) => { setOverride(id, 'probe', val); if (!val) setOverride(id, 'probeSpeed', 0) }
-window.__setProbeSpeed = (id, val) => { setOverride(id, 'probeSpeed', Math.max(0, val)) }
-
-window.__toggleTooltip = (el) => {
-  document.querySelectorAll('.info-icon.visible').forEach(icon => {
-    if (icon !== el) icon.classList.remove('visible')
-  })
-  el.classList.toggle('visible')
-}
 document.addEventListener('click', () => {
   document.querySelectorAll('.info-icon.visible').forEach(icon => {
     icon.classList.remove('visible')
