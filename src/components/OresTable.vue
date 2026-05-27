@@ -1,36 +1,42 @@
 <template>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th><th>Base Price</th><th>Smelted Into</th><th>Effective Price</th>
-        </tr>
-      </thead>
-      <tbody v-for="group in groupedOres" :key="group.label">
-        <tr class="group-header">
-          <td colspan="4" class="group-label">{{ group.label }}</td>
-        </tr>
-        <tr v-for="id in group.ids" :key="id" @click="$emit('show-detail', id)">
-          <td class="name-cell">
-            {{ DB.ores[id].name }}
-            <StarControls :modelValue="getStars(id)" @update:modelValue="setOverride(id, 'stars', $event)" />
-          </td>
-          <td class="price">{{ fmtPrice(DB.ores[id].basePrice) }}</td>
-          <td>
-            <template v-if="DB.ores[id].smeltedInto">
-              {{ getEntity(DB.ores[id].smeltedInto)?.name }}
-            </template>
-            <span v-else class="price-small">—</span>
-          </td>
-          <td class="price">{{ fmtPrice(effectivePrice(id, overrides, settings)) }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div>
+    <div class="filter-tabs">
+      <button v-for="tab in filterTabs" :key="tab.key" class="filter-tab"
+        :class="{ active: activeGroup === tab.key }"
+        @click="activeGroup = tab.key">
+        {{ tab.label }} <span class="count">({{ tab.count }})</span>
+      </button>
+    </div>
+    <div class="table-wrap" v-for="group in visibleGroups" :key="group.label">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Base Price</th><th>Smelted Into</th><th>Effective Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="id in group.ids" :key="id" @click="$emit('show-detail', id)">
+            <td class="name-cell">
+              {{ DB.ores[id].name }}
+              <StarControls :modelValue="getStars(id)" @update:modelValue="setOverride(id, 'stars', $event)" />
+            </td>
+            <td class="price">{{ fmtPrice(DB.ores[id].basePrice) }}</td>
+            <td>
+              <template v-if="DB.ores[id].smeltedInto">
+                {{ getEntity(DB.ores[id].smeltedInto)?.name }}
+              </template>
+              <span v-else class="price-small">—</span>
+            </td>
+            <td class="price">{{ fmtPrice(effectivePrice(id, overrides, settings)) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
@@ -52,23 +58,47 @@ const ORE_GROUPS = [
   { label: 'End Game', ids: ['quadium', 'scrith', 'uru', 'vibranium', 'aether', 'viterium', 'xynium', 'quolium', 'luterium', 'wraith', 'aqualite', 'opalite'] },
 ]
 
+const activeGroup = ref('all')
+
 const groupedOres = computed(() => {
   const available = new Set(ORDER.value.ores)
   return ORE_GROUPS.map(g => ({
+    key: g.label.toLowerCase().replace(/\s+/g, '_'),
     label: g.label,
     ids: g.ids.filter(id => available.has(id)),
   })).filter(g => g.ids.length > 0)
 })
+
+const filterTabs = computed(() => {
+  const allCount = groupedOres.value.reduce((sum, g) => sum + g.ids.length, 0)
+  const tabs = [{ key: 'all', label: 'All', count: allCount }]
+  for (const g of groupedOres.value) {
+    tabs.push({ key: g.key, label: g.label, count: g.ids.length })
+  }
+  return tabs
+})
+
+const visibleGroups = computed(() => {
+  if (activeGroup.value === 'all') return groupedOres.value
+  return groupedOres.value.filter(g => g.key === activeGroup.value)
+})
 </script>
 
 <style scoped>
-.group-header { cursor: default; }
-.group-header:hover { background: transparent; }
-.group-label {
-  padding: 8px 12px; font-size: 12px; font-weight: 700; color: #4fc3f7;
-  text-transform: uppercase; letter-spacing: 0.5px; background: #0d1520;
-  border-bottom: 1px solid #1e2a3a;
+.filter-tabs {
+  display: flex; gap: 4px; margin-bottom: 12px;
+  background: #121824; border-radius: 10px; padding: 4px;
+  display: inline-flex;
 }
+.filter-tab {
+  padding: 8px 20px; border: none; background: transparent;
+  color: #6b7a8f; font-size: 13px; font-weight: 600;
+  cursor: pointer; border-radius: 6px; transition: all 0.2s;
+}
+.filter-tab:hover { color: #c8d0dc; background: #1a2235; }
+.filter-tab.active { color: #fff; background: #1e88e5; }
+.filter-tab .count { color: #6b7a8f; font-size: 11px; margin-left: 4px; font-weight: 400; }
+.filter-tab.active .count { color: rgba(255,255,255,0.6); }
 .star-controls { display: flex; align-items: center; gap: 3px; margin-top: 5px; }
 .star-btn {
   width: 24px; height: 24px; border: 1px solid #2a3a4a; border-radius: 4px;
