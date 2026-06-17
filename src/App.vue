@@ -3,10 +3,7 @@
     <h1>Idle Planet Optimizer</h1>
     <div class="subtitle">Idle Planet Miner — optimal crafting &amp; smelting</div>
 
-    <div class="settings-row-container">
-      <div class="settings-col-main"><SettingsPanel /></div>
-      <div class="settings-col-side"><MarketPanel /></div>
-    </div>
+    <MarketPanel />
 
     <div v-if="!loading" class="debug-bar">
       <span class="debug-item">
@@ -53,6 +50,7 @@
       </div>
       <div class="header-actions">
         <button class="profile-btn" @click="showProfile = true" title="Profile">👤</button>
+        <button class="game-btn" @click="showGame = true" title="Game">🎮</button>
         <button id="resetBtn" @click="resetAll">Reset overrides</button>
       </div>
     </div>
@@ -80,15 +78,16 @@
     <DetailPanel :detailId="detailId" @close="detailId = null" />
 
     <ProfilePanel v-if="showProfile" @close="showProfile = false" />
+    <GamePanel v-if="showGame" @close="showGame = false" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import SettingsPanel from './components/SettingsPanel.vue'
 import MarketPanel from './components/MarketPanel.vue'
 import DetailPanel from './components/DetailPanel.vue'
 import ProfilePanel from './components/ProfilePanel.vue'
+import GamePanel from './components/GamePanel.vue'
 import OresTable from './components/OresTable.vue'
 import CraftableTable from './components/CraftableTable.vue'
 import MiningTable from './components/MiningTable.vue'
@@ -107,6 +106,7 @@ const { settings, managerVersion } = useSettings()
 const activeTab = ref('ores')
 const detailId = ref(null)
 const showProfile = ref(false)
+const showGame = ref(false)
 const counts = reactive({ ores: 0, alloys: 0, items: 0, mining: 0 })
 const loading = ref(true)
 
@@ -437,12 +437,13 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .header-actions {
   display: flex; align-items: center; gap: 8px;
 }
-.profile-btn {
+.profile-btn, .game-btn {
   padding: 8px 10px; background: transparent; border: 1px solid #2a3a4a;
   border-radius: 6px; color: #6b7a8f; font-size: 18px; cursor: pointer;
   line-height: 1;
 }
 .profile-btn:hover { border-color: #4fc3f7; color: #4fc3f7; }
+.game-btn:hover { border-color: #4caf50; color: #4caf50; }
 #resetBtn {
   padding: 8px 16px; background: transparent; border: 1px solid #2a3a4a;
   border-radius: 6px; color: #6b7a8f; font-size: 13px; cursor: pointer;
@@ -469,13 +470,6 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .probe-input:focus { border-color: #4fc3f7; }
 .probe-input::-webkit-inner-spin-button { opacity: 0.5; }
 
-
-/* Settings + Market row container */
-.settings-row-container {
-  display: flex; gap: 16px; margin-bottom: 16px;
-}
-.settings-col-main { flex: 7; min-width: 0; }
-.settings-col-side { flex: 3; min-width: 0; }
 
 /* Market panel */
 .market-bar { margin-bottom: 12px; }
@@ -556,21 +550,6 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .market-check { color: #4caf50; font-size: 14px; font-weight: 700; }
 .market-results { padding: 4px 0; max-height: 300px; overflow-y: auto; }
 
-/* Settings panel (scoped) */
-.settings-bar { margin-bottom: 12px; }
-#settingsToggle {
-  padding: 8px 16px; background: transparent; border: 1px solid #2a3a4a;
-  border-radius: 6px; color: #6b7a8f; font-size: 13px; cursor: pointer;
-  width: 100%; text-align: left; font-weight: 600;
-}
-#settingsToggle:hover { border-color: #4fc3f7; color: #4fc3f7; }
-.settings-panel {
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.3s ease;
-  background: #121824; border-radius: 10px;
-  border: 1px solid #1e2a3a;
-}
-.settings-panel.open { max-height: 3000px; overflow-y: auto; }
 .settings-categories {
   display: flex; gap: 4px; padding: 12px 12px 0; flex-wrap: wrap;
 }
@@ -672,7 +651,6 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .project-check-row .settings-effect { margin-left: auto; }
 
 @media (max-width: 900px) {
-  .settings-row-container { flex-direction: column; }
   .settings-content { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
 }
 @media (max-width: 768px) {
