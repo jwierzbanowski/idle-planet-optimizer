@@ -9,38 +9,8 @@
         @click="switchCat(cat.key)">{{ cat.label }}</button>
     </div>
     <div class="settings-content">
-      <!-- Station: grouped into 4 categories -->
-      <template v-if="activeCat === 'station'">
-        <div v-for="group in stationGroups" :key="group.name" class="station-group">
-          <div class="project-group-title">{{ group.name }}</div>
-          <div v-for="item in group.items" :key="item.key" class="settings-row">
-            <div class="settings-info">
-              <span class="settings-label">{{ item.label }}</span>
-              <span v-if="item.desc" class="settings-desc">{{ item.desc }}</span>
-            </div>
-            <template v-if="isNumeric(item)">
-              <div class="star-controls">
-                <button class="star-btn" :disabled="(getVal(item.key)) <= 0"
-                  @click="change(item.key, -1)">−</button>
-                <span class="star-count">{{ getVal(item.key) }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span>
-                <button class="star-btn" :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-                  @click="change(item.key, 1)">+</button>
-              </div>
-              <span class="settings-effect" style="color:#4caf50">
-                {{ item.perLevel != null ? (getVal(item.key) > 0 ? (1 + item.perLevel * getVal(item.key)).toFixed(2) + '×' : '0×') : '' }}
-              </span>
-            </template>
-            <template v-else>
-              <button class="toggle-btn" :class="{ active: getVal(item.key) }" @click="toggleItem(item.key)">
-                <span class="toggle-knob"></span>
-              </button>
-            </template>
-          </div>
-        </div>
-      </template>
-
       <!-- Managers: dynamic cards -->
-      <template v-else-if="activeCat === 'managers'">
+      <template v-if="activeCat === 'managers'">
         <div v-for="(mgr, i) in managers" :key="i" class="mgr-card">
           <select class="mgr-select" :value="mgr.skill" @change="updateManagerSkill(i, $event.target.value)">
             <option v-for="opt in skillOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
@@ -122,12 +92,9 @@ const {
 } = useSettings()
 
 const open = ref(false)
-const activeCat = ref('rooms')
+const activeCat = ref('projects')
 const categories = [
-  { key: 'rooms', label: 'Rooms' },
-  { key: 'station', label: 'Station' },
   { key: 'projects', label: 'Projects' },
-  { key: 'beacon', label: 'Beacon' },
   { key: 'managers', label: 'Managers' },
 ]
 
@@ -146,17 +113,6 @@ const projectGroups = computed(() => {
   return groups.map(g => ({ name: g.name, items: g.keys.map(k => all.find(i => i.key === k)).filter(Boolean) }))
 })
 
-const stationGroups = computed(() => {
-  const all = SETTINGS_CONFIG.station
-  if (!all) return []
-  const groups = [
-    { name: 'Mining', keys: ['mining1', 'mining2', 'miningGlobal'] },
-    { name: 'Crafting', keys: ['crafting1', 'crafting2', 'crafting3', 'crafting4', 'crafting5'] },
-    { name: 'Smelting', keys: ['smelting1', 'smelting2', 'smelting3', 'smelting4', 'smelting5'] },
-    { name: 'Alloy & Item', keys: ['alloyItem1', 'alloyItem2', 'alloyItem3', 'alloyItem4', 'alloyItem5', 'alloyItem6', 'alloyItem7'] },
-  ]
-  return groups.map(g => ({ name: g.name, items: g.keys.map(k => all.find(i => i.key === k)).filter(Boolean) }))
-})
 const managers = computed(() => getManagers())
 const skillOptions = MANAGER_SKILLS
 

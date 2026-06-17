@@ -51,7 +51,10 @@
           {{ t.label }} <span class="count">({{ t.count }})</span>
         </button>
       </div>
-      <button id="resetBtn" @click="resetAll">Reset overrides</button>
+      <div class="header-actions">
+        <button class="profile-btn" @click="showProfile = true" title="Profile">👤</button>
+        <button id="resetBtn" @click="resetAll">Reset overrides</button>
+      </div>
     </div>
 
     <div v-if="loading" class="loading">
@@ -75,6 +78,8 @@
     </template>
 
     <DetailPanel :detailId="detailId" @close="detailId = null" />
+
+    <ProfilePanel v-if="showProfile" @close="showProfile = false" />
   </div>
 </template>
 
@@ -83,6 +88,7 @@ import { ref, computed, reactive } from 'vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import MarketPanel from './components/MarketPanel.vue'
 import DetailPanel from './components/DetailPanel.vue'
+import ProfilePanel from './components/ProfilePanel.vue'
 import OresTable from './components/OresTable.vue'
 import CraftableTable from './components/CraftableTable.vue'
 import MiningTable from './components/MiningTable.vue'
@@ -100,6 +106,7 @@ const { settings, managerVersion } = useSettings()
 
 const activeTab = ref('ores')
 const detailId = ref(null)
+const showProfile = ref(false)
 const counts = reactive({ ores: 0, alloys: 0, items: 0, mining: 0 })
 const loading = ref(true)
 
@@ -427,6 +434,15 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .tree-time { color: #6b7a8f; font-size: 12px; margin-left: 12px; }
 .tree-arrow { color: #4fc3f7; font-size: 10px; margin-right: 4px; }
 
+.header-actions {
+  display: flex; align-items: center; gap: 8px;
+}
+.profile-btn {
+  padding: 8px 10px; background: transparent; border: 1px solid #2a3a4a;
+  border-radius: 6px; color: #6b7a8f; font-size: 18px; cursor: pointer;
+  line-height: 1;
+}
+.profile-btn:hover { border-color: #4fc3f7; color: #4fc3f7; }
 #resetBtn {
   padding: 8px 16px; background: transparent; border: 1px solid #2a3a4a;
   border-radius: 6px; color: #6b7a8f; font-size: 13px; cursor: pointer;
