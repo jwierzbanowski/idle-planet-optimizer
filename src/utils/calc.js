@@ -21,6 +21,20 @@ function getProjectModifier(settings, key) {
   return item.baseEffect
 }
 
+export function getIngredientMod(type, settings) {
+  let mod = null
+  if (type === 'alloy') {
+    mod = getModifier('rooms', 'underforge', settings)
+    const proj = getProjectModifier(settings, 'smeltingEfficiency')
+    if (proj) mod = mod != null ? mod * proj : proj
+  } else if (type === 'item') {
+    mod = getModifier('rooms', 'dorm', settings)
+    const proj = getProjectModifier(settings, 'craftingEfficiency')
+    if (proj) mod = mod != null ? mod * proj : proj
+  }
+  return mod
+}
+
 export function getProjectMultiplier(settings, keys) {
   let mult = 1
   for (const key of keys) {
@@ -117,10 +131,13 @@ export function effectivePrice(id, overrides, settings) {
   if (!e) return 0
   let price = e.basePrice * (1 + 0.2 * getStars(overrides, id)) * getMarket(overrides, id)
   if (e.type === 'alloy' || e.type === 'item') {
-    const salesMod = getModifier('rooms', 'sales', settings)
-    if (salesMod) price *= salesMod
-    const stnVal = getStationValueMult(settings)
-    if (stnVal) price *= stnVal
+    const onMarket = settings.pinnedItems?.includes(id)
+    if (onMarket) {
+      const salesMod = getModifier('rooms', 'sales', settings)
+      if (salesMod) price *= salesMod
+      const stnVal = getStationValueMult(settings)
+      if (stnVal) price *= stnVal
+    }
     const valProjKeys = e.type === 'alloy' ? ['advancedAlloyValue', 'superiorAlloyValue'] : ['advancedItemValue', 'superiorItemValue']
     const valProj = getProjectMultiplier(settings, valProjKeys)
     if (valProj) price *= valProj
@@ -139,11 +156,9 @@ export function calcMaterialCost(id, qty, overrides, settings, visited) {
   }
   if (!e.ingredients) return 0
   let cost = 0
-  const underforgeMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
-  const dormMod = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
+  const ingMod = getIngredientMod(e.type, settings)
   for (const ing of e.ingredients) {
-    const mod = underforgeMod ?? dormMod
-    const ingQty = mod != null ? ing.qty * mod : ing.qty
+    const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
     cost += effectivePrice(ing.id, overrides, settings) * ingQty * qty
   }
   return cost
@@ -165,12 +180,52 @@ export function calcTotalTime(id, qty, overrides, settings, visited) {
     if (craftMult) t = t / craftMult
   }
   if (e.ingredients) {
-    const ufMod2 = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
-    const dormMod2 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
+    const ingMod = getIngredientMod(e.type, settings)
     for (const ing of e.ingredients) {
-      const mod = ufMod2 ?? dormMod2
-      const ingQty = mod != null ? ing.qty * mod : ing.qty
+      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
       t += calcTotalTime(ing.id, ingQty * qty, overrides, settings, visited)
+    }
+  }
+  return Math.round(t)
+}
+
+export function calcSmeltTime(id, qty, overrides, settings, visited) {
+  visited = visited || new Set()
+  if (visited.has(id)) return 0
+  visited.add(id)
+  const e = getEntity(id)
+  if (!e || e.type === 'ore') return 0
+  let t = 0
+  if (e.type === 'alloy' && e.time) {
+    const smeltMult = getSmeltSpeedMult(settings)
+    t = (smeltMult ? e.time / smeltMult : e.time) * qty
+  }
+  if (e.ingredients) {
+    const ingMod = getIngredientMod(e.type, settings)
+    for (const ing of e.ingredients) {
+      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
+      t += calcSmeltTime(ing.id, ingQty * qty, overrides, settings, visited)
+    }
+  }
+  return Math.round(t)
+}
+
+export function calcCraftTime(id, qty, overrides, settings, visited) {
+  visited = visited || new Set()
+  if (visited.has(id)) return 0
+  visited.add(id)
+  const e = getEntity(id)
+  if (!e || e.type === 'ore' || e.type === 'alloy') return 0
+  let t = 0
+  if (e.type === 'item' && e.time) {
+    const craftMult = getCraftSpeedMult(settings)
+    t = (craftMult ? e.time / craftMult : e.time) * qty
+  }
+  if (e.ingredients) {
+    const ingMod = getIngredientMod('item', settings)
+    for (const ing of e.ingredients) {
+      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
+      t += calcCraftTime(ing.id, ingQty * qty, overrides, settings, visited)
     }
   }
   return Math.round(t)
@@ -203,11 +258,9 @@ export function buildTree(id, qty, overrides, settings, visited) {
   }
   const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: Math.round(effTime), children: [] }
   if (e.ingredients) {
-    const ufMod = e.type === 'alloy' ? getModifier('rooms', 'underforge', settings) : null
-    const dormMod3 = e.type === 'item' ? getModifier('rooms', 'dorm', settings) : null
+    const ingMod = getIngredientMod(e.type, settings)
     for (const ing of e.ingredients) {
-      const mod = ufMod ?? dormMod3
-      const ingQty = mod != null ? ing.qty * mod : ing.qty
+      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
       const child = buildTree(ing.id, ingQty * qty, overrides, settings, new Set(visited))
       if (child) node.children.push(child)
     }

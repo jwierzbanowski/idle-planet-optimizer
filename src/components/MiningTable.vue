@@ -7,7 +7,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in sortedRows" :key="row.id">
+        <tr v-for="row in sortedRows" :key="row.id" :class="{ 'best-row': row.id === bestRowId }">
           <td class="name-cell">{{ row.name }}</td>
           <td class="price">{{ fmtPrice(row.basePrice) }}</td>
           <td><span class="ingredient-list">{{ row.resStr }}</span></td>
@@ -154,7 +154,17 @@ function profitClass(v) {
   return v >= 0 ? 'positive' : 'negative'
 }
 
-
+const bestRowId = computed(() => {
+  let best = null
+  let bestProfit = -Infinity
+  for (const row of sortedRows.value) {
+    if (row.hasProfit && row.profitPerSec > bestProfit) {
+      bestProfit = row.profitPerSec
+      best = row.id
+    }
+  }
+  return best
+})
 </script>
 
 <style scoped>
@@ -177,4 +187,6 @@ function profitClass(v) {
 }
 .probe-input:focus { border-color: #4fc3f7; }
 .probe-input::-webkit-inner-spin-button { opacity: 0.5; }
+
+.best-row { background: rgba(76, 175, 80, 0.08); }
 </style>

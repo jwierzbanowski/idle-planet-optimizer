@@ -12,29 +12,33 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>{{ timeLabel }}</th>
+            <th>Smelt Time</th>
+            <th v-if="!isAlloy">Craft Time</th>
             <th>Ingredients</th>
             <th>Base Price</th>
             <th>Effective Price</th>
             <th>Material Cost</th>
             <th>Profit / Craft</th>
             <th>Profit / sec</th>
+            <th v-if="!isAlloy">Profit w/o Smelt</th>
             <th>Total Time</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="id in visibleIds" :key="id" @click="$emit('show-detail', id)">
+          <tr v-for="id in visibleIds" :key="id" :class="{ 'best-row': bestInGroup.has(id) }" @click="$emit('show-detail', id)">
             <td class="name-cell">
               {{ getEntity(id)?.name }}
               <StarControls :modelValue="getStars(id)" @update:modelValue="setOverride(id, 'stars', $event)" />
             </td>
-            <td>{{ fmtTime(effectiveTime(id)) }}</td>
+            <td>{{ isAlloy ? fmtTime(effectiveTime(id)) : fmtTime(itemSmeltTime(id)) }}</td>
+            <td v-if="!isAlloy">{{ fmtTime(itemCraftTime(id)) }}</td>
             <td><span class="ingredient-list">{{ ingredientList(id) }}</span></td>
             <td class="price">{{ fmtPrice(getEntity(id)?.basePrice || 0) }}</td>
             <td class="price">{{ fmtPrice(effectivePrice(id, overrides, settings)) }}</td>
             <td class="price-small">{{ fmtPrice(calcMaterialCost(id, 1, overrides, settings)) }}</td>
             <td :class="profitClass(id)">{{ fmtPrice(profit(id)) }}</td>
             <td :class="profitClass(id)" style="font-weight:600">{{ fmtPrice(pps(id)) }}/s</td>
+            <td v-if="!isAlloy" :class="profitClass(id)">{{ fmtPrice(profitWithoutSmelt(id)) }}/s</td>
             <td class="price-small">{{ fmtTime(calcTotalTime(id, 1, overrides, settings)) }}</td>
           </tr>
         </tbody>
@@ -48,7 +52,7 @@ import { ref, computed } from 'vue'
 import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
-import { effectivePrice, calcMaterialCost, calcTotalTime, getSmeltSpeedMult, getCraftSpeedMult, getModifier } from '../utils/calc'
+import { effectivePrice, calcMaterialCost, calcTotalTime, calcSmeltTime, calcCraftTime, getSmeltSpeedMult, getCraftSpeedMult, getModifier, getIngredientMod } from '../utils/calc'
 import { fmtPrice, fmtTime, fmtQty } from '../utils/format'
 import { getEntity } from '../utils/registry'
 import StarControls from './StarControls.vue'
@@ -103,12 +107,22 @@ const visibleIds = computed(() => {
   const group = groupedItems.value.find(g => g.key === activeGroup.value)
   return group ? group.ids : []
 })
+const bestInGroup = computed(() => {
+  const ids = new Set()
+  for (const g of groupedItems.value) {
+    let bestId = null
+    let bestPps = -Infinity
+    for (const id of g.ids) {
+      const p = pps(id)
+      if (p > bestPps) { bestPps = p; bestId = id }
+    }
+    if (bestId != null) ids.add(bestId)
+  }
+  return ids
+})
 const timeLabel = computed(() => isAlloy.value ? 'Smelt Time' : 'Craft Time')
 const speedMult = computed(() => isAlloy.value ? getSmeltSpeedMult(settings) : getCraftSpeedMult(settings))
-const ingMod = computed(() => {
-  if (isAlloy.value) return getModifier('rooms', 'underforge', settings)
-  return getModifier('rooms', 'dorm', settings)
-})
+const ingMod = computed(() => getIngredientMod(isAlloy.value ? 'alloy' : 'item', settings))
 
 function effectiveTime(id) {
   const e = getEntity(id)
@@ -117,6 +131,20 @@ function effectiveTime(id) {
   return mult ? e.time / mult : e.time
 }
 
+function itemSmeltTime(id) {
+  return calcSmeltTime(id, 1, overrides, settings)
+}
+function itemCraftTime(id) {
+  return calcCraftTime(id, 1, overrides, settings)
+}
+function profitWithoutSmelt(id) {
+  if (isAlloy.value) {
+    const t = effectiveTime(id)
+    return t > 0 ? profit(id) / t : profit(id)
+  }
+  const ct = itemCraftTime(id)
+  return ct > 0 ? profit(id) / ct : profit(id)
+}
 function ingredientList(id) {
   const e = getEntity(id)
   if (!e || !e.ingredients) return ''
@@ -125,7 +153,7 @@ function ingredientList(id) {
     const mod = ingMod.value
     const q = mod != null ? i.qty * mod : i.qty
     return (q > 1 ? fmtQty(q) + '× ' : '') + (ing ? ing.name : i.id)
-  }).join(', ')
+  }).join('\n')
 }
 
 function profit(id) {
@@ -172,4 +200,5 @@ function profitClass(id) {
 .star-count {
   min-width: 44px; text-align: center; font-size: 14px; font-weight: 600; color: #e8edf5;
 }
+.best-row { background: rgba(76, 175, 80, 0.08); }
 </style>

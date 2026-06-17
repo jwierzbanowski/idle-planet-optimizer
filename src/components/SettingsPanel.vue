@@ -138,8 +138,8 @@ const projectGroups = computed(() => {
   if (!all) return []
   const groups = [
     { name: 'Mining', keys: ['advancedMining', 'superiorMining'] },
-    { name: 'Smelting', keys: ['advancedFurnace', 'superiorFurnace'] },
-    { name: 'Crafting', keys: ['advancedCrafter', 'superiorCrafter'] },
+    { name: 'Smelting', keys: ['advancedFurnace', 'superiorFurnace', 'smeltingEfficiency'] },
+    { name: 'Crafting', keys: ['advancedCrafter', 'superiorCrafter', 'craftingEfficiency'] },
     { name: 'Alloy Value', keys: ['advancedAlloyValue', 'superiorAlloyValue'] },
     { name: 'Item Value', keys: ['advancedItemValue', 'superiorItemValue'] },
   ]

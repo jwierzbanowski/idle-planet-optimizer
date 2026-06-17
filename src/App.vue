@@ -356,7 +356,7 @@ td {
   padding: 10px 12px; white-space: nowrap; vertical-align: middle;
 }
 td.name-cell { font-weight: 600; color: #e8edf5; }
-td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-space: nowrap; }
+td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-space: pre-line; }
 .positive { color: #4caf50; }
 .negative { color: #ef5350; }
 .price { color: #e8edf5; }
