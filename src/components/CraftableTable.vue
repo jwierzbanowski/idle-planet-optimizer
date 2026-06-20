@@ -19,7 +19,7 @@
             <th>Effective Price</th>
             <th>Material Cost</th>
             <th>Profit / Craft</th>
-            <th>Profit / sec (w/ wait)</th>
+            <th>Profit / sec</th>
             <th>Total Time</th>
           </tr>
         </thead>
@@ -153,7 +153,7 @@ function profit(id) {
 }
 
 function pps(id) {
-  const t = calcTotalTime(id, 1, overrides, settings)
+  const t = isAlloy.value ? effectiveTime(id) : itemCraftTime(id)
   return t > 0 ? profit(id) / t : 0
 }
 

@@ -134,13 +134,10 @@ export function effectivePrice(id, overrides, settings) {
   if (!e) return 0
   let price = e.basePrice * (1 + 0.2 * getStars(overrides, id)) * getMarket(overrides, id)
   if (e.type === 'alloy' || e.type === 'item') {
-    const onMarket = settings.pinnedItems?.includes(id)
-    if (onMarket) {
-      const salesMod = getModifier('rooms', 'sales', settings)
-      if (salesMod) price *= salesMod
-      const stnVal = getStationValueMult(settings)
-      if (stnVal) price *= stnVal
-    }
+    const salesMod = getModifier('rooms', 'sales', settings)
+    if (salesMod) price *= salesMod
+    const stnVal = getStationValueMult(settings)
+    if (stnVal) price *= stnVal
     const valProjKeys = e.type === 'alloy' ? ['advancedAlloyValue', 'superiorAlloyValue'] : ['advancedItemValue', 'superiorItemValue']
     const valProj = getProjectMultiplier(settings, valProjKeys)
     if (valProj) price *= valProj
