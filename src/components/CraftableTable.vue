@@ -19,8 +19,7 @@
             <th>Effective Price</th>
             <th>Material Cost</th>
             <th>Profit / Craft</th>
-            <th>Profit / sec</th>
-            <th v-if="!isAlloy">Profit w/o Smelt</th>
+            <th>Profit / sec (w/ wait)</th>
             <th>Total Time</th>
           </tr>
         </thead>
@@ -38,7 +37,6 @@
             <td class="price-small">{{ fmtPrice(calcMaterialCost(id, 1, overrides, settings)) }}</td>
             <td :class="profitClass(id)">{{ fmtPrice(profit(id)) }}</td>
             <td :class="profitClass(id)" style="font-weight:600">{{ fmtPrice(pps(id)) }}/s</td>
-            <td v-if="!isAlloy" :class="profitClass(id)">{{ fmtPrice(profitWithoutSmelt(id)) }}/s</td>
             <td class="price-small">{{ fmtTime(calcTotalTime(id, 1, overrides, settings)) }}</td>
           </tr>
         </tbody>
@@ -137,21 +135,13 @@ function itemSmeltTime(id) {
 function itemCraftTime(id) {
   return calcCraftTime(id, 1, overrides, settings)
 }
-function profitWithoutSmelt(id) {
-  if (isAlloy.value) {
-    const t = effectiveTime(id)
-    return t > 0 ? profit(id) / t : profit(id)
-  }
-  const ct = itemCraftTime(id)
-  return ct > 0 ? profit(id) / ct : profit(id)
-}
 function ingredientList(id) {
   const e = getEntity(id)
   if (!e || !e.ingredients) return ''
   return e.ingredients.map(i => {
     const ing = getEntity(i.id)
     const mod = ingMod.value
-    const q = mod != null ? i.qty * mod : i.qty
+    const q = mod != null ? Math.floor(i.qty * mod) : i.qty
     return (q > 1 ? fmtQty(q) + '× ' : '') + (ing ? ing.name : i.id)
   }).join('\n')
 }

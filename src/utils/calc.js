@@ -1,4 +1,4 @@
-import { SETTINGS_CONFIG } from './config'
+import { SETTINGS_CONFIG, SECONDARY_EFFECTS } from './config'
 import { getEntity } from './registry'
 import { fmtPrice, fmtTime, fmtQty } from './format'
 
@@ -61,12 +61,15 @@ export function getStationValueMult(settings) {
   return getStationMult(settings, STATION_VALUE_KEYS)
 }
 
-function getManagerMult(settings, skill) {
+export function getManagerSecondaryMult(settings, skill) {
   const mgrs = settings.managers
   if (!Array.isArray(mgrs)) return null
   let mult = 1
   for (const m of mgrs) {
-    if (m.skill === skill && m.value > 0) mult *= m.value
+    if (m.secondarySkill === skill && m.stars >= 1 && m.stars <= 7) {
+      const val = SECONDARY_EFFECTS[skill]?.[m.stars - 1]
+      if (val != null) mult *= val
+    }
   }
   return mult > 1 ? mult : null
 }
@@ -108,7 +111,7 @@ export function getSmeltSpeedMult(settings) {
   if (furnaceProj) mult *= furnaceProj
   const stationSmelt = getStationMult(settings, ['smelting1', 'smelting2', 'smelting3', 'smelting4', 'smelting5'])
   if (stationSmelt) mult *= stationSmelt
-  const mgrSmelt = getManagerMult(settings, 'allSmeltSpeed')
+  const mgrSmelt = getManagerSecondaryMult(settings, 'allSmeltSpeed')
   if (mgrSmelt) mult *= mgrSmelt
   return mult > 1 ? mult : null
 }
@@ -121,7 +124,7 @@ export function getCraftSpeedMult(settings) {
   if (crafterProj) mult *= crafterProj
   const stationCraft = getStationMult(settings, ['crafting1', 'crafting2', 'crafting3', 'crafting4', 'crafting5'])
   if (stationCraft) mult *= stationCraft
-  const mgrCraft = getManagerMult(settings, 'allCraftSpeed')
+  const mgrCraft = getManagerSecondaryMult(settings, 'allCraftSpeed')
   if (mgrCraft) mult *= mgrCraft
   return mult > 1 ? mult : null
 }
@@ -158,7 +161,7 @@ export function calcMaterialCost(id, qty, overrides, settings, visited) {
   let cost = 0
   const ingMod = getIngredientMod(e.type, settings)
   for (const ing of e.ingredients) {
-    const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
+    const ingQty = ingMod != null ? Math.floor(ing.qty * ingMod) : ing.qty
     cost += effectivePrice(ing.id, overrides, settings) * ingQty * qty
   }
   return cost
@@ -182,7 +185,7 @@ export function calcTotalTime(id, qty, overrides, settings, visited) {
   if (e.ingredients) {
     const ingMod = getIngredientMod(e.type, settings)
     for (const ing of e.ingredients) {
-      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
+      const ingQty = ingMod != null ? Math.floor(ing.qty * ingMod) : ing.qty
       t += calcTotalTime(ing.id, ingQty * qty, overrides, settings, visited)
     }
   }
@@ -203,7 +206,7 @@ export function calcSmeltTime(id, qty, overrides, settings, visited) {
   if (e.ingredients) {
     const ingMod = getIngredientMod(e.type, settings)
     for (const ing of e.ingredients) {
-      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
+      const ingQty = ingMod != null ? Math.floor(ing.qty * ingMod) : ing.qty
       t += calcSmeltTime(ing.id, ingQty * qty, overrides, settings, visited)
     }
   }
@@ -224,7 +227,7 @@ export function calcCraftTime(id, qty, overrides, settings, visited) {
   if (e.ingredients) {
     const ingMod = getIngredientMod('item', settings)
     for (const ing of e.ingredients) {
-      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
+      const ingQty = ingMod != null ? Math.floor(ing.qty * ingMod) : ing.qty
       t += calcCraftTime(ing.id, ingQty * qty, overrides, settings, visited)
     }
   }
@@ -260,7 +263,7 @@ export function buildTree(id, qty, overrides, settings, visited) {
   if (e.ingredients) {
     const ingMod = getIngredientMod(e.type, settings)
     for (const ing of e.ingredients) {
-      const ingQty = ingMod != null ? ing.qty * ingMod : ing.qty
+      const ingQty = ingMod != null ? Math.floor(ing.qty * ingMod) : ing.qty
       const child = buildTree(ing.id, ingQty * qty, overrides, settings, new Set(visited))
       if (child) node.children.push(child)
     }

@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import { SETTINGS_CONFIG, MANAGER_SKILLS } from '../utils/config'
+import { SETTINGS_CONFIG } from '../utils/config'
 
 function loadSettings() {
   try { return JSON.parse(localStorage.getItem('ipm_settings')) || {} }
@@ -12,6 +12,21 @@ function saveSettings(s) {
 
 const raw = loadSettings()
 if (!Array.isArray(raw.managers)) raw.managers = []
+// Migrate old format (with 'skill' and 'value') to new format
+let migrated = false
+for (let i = 0; i < raw.managers.length; i++) {
+  const m = raw.managers[i]
+  if (m.skill !== undefined) {
+    const oldSkill = m.skill
+    const mgr = { primarySkill: 'mineRate', secondarySkill: 'empty', stars: 1 }
+    if (oldSkill === 'allSmeltSpeed' || oldSkill === 'allCraftSpeed') {
+      mgr.secondarySkill = oldSkill
+    }
+    raw.managers[i] = mgr
+    migrated = true
+  }
+}
+if (migrated) saveSettings(raw)
 const settings = reactive(raw)
 
 // Force reactivity for manager array mutations
@@ -39,7 +54,7 @@ export function useSettings() {
 
   function addManager() {
     if (!settings.managers) settings.managers = []
-    settings.managers.push({ skill: 'empty', value: 1.1 })
+    settings.managers.push({ primarySkill: 'mineRate', secondarySkill: 'empty', stars: 1 })
     _managerVersion.value++
     saveSettings(settings)
   }
@@ -51,21 +66,29 @@ export function useSettings() {
     saveSettings(settings)
   }
 
-  function updateManagerSkill(index, skill) {
+  function updateManagerStars(index, stars) {
     if (!settings.managers || !settings.managers[index]) return
-    settings.managers[index].skill = skill
+    settings.managers[index].stars = Math.max(1, Math.min(7, stars))
+    const m = settings.managers[index]
+    if (m.stars < 3) {
+      m.secondarySkill = 'empty'
+    } else if (m.secondarySkill === 'empty') {
+      m.secondarySkill = 'allMineRate'
+    }
     _managerVersion.value++
     saveSettings(settings)
   }
 
-  function updateManagerValue(index, value) {
+  function updateManagerPrimarySkill(index, skill) {
     if (!settings.managers || !settings.managers[index]) return
-    const n = parseFloat(value)
-    if (isNaN(n) || n <= 0) {
-      settings.managers[index].value = 0.01
-    } else {
-      settings.managers[index].value = n
-    }
+    settings.managers[index].primarySkill = skill
+    _managerVersion.value++
+    saveSettings(settings)
+  }
+
+  function updateManagerSecondarySkill(index, skill) {
+    if (!settings.managers || !settings.managers[index]) return
+    settings.managers[index].secondarySkill = skill
     _managerVersion.value++
     saveSettings(settings)
   }
@@ -75,5 +98,5 @@ export function useSettings() {
     saveSettings(settings)
   }
 
-  return { settings, getRawSetting, setSetting, getManagers, addManager, removeManager, updateManagerSkill, updateManagerValue, managerVersion: _managerVersion, setPinnedItems }
+  return { settings, getRawSetting, setSetting, getManagers, addManager, removeManager, updateManagerStars, updateManagerPrimarySkill, updateManagerSecondarySkill, managerVersion: _managerVersion, setPinnedItems }
 }

@@ -1,8 +1,31 @@
-export const MANAGER_SKILLS = [
+export const MANAGER_PRIMARY_SKILLS = [
+  { value: 'mineRate', label: 'Mine Rate' },
+  { value: 'shipSpeed', label: 'Ship Speed' },
+  { value: 'cargo', label: 'Cargo' },
+]
+
+export const PRIMARY_EFFECTS = {
+  mineRate: [1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.95],
+  shipSpeed: [1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 4.90],
+  cargo: [1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 4.90],
+}
+
+export const MANAGER_SECONDARY_SKILLS = [
   { value: 'empty', label: '— Empty —' },
+  { value: 'allMineRate', label: 'All Mine Rate' },
+  { value: 'allShipSpeed', label: 'All Ship Speed' },
+  { value: 'allCargo', label: 'All Cargo' },
   { value: 'allCraftSpeed', label: 'All Craft Speed' },
   { value: 'allSmeltSpeed', label: 'All Smelt Speed' },
 ]
+
+export const SECONDARY_EFFECTS = {
+  allMineRate: [null, null, 1.05, 1.10, 1.20, 1.30, 1.50],
+  allShipSpeed: [null, null, 1.10, 1.20, 1.40, 1.60, 2.00],
+  allCargo: [null, null, 1.10, 1.20, 1.40, 1.60, 2.00],
+  allCraftSpeed: [null, null, 1.05, 1.10, 1.20, 1.40, 1.70],
+  allSmeltSpeed: [null, null, 1.05, 1.10, 1.20, 1.40, 1.70],
+}
 
 export const SETTINGS_CONFIG = {
   rooms: [
