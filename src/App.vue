@@ -96,7 +96,7 @@ import { useSettings } from './composables/useSettings'
 import { loadData } from './composables/useData'
 import {
   getModifier, getMiningSpeedMult, getSmeltSpeedMult, getCraftSpeedMult,
-  getProjectMultiplier, getStationMult, getStationValueMult
+  getProjectMultiplier, getStationMult, getStationValueMult, getManagerSecondaryMult
 } from './utils/calc'
 import { toggleTip } from './utils/format'
 
@@ -167,8 +167,8 @@ const debugStats = computed(() => {
 
   const global12 = settings.station?.miningGlobal ? 1.2 : null
 
-  const mgrSmelt = null
-  const mgrCraft = null
+  const mgrSmelt = getManagerSecondaryMult(settings, 'allSmeltSpeed')
+  const mgrCraft = getManagerSecondaryMult(settings, 'allCraftSpeed')
 
   const smeltRate = getSmeltSpeedMult(settings)
   const craftRate = getCraftSpeedMult(settings)

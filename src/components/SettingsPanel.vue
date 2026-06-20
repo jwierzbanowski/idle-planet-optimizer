@@ -9,18 +9,18 @@
         @click="switchCat(cat.key)">{{ cat.label }}</button>
     </div>
     <div class="settings-content">
-      <!-- Managers: dynamic cards -->
-      <template v-if="activeCat === 'managers'">
-        <div v-for="(mgr, i) in managers" :key="i" class="mgr-card">
-          <select class="mgr-select" :value="mgr.skill" @change="updateManagerSkill(i, $event.target.value)">
-            <option v-for="opt in skillOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-          </select>
-          <input type="number" step="0.01" min="0" class="mgr-value"
-            :value="mgr.value" @input="updateManagerValue(i, $event.target.value)">
-          <button class="mgr-remove" @click="removeManager(i)">&times;</button>
-        </div>
-        <button class="mgr-add" @click="addManager">+ Add Manager</button>
-      </template>
+      <!-- Managers: vertical cards -->
+      <div v-if="activeCat === 'managers'" class="mgr-list">
+        <ManagerCard
+          v-for="(mgr, i) in managers" :key="i"
+          :manager="mgr"
+          @remove="removeManager(i)"
+          @update:primarySkill="updateManagerPrimarySkill(i, $event)"
+          @update:secondarySkill="updateManagerSecondarySkill(i, $event)"
+          @update:stars="updateManagerStars(i, $event)"
+        />
+        <button class="mgr-add" @click="addManager">+ Add</button>
+      </div>
 
       <!-- Projects: grouped with checkboxes -->
       <template v-else-if="activeCat === 'projects'">
@@ -84,11 +84,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useSettings } from '../composables/useSettings'
-import { SETTINGS_CONFIG, MANAGER_SKILLS } from '../utils/config'
+import { SETTINGS_CONFIG } from '../utils/config'
+import ManagerCard from './ManagerCard.vue'
 
 const {
   getRawSetting, setSetting, getManagers, addManager,
-  removeManager, updateManagerSkill, updateManagerValue
+  removeManager, updateManagerStars, updateManagerPrimarySkill, updateManagerSecondarySkill
 } = useSettings()
 
 const open = ref(false)
@@ -114,7 +115,6 @@ const projectGroups = computed(() => {
 })
 
 const managers = computed(() => getManagers())
-const skillOptions = MANAGER_SKILLS
 
 function isNumeric(item) { return item.maxLevel != null || item.perLevel != null }
 
@@ -191,28 +191,16 @@ function switchCat(cat) { activeCat.value = cat }
 }
 .manager-select:hover { border-color: #4fc3f7; }
 .manager-select option { background: #0d1520; color: #c8d0dc; }
-.mgr-card {
-  display: flex; align-items: center; gap: 8px;
-  background: #0d1520; border-radius: 6px; padding: 8px 12px;
-  border: 1px solid #1a2235; grid-column: 1 / -1;
+
+.mgr-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-.mgr-select {
-  flex: 1; background: #121824; border: 1px solid #2a3a4a; border-radius: 4px;
-  color: #c8d0dc; font-size: 13px; padding: 6px 8px; cursor: pointer;
-}
-.mgr-value {
-  width: 80px; background: #121824; border: 1px solid #2a3a4a; border-radius: 4px;
-  color: #c8d0dc; font-size: 13px; padding: 6px 8px; text-align: center;
-}
-.mgr-remove {
-  width: 28px; height: 28px; border: 1px solid #2a3a4a; border-radius: 4px;
-  background: transparent; color: #ef5350; font-size: 18px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.mgr-remove:hover { border-color: #ef5350; background: rgba(239,83,80,0.1); }
 .mgr-add {
-  grid-column: 1 / -1; padding: 8px; border: 1px dashed #2a3a4a; border-radius: 6px;
-  background: transparent; color: #4fc3f7; font-size: 13px; cursor: pointer;
+  width: 140px; padding: 6px; border: 1px dashed #2a3a4a; border-radius: 4px;
+  background: transparent; color: #4fc3f7; font-size: 12px; cursor: pointer;
   text-align: center;
 }
 .mgr-add:hover { border-color: #4fc3f7; background: rgba(79,195,247,0.05); }
