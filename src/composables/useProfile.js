@@ -10,18 +10,24 @@ function loadProfile() {
     try {
       const old = JSON.parse(localStorage.getItem(OLD_KEY))
       if (old && typeof old === 'object') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          rooms: old.rooms || {},
-          station: old.station || {},
-          beacon: old.beacon || {},
-        }))
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            rooms: old.rooms || {},
+            station: old.station || {},
+            beacon: old.beacon || {},
+          })
+        )
       }
     } catch (e) {
       console.warn('Profile migration failed:', e)
     }
   }
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {} }
-  catch { return {} }
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}
+  } catch {
+    return {}
+  }
 }
 
 function saveProfile(s) {
@@ -36,7 +42,7 @@ export function useProfile() {
   }
 
   function setSetting(cat, key, value) {
-    const item = (SETTINGS_CONFIG[cat] || []).find(i => i.key === key)
+    const item = (SETTINGS_CONFIG[cat] || []).find((i) => i.key === key)
     const max = item?.maxLevel
     if (max != null) value = Math.min(value, max)
     value = Math.max(0, value)
@@ -98,7 +104,7 @@ export function useProfile() {
 
     // Restore stars
     if (data.stars && typeof data.stars === 'object') {
-      const { setOverride, resetOverrides } = useOverrides()
+      const { setOverride } = useOverrides()
       for (const [id, stars] of Object.entries(data.stars)) {
         if (typeof stars === 'number' && stars > 0) {
           setOverride(id, 'stars', Math.max(0, Math.min(7, stars)))

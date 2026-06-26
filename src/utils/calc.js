@@ -2,11 +2,15 @@ import { SETTINGS_CONFIG, SECONDARY_EFFECTS } from './config'
 import { getEntity } from './registry'
 import { fmtPrice, fmtTime, fmtQty } from './format'
 
-function getStars(overrides, id) { return overrides[id]?.stars ?? 0 }
-function getMarket(overrides, id) { return overrides[id]?.market ?? 1 }
+function getStars(overrides, id) {
+  return overrides[id]?.stars ?? 0
+}
+function getMarket(overrides, id) {
+  return overrides[id]?.market ?? 1
+}
 
 export function getModifier(cat, key, settings) {
-  const item = (SETTINGS_CONFIG[cat] || []).find(i => i.key === key)
+  const item = (SETTINGS_CONFIG[cat] || []).find((i) => i.key === key)
   if (!item || item.baseEffect == null) return null
   const val = settings[cat]?.[key] ?? 0
   const capped = item.maxLevel != null ? Math.min(val, item.maxLevel) : val
@@ -16,7 +20,7 @@ export function getModifier(cat, key, settings) {
 
 function getProjectModifier(settings, key) {
   if (!settings.projects?.[key]) return null
-  const item = SETTINGS_CONFIG.projects.find(i => i.key === key)
+  const item = SETTINGS_CONFIG.projects.find((i) => i.key === key)
   if (!item || item.baseEffect == null) return null
   return item.baseEffect
 }
@@ -47,7 +51,7 @@ export function getProjectMultiplier(settings, keys) {
 export function getStationMult(settings, keys) {
   let total = 0
   for (const key of keys) {
-    const item = SETTINGS_CONFIG.station.find(i => i.key === key)
+    const item = SETTINGS_CONFIG.station.find((i) => i.key === key)
     if (!item || item.perLevel == null) continue
     const val = settings.station?.[key] ?? 0
     const capped = Math.min(val, item.maxLevel)
@@ -56,7 +60,15 @@ export function getStationMult(settings, keys) {
   return total > 0 ? 1 + total : null
 }
 
-const STATION_VALUE_KEYS = ['alloyItem1','alloyItem2','alloyItem3','alloyItem4','alloyItem5','alloyItem6','alloyItem7']
+const STATION_VALUE_KEYS = [
+  'alloyItem1',
+  'alloyItem2',
+  'alloyItem3',
+  'alloyItem4',
+  'alloyItem5',
+  'alloyItem6',
+  'alloyItem7',
+]
 export function getStationValueMult(settings) {
   return getStationMult(settings, STATION_VALUE_KEYS)
 }
@@ -85,7 +97,7 @@ const BEACON_RANGES = [
 ]
 
 export function getBeaconMult(planetNumber, settings) {
-  const range = BEACON_RANGES.find(r => planetNumber >= r.min && planetNumber <= r.max)
+  const range = BEACON_RANGES.find((r) => planetNumber >= r.min && planetNumber <= r.max)
   if (!range) return 1
   const mod = getModifier('beacon', range.key, settings)
   return mod || 1
@@ -113,7 +125,13 @@ export function getSmeltSpeedMult(settings) {
   if (forgeMod) mult *= forgeMod
   const furnaceProj = getProjectMultiplier(settings, ['advancedFurnace', 'superiorFurnace'])
   if (furnaceProj) mult *= furnaceProj
-  const stationSmelt = getStationMult(settings, ['smelting1', 'smelting2', 'smelting3', 'smelting4', 'smelting5'])
+  const stationSmelt = getStationMult(settings, [
+    'smelting1',
+    'smelting2',
+    'smelting3',
+    'smelting4',
+    'smelting5',
+  ])
   if (stationSmelt) mult *= stationSmelt
   const mgrSmelt = getManagerSecondaryMult(settings, 'allSmeltSpeed')
   if (mgrSmelt) mult *= mgrSmelt
@@ -126,7 +144,13 @@ export function getCraftSpeedMult(settings) {
   if (workshopMod) mult *= workshopMod
   const crafterProj = getProjectMultiplier(settings, ['advancedCrafter', 'superiorCrafter'])
   if (crafterProj) mult *= crafterProj
-  const stationCraft = getStationMult(settings, ['crafting1', 'crafting2', 'crafting3', 'crafting4', 'crafting5'])
+  const stationCraft = getStationMult(settings, [
+    'crafting1',
+    'crafting2',
+    'crafting3',
+    'crafting4',
+    'crafting5',
+  ])
   if (stationCraft) mult *= stationCraft
   const mgrCraft = getManagerSecondaryMult(settings, 'allCraftSpeed')
   if (mgrCraft) mult *= mgrCraft
@@ -142,7 +166,10 @@ export function effectivePrice(id, overrides, settings) {
     if (salesMod) price *= salesMod
     const stnVal = getStationValueMult(settings)
     if (stnVal) price *= stnVal
-    const valProjKeys = e.type === 'alloy' ? ['advancedAlloyValue', 'superiorAlloyValue'] : ['advancedItemValue', 'superiorItemValue']
+    const valProjKeys =
+      e.type === 'alloy'
+        ? ['advancedAlloyValue', 'superiorAlloyValue']
+        : ['advancedItemValue', 'superiorItemValue']
     const valProj = getProjectMultiplier(settings, valProjKeys)
     if (valProj) price *= valProj
   }
@@ -247,7 +274,15 @@ export function buildTree(id, qty, overrides, settings, visited) {
     const craftMult = getCraftSpeedMult(settings)
     if (craftMult) effTime = effTime / craftMult
   }
-  const node = { id, name: e.name, type: e.type, qty, basePrice: e.basePrice, time: Math.round(effTime), children: [] }
+  const node = {
+    id,
+    name: e.name,
+    type: e.type,
+    qty,
+    basePrice: e.basePrice,
+    time: Math.round(effTime),
+    children: [],
+  }
   if (e.ingredients) {
     const ingMod = getIngredientMod(e.type, settings)
     for (const ing of e.ingredients) {
@@ -263,7 +298,13 @@ export function renderTree(node, overrides) {
   if (!node) return ''
   const stars = overrides[node.id]?.stars ?? 0
   const market = overrides[node.id]?.market ?? 1
-  const starStr = stars > 0 ? ' <span style="color:#ffd54f">' + '★'.repeat(Math.min(stars, 5)) + (stars > 5 ? '+' + (stars - 5) : '') + '</span>' : ''
+  const starStr =
+    stars > 0
+      ? ' <span style="color:#ffd54f">' +
+        '★'.repeat(Math.min(stars, 5)) +
+        (stars > 5 ? '+' + (stars - 5) : '') +
+        '</span>'
+      : ''
   const mktStr = market !== 1 ? ' <span style="color:#4fc3f7">x' + market + '</span>' : ''
   let html = '<div class="tree-node' + (node.children.length === 0 ? ' root' : '') + '">'
   html += '<div class="tree-item">'

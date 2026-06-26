@@ -30,7 +30,7 @@ export function fmtQty(n) {
 
 export function toggleTip(e) {
   const el = e.currentTarget
-  document.querySelectorAll('.info-icon.visible').forEach(icon => {
+  document.querySelectorAll('.info-icon.visible').forEach((icon) => {
     if (icon !== el) icon.classList.remove('visible')
   })
   el.classList.toggle('visible')
@@ -38,8 +38,8 @@ export function toggleTip(e) {
 
 export function fmtDuration(hours) {
   if (!isFinite(hours) || hours <= 0) return '∞'
-  if (hours < 1/3600) return '<1s'
-  if (hours < 1/60) return (hours * 3600).toFixed(0) + 's'
+  if (hours < 1 / 3600) return '<1s'
+  if (hours < 1 / 60) return (hours * 3600).toFixed(0) + 's'
   if (hours < 1) return (hours * 60).toFixed(1) + 'm'
   if (hours < 24) return hours.toFixed(1) + 'h'
   if (hours < 720) return (hours / 24).toFixed(1) + 'd'
