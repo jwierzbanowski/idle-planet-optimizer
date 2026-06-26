@@ -1,23 +1,40 @@
 <template>
   <div class="mgr-card">
-    <button class="mgr-remove" @click="$emit('remove')">&times;</button>
+    <button
+class="mgr-remove" @click="$emit('remove')">&times;</button>
     <div class="mgr-row">
-      <button class="mgr-btn" :disabled="manager.stars <= 1" @click="$emit('update:stars', manager.stars - 1)">−</button>
+      <button
+        class="mgr-btn"
+        :disabled="manager.stars <= 1"
+        @click="$emit('update:stars', manager.stars - 1)"
+      >
+        −
+      </button>
       <span class="mgr-value">{{ manager.stars }}</span>
-      <button class="mgr-btn" :disabled="manager.stars >= 7" @click="$emit('update:stars', manager.stars + 1)">+</button>
+      <button
+        class="mgr-btn"
+        :disabled="manager.stars >= 7"
+        @click="$emit('update:stars', manager.stars + 1)"
+      >
+        +
+      </button>
     </div>
 
     <div class="mgr-row">
-      <button class="mgr-btn" @click="cyclePrimary(-1)">◀</button>
+      <button
+class="mgr-btn" @click="cyclePrimary(-1)">◀</button>
       <span class="mgr-skill-name">{{ primaryLabel }}</span>
-      <button class="mgr-btn" @click="cyclePrimary(1)">▶</button>
+      <button
+class="mgr-btn" @click="cyclePrimary(1)">▶</button>
       <span class="mgr-effect">{{ primaryEffect }}</span>
     </div>
 
     <div class="mgr-row">
-      <button class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(-1)">◀</button>
+      <button
+class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(-1)">◀</button>
       <span class="mgr-skill-name">{{ secondaryLabel }}</span>
-      <button class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(1)">▶</button>
+      <button
+class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(1)">▶</button>
       <span class="mgr-effect">{{ secondaryEffect }}</span>
     </div>
   </div>
@@ -25,21 +42,26 @@
 
 <script setup>
 import { computed } from 'vue'
-import { MANAGER_PRIMARY_SKILLS, MANAGER_SECONDARY_SKILLS, PRIMARY_EFFECTS, SECONDARY_EFFECTS } from '../utils/config'
+import {
+  MANAGER_PRIMARY_SKILLS,
+  MANAGER_SECONDARY_SKILLS,
+  PRIMARY_EFFECTS,
+  SECONDARY_EFFECTS,
+} from '../utils/config'
 
 const props = defineProps({
-  manager: { type: Object, required: true }
+  manager: { type: Object, required: true },
 })
 
 const emit = defineEmits(['remove', 'update:primarySkill', 'update:secondarySkill', 'update:stars'])
 
 const primaryLabel = computed(() => {
-  const found = MANAGER_PRIMARY_SKILLS.find(s => s.value === props.manager.primarySkill)
+  const found = MANAGER_PRIMARY_SKILLS.find((s) => s.value === props.manager.primarySkill)
   return found ? found.label : '—'
 })
 
 const secondaryLabel = computed(() => {
-  const found = MANAGER_SECONDARY_SKILLS.find(s => s.value === props.manager.secondarySkill)
+  const found = MANAGER_SECONDARY_SKILLS.find((s) => s.value === props.manager.secondarySkill)
   return found ? found.label : '—'
 })
 
@@ -60,7 +82,7 @@ const secondaryEffect = computed(() => {
 })
 
 function cyclePrimary(dir) {
-  const idx = MANAGER_PRIMARY_SKILLS.findIndex(s => s.value === props.manager.primarySkill)
+  const idx = MANAGER_PRIMARY_SKILLS.findIndex((s) => s.value === props.manager.primarySkill)
   if (idx === -1) return
   const next = (idx + dir + MANAGER_PRIMARY_SKILLS.length) % MANAGER_PRIMARY_SKILLS.length
   emit('update:primarySkill', MANAGER_PRIMARY_SKILLS[next].value)
@@ -68,14 +90,12 @@ function cyclePrimary(dir) {
 
 function cycleSecondary(dir) {
   if (props.manager.stars < 3) return
-  const skip = MANAGER_SECONDARY_SKILLS.filter(s => s.value !== 'empty')
-  const idx = skip.findIndex(s => s.value === props.manager.secondarySkill)
+  const skip = MANAGER_SECONDARY_SKILLS.filter((s) => s.value !== 'empty')
+  const idx = skip.findIndex((s) => s.value === props.manager.secondarySkill)
   if (idx === -1) return
   const next = (idx + dir + skip.length) % skip.length
   emit('update:secondarySkill', skip[next].value)
 }
-
-
 </script>
 
 <style scoped>

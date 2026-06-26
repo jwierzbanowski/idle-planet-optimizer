@@ -1,40 +1,77 @@
 <template>
-  <div class="profile-overlay" @click.self="$emit('close')">
+  <div class="profile-overlay"
+@click.self="$emit('close')">
     <div class="profile-modal">
       <div class="profile-header">
         <h2 class="profile-title">Profile</h2>
         <span class="profile-desc">Rooms, station &amp; beacon settings</span>
-        <button class="profile-close" @click="$emit('close')">&times;</button>
+        <button
+class="profile-close" @click="$emit('close')">&times;</button>
       </div>
       <div class="settings-categories">
-        <button v-for="cat in categories" :key="cat.key" class="settings-cat"
+        <button
+          v-for="cat in categories"
+          :key="cat.key"
+          class="settings-cat"
           :class="{ active: activeCat === cat.key }"
-          @click="switchCat(cat.key)">{{ cat.label }}</button>
+          @click="switchCat(cat.key)"
+        >
+          {{ cat.label }}
+        </button>
       </div>
       <div class="settings-content">
         <template v-if="activeCat === 'station'">
-          <div v-for="group in stationGroups" :key="group.name" class="station-group">
-            <div class="project-group-title">{{ group.name }}</div>
-            <div v-for="item in group.items" :key="item.key" class="settings-row">
+          <div v-for="group in stationGroups"
+:key="group.name" class="station-group">
+            <div class="project-group-title">
+              {{ group.name }}
+            </div>
+            <div v-for="item in group.items"
+:key="item.key" class="settings-row">
               <div class="settings-info">
                 <span class="settings-label">{{ item.label }}</span>
-                <span v-if="item.desc" class="settings-desc">{{ item.desc }}</span>
+                <span v-if="item.desc"
+class="settings-desc">{{ item.desc }}</span>
               </div>
               <template v-if="isNumeric(item)">
                 <div class="star-controls">
-                  <button class="star-btn" :disabled="(getVal(item.key)) <= 0"
-                    @click="change(item.key, -1)">−</button>
-                  <span class="star-count">{{ getVal(item.key) }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span>
-                  <button class="star-btn" :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-                    @click="change(item.key, 1)">+</button>
+                  <button
+                    class="star-btn"
+                    :disabled="getVal(item.key) <= 0"
+                    @click="change(item.key, -1)"
+                  >
+                    −
+                  </button>
+                  <span class="star-count"
+                    >{{ getVal(item.key)
+                    }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span
+                  >
+                  <button
+                    class="star-btn"
+                    :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
+                    @click="change(item.key, 1)"
+                  >
+                    +
+                  </button>
                 </div>
-                <span class="settings-effect" style="color:#4caf50">
-                  {{ item.perLevel != null ? (getVal(item.key) > 0 ? (1 + item.perLevel * getVal(item.key)).toFixed(2) + '×' : '0×') : '' }}
+                <span class="settings-effect"
+style="color: #4caf50">
+                  {{
+                    item.perLevel != null
+                      ? getVal(item.key) > 0
+                        ? (1 + item.perLevel * getVal(item.key)).toFixed(2) + '×'
+                        : '0×'
+                      : ''
+                  }}
                 </span>
               </template>
               <template v-else>
-                <button class="toggle-btn" :class="{ active: getVal(item.key) }" @click="toggleItem(item.key)">
-                  <span class="toggle-knob"></span>
+                <button
+                  class="toggle-btn"
+                  :class="{ active: getVal(item.key) }"
+                  @click="toggleItem(item.key)"
+                >
+                  <span class="toggle-knob" />
                 </button>
               </template>
             </div>
@@ -44,41 +81,83 @@
           <template v-if="currentConfig.length === 0">
             <div class="settings-empty">No settings yet</div>
           </template>
-          <div v-for="item in currentConfig" :key="item.key" class="settings-row">
+          <div v-for="item in currentConfig"
+:key="item.key" class="settings-row">
             <div class="settings-info">
               <span class="settings-label">{{ item.label }}</span>
-              <span v-if="item.desc" class="settings-desc">{{ item.desc }}</span>
+              <span v-if="item.desc"
+class="settings-desc">{{ item.desc }}</span>
             </div>
             <template v-if="isNumeric(item)">
               <div class="star-controls">
-                <button class="star-btn" :disabled="(getVal(item.key)) <= 0"
-                  @click="change(item.key, -1)">−</button>
-                <span class="star-count">{{ getVal(item.key) }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span>
-                <button class="star-btn" :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-                  @click="change(item.key, 1)">+</button>
+                <button
+                  class="star-btn"
+                  :disabled="getVal(item.key) <= 0"
+                  @click="change(item.key, -1)"
+                >
+                  −
+                </button>
+                <span class="star-count"
+                  >{{ getVal(item.key)
+                  }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span
+                >
+                <button
+                  class="star-btn"
+                  :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
+                  @click="change(item.key, 1)"
+                >
+                  +
+                </button>
               </div>
-              <span v-if="item.baseEffect != null" class="settings-effect"
-                :style="{ color: item.baseEffect < 1 ? '#4caf50' : undefined }">
+              <span
+                v-if="item.baseEffect != null"
+                class="settings-effect"
+                :style="{ color: item.baseEffect < 1 ? '#4caf50' : undefined }"
+              >
                 <template v-if="getVal(item.key) > 0">
                   <template v-if="item.baseEffect >= 1">
                     {{ (item.baseEffect + item.perLevel * (getVal(item.key) - 1)).toFixed(2) }}×
                   </template>
                   <template v-else>
-                    -{{ Math.round((1 - (item.baseEffect + item.perLevel * (getVal(item.key) - 1))) * 100) }}%
+                    -{{
+                      Math.round(
+                        (1 - (item.baseEffect + item.perLevel * (getVal(item.key) - 1))) * 100
+                      )
+                    }}%
                   </template>
                 </template>
                 <template v-else>—</template>
               </span>
-              <span v-else-if="item.perLevel != null" class="settings-effect" style="color:#4caf50">
-                {{ getVal(item.key) > 0 ? (1 + item.perLevel * getVal(item.key)).toFixed(2) + '×' : '×1.00' }}
+              <span
+                v-else-if="item.perLevel != null"
+                class="settings-effect"
+                style="color: #4caf50"
+              >
+                {{
+                  getVal(item.key) > 0
+                    ? (1 + item.perLevel * getVal(item.key)).toFixed(2) + '×'
+                    : '×1.00'
+                }}
               </span>
             </template>
             <template v-else>
-              <button class="toggle-btn" :class="{ active: getVal(item.key) }" @click="toggleItem(item.key)">
-                <span class="toggle-knob"></span>
+              <button
+                class="toggle-btn"
+                :class="{ active: getVal(item.key) }"
+                @click="toggleItem(item.key)"
+              >
+                <span class="toggle-knob" />
               </button>
-              <span v-if="getVal(item.key) && item.baseEffect != null" class="settings-effect">{{ item.baseEffect }}×</span>
-              <span v-else-if="item.baseEffect != null" class="settings-effect" style="color:#6b7a8f">—</span>
+              <span
+v-if="getVal(item.key) && item.baseEffect != null" class="settings-effect"
+                >{{ item.baseEffect }}×</span
+              >
+              <span
+                v-else-if="item.baseEffect != null"
+                class="settings-effect"
+                style="color: #6b7a8f"
+                >—</span
+              >
             </template>
           </div>
         </template>
@@ -112,14 +191,32 @@ const stationGroups = computed(() => {
     { name: 'Mining', keys: ['mining1', 'mining2', 'miningGlobal'] },
     { name: 'Crafting', keys: ['crafting1', 'crafting2', 'crafting3', 'crafting4', 'crafting5'] },
     { name: 'Smelting', keys: ['smelting1', 'smelting2', 'smelting3', 'smelting4', 'smelting5'] },
-    { name: 'Alloy & Item', keys: ['alloyItem1', 'alloyItem2', 'alloyItem3', 'alloyItem4', 'alloyItem5', 'alloyItem6', 'alloyItem7'] },
+    {
+      name: 'Alloy & Item',
+      keys: [
+        'alloyItem1',
+        'alloyItem2',
+        'alloyItem3',
+        'alloyItem4',
+        'alloyItem5',
+        'alloyItem6',
+        'alloyItem7',
+      ],
+    },
   ]
-  return groups.map(g => ({ name: g.name, items: g.keys.map(k => all.find(i => i.key === k)).filter(Boolean) }))
+  return groups.map((g) => ({
+    name: g.name,
+    items: g.keys.map((k) => all.find((i) => i.key === k)).filter(Boolean),
+  }))
 })
 
-function isNumeric(item) { return item.maxLevel != null || item.perLevel != null }
+function isNumeric(item) {
+  return item.maxLevel != null || item.perLevel != null
+}
 
-function getVal(key) { return getRawSetting(activeCat.value, key) }
+function getVal(key) {
+  return getRawSetting(activeCat.value, key)
+}
 
 function change(key, delta) {
   const current = getRawSetting(activeCat.value, key)
@@ -131,14 +228,16 @@ function toggleItem(key) {
   setSetting(activeCat.value, key, current ? 0 : 1)
 }
 
-function switchCat(cat) { activeCat.value = cat }
+function switchCat(cat) {
+  activeCat.value = cat
+}
 </script>
 
 <style scoped>
 .profile-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,5 +290,7 @@ function switchCat(cat) { activeCat.value = cat }
   padding: 8px;
   border: 1px solid #1a2235;
 }
-.station-group .project-group-title { padding: 0 4px; }
+.station-group .project-group-title {
+  padding: 0 4px;
+}
 </style>

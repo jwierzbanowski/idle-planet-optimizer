@@ -9,18 +9,24 @@ function loadGame() {
     try {
       const old = JSON.parse(localStorage.getItem(OLD_KEY))
       if (old && typeof old === 'object') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          projects: old.projects || {},
-          managers: Array.isArray(old.managers) ? old.managers : [],
-          pinnedItems: Array.isArray(old.pinnedItems) ? old.pinnedItems : [],
-        }))
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            projects: old.projects || {},
+            managers: Array.isArray(old.managers) ? old.managers : [],
+            pinnedItems: Array.isArray(old.pinnedItems) ? old.pinnedItems : [],
+          })
+        )
       }
     } catch (e) {
       console.warn('Game migration failed:', e)
     }
   }
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {} }
-  catch { return {} }
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}
+  } catch {
+    return {}
+  }
 }
 
 function saveGame(s) {
@@ -53,7 +59,7 @@ export function useGame() {
   }
 
   function setSetting(cat, key, value) {
-    const item = (SETTINGS_CONFIG[cat] || []).find(i => i.key === key)
+    const item = (SETTINGS_CONFIG[cat] || []).find((i) => i.key === key)
     const max = item?.maxLevel
     if (max != null) value = Math.min(value, max)
     value = Math.max(0, value)
@@ -120,5 +126,18 @@ export function useGame() {
     saveGame(game)
   }
 
-  return { game, getRawSetting, setSetting, getManagers, addManager, removeManager, updateManagerStars, updateManagerPrimarySkill, updateManagerSecondarySkill, managerVersion: _managerVersion, setPinnedItems, resetGame }
+  return {
+    game,
+    getRawSetting,
+    setSetting,
+    getManagers,
+    addManager,
+    removeManager,
+    updateManagerStars,
+    updateManagerPrimarySkill,
+    updateManagerSecondarySkill,
+    managerVersion: _managerVersion,
+    setPinnedItems,
+    resetGame,
+  }
 }
