@@ -40,13 +40,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useSettings } from '../composables/useSettings'
+import { useGame } from '../composables/useGame'
 import { SETTINGS_CONFIG } from '../utils/config'
 import ManagerCard from './ManagerCard.vue'
 
 defineEmits(['close'])
 
-const { getRawSetting, setSetting, getManagers, addManager, removeManager, updateManagerStars, updateManagerPrimarySkill, updateManagerSecondarySkill } = useSettings()
+const { getRawSetting, setSetting, getManagers, addManager, removeManager, updateManagerStars, updateManagerPrimarySkill, updateManagerSecondarySkill } = useGame()
 
 const activeCat = ref('projects')
 const categories = [

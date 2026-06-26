@@ -49,9 +49,12 @@
         </button>
       </div>
       <div class="header-actions">
+        <button class="icon-btn" @click="exportProfile" title="Export profile">📤</button>
+        <button class="icon-btn" @click="triggerImport" title="Import profile">📥</button>
         <button class="profile-btn" @click="showProfile = true" title="Profile">👤</button>
         <button class="game-btn" @click="showGame = true" title="Game">🎮</button>
-        <button id="resetBtn" @click="resetAll">Reset overrides</button>
+        <button id="resetBtn" @click="resetAll">Reset playthrough</button>
+        <input type="file" ref="fileInput" accept=".json" hidden @change="handleImport">
       </div>
     </div>
 
@@ -93,6 +96,8 @@ import CraftableTable from './components/CraftableTable.vue'
 import MiningTable from './components/MiningTable.vue'
 import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
+import { useProfile } from './composables/useProfile'
+import { useGame } from './composables/useGame'
 import { loadData } from './composables/useData'
 import {
   getModifier, getMiningSpeedMult, getSmeltSpeedMult, getCraftSpeedMult,
@@ -100,8 +105,12 @@ import {
 } from './utils/calc'
 import { toggleTip } from './utils/format'
 
-const { resetOverrides } = useOverrides()
+const { resetTemporary } = useOverrides()
 const { settings, managerVersion } = useSettings()
+const { resetGame } = useGame()
+const { exportProfile, importProfile } = useProfile()
+
+const fileInput = ref(null)
 
 const activeTab = ref('ores')
 const detailId = ref(null)
@@ -242,9 +251,30 @@ const debugStats = computed(() => {
 function switchTab(tab) { activeTab.value = tab }
 
 function resetAll() {
-  if (!confirm('Reset all star and market overrides?')) return
-  resetOverrides()
+  if (!confirm('Reset playthrough? Projects, managers, market & mining overrides will be cleared. Profile (rooms, station, beacon, stars) stays unchanged.')) return
+  resetGame()
+  resetTemporary()
   detailId.value = null
+}
+
+function triggerImport() {
+  fileInput.value?.click()
+}
+
+function handleImport(event) {
+  const file = event.target.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    try {
+      importProfile(reader.result)
+    } catch (e) {
+      alert('Import failed: ' + e.message)
+    }
+  }
+  reader.onerror = () => alert('Failed to read file')
+  reader.readAsText(file)
+  event.target.value = ''
 }
 
 document.addEventListener('click', () => {
@@ -437,6 +467,12 @@ td .ingredient-list { color: #6b7a8f; font-size: 11px; line-height: 1.5; white-s
 .header-actions {
   display: flex; align-items: center; gap: 8px;
 }
+.icon-btn {
+  padding: 8px 10px; background: transparent; border: 1px solid #2a3a4a;
+  border-radius: 6px; color: #6b7a8f; font-size: 16px; cursor: pointer;
+  line-height: 1;
+}
+.icon-btn:hover { border-color: #ffd54f; color: #ffd54f; }
 .profile-btn, .game-btn {
   padding: 8px 10px; background: transparent; border: 1px solid #2a3a4a;
   border-radius: 6px; color: #6b7a8f; font-size: 18px; cursor: pointer;
