@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://jwierzbanowski.github.io/idle-planet-optimizer/sitemap.xml
