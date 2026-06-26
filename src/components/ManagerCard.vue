@@ -1,10 +1,10 @@
 <template>
   <div class="mgr-card">
+    <button class="mgr-remove" @click="$emit('remove')">&times;</button>
     <div class="mgr-row">
       <button class="mgr-btn" :disabled="manager.stars <= 1" @click="$emit('update:stars', manager.stars - 1)">−</button>
       <span class="mgr-value">{{ manager.stars }}</span>
       <button class="mgr-btn" :disabled="manager.stars >= 7" @click="$emit('update:stars', manager.stars + 1)">+</button>
-      <button class="mgr-remove" @click="$emit('remove')">&times;</button>
     </div>
 
     <div class="mgr-row">
@@ -82,28 +82,31 @@ function cycleSecondary(dir) {
 .mgr-card {
   background: #0d1520;
   border-radius: 6px;
-  padding: 6px;
+  padding: 8px;
   border: 1px solid #1a2235;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: 140px;
+  gap: 4px;
+  position: relative;
 }
 
 .mgr-remove {
-  width: 18px;
-  height: 18px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
   border: 1px solid #2a3a4a;
   border-radius: 3px;
-  background: transparent;
+  background: #0d1520;
   color: #ef5350;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
-  margin-left: auto;
+  z-index: 1;
 }
 
 .mgr-remove:hover {

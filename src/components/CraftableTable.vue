@@ -12,7 +12,7 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Smelt Time</th>
+            <th v-if="isAlloy">Smelt Time</th>
             <th v-if="!isAlloy">Craft Time</th>
             <th>Ingredients</th>
             <th>Base Price</th>
@@ -29,7 +29,7 @@
               {{ getEntity(id)?.name }}
               <StarControls :modelValue="getStars(id)" @update:modelValue="setOverride(id, 'stars', $event)" />
             </td>
-            <td>{{ isAlloy ? fmtTime(effectiveTime(id)) : fmtTime(itemSmeltTime(id)) }}</td>
+            <td v-if="isAlloy">{{ fmtTime(effectiveTime(id)) }}</td>
             <td v-if="!isAlloy">{{ fmtTime(itemCraftTime(id)) }}</td>
             <td><span class="ingredient-list">{{ ingredientList(id) }}</span></td>
             <td class="price">{{ fmtPrice(getEntity(id)?.basePrice || 0) }}</td>
@@ -50,22 +50,22 @@ import { ref, computed } from 'vue'
 import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
-import { effectivePrice, calcMaterialCost, calcTotalTime, calcSmeltTime, calcCraftTime, getSmeltSpeedMult, getCraftSpeedMult, getModifier, getIngredientMod } from '../utils/calc'
+import { effectivePrice, calcMaterialCost, calcTotalTime, calcCraftTime, getSmeltSpeedMult, getCraftSpeedMult, getModifier, getIngredientMod } from '../utils/calc'
 import { fmtPrice, fmtTime, fmtQty } from '../utils/format'
 import { getEntity } from '../utils/registry'
 import StarControls from './StarControls.vue'
 
 const GROUPS = {
   alloy: [
-    { label: 'Early Game', ids: ['copper_bar', 'iron_bar', 'lead_bar', 'silicon_bar', 'aluminium_bar'] },
-    { label: 'Mid Game', ids: ['silver_bar', 'gold_bar', 'bronze_bar', 'steel_bar', 'platinum_bar', 'titanium_bar'] },
-    { label: 'Late Game', ids: ['iridium_bar', 'palladium_bar', 'osmium_bar', 'rhodium_bar', 'inerton_alloy'] },
+    { label: '10M-100M', ids: ['copper_bar', 'iron_bar', 'lead_bar', 'silicon_bar', 'aluminium_bar'] },
+    { label: '100M-1B', ids: ['silver_bar', 'gold_bar', 'bronze_bar', 'steel_bar', 'platinum_bar', 'titanium_bar'] },
+    { label: '1B-100B', ids: ['iridium_bar', 'palladium_bar', 'osmium_bar', 'rhodium_bar', 'inerton_alloy'] },
     { label: 'End Game', ids: ['quadium_alloy', 'scrith_alloy', 'uru_alloy', 'vibranium_alloy', 'aether_alloy', 'viterium_alloy', 'xynium_alloy', 'quolium_alloy', 'luterium_alloy', 'wraith_alloy', 'aqualite_alloy', 'opalite_alloy'] },
   ],
   item: [
-    { label: 'Early Game', ids: ['copper_wire', 'iron_nail', 'battery', 'hammer', 'glass', 'circuit'] },
-    { label: 'Mid Game', ids: ['lens', 'laser', 'basic_computer', 'solar_panel'] },
-    { label: 'Late Game', ids: ['laser_torch', 'advanced_battery', 'thermal_scanner', 'advanced_computer', 'navigation_module', 'plasma_torch', 'radio_tower'] },
+    { label: '10M-100M', ids: ['copper_wire', 'iron_nail', 'battery', 'hammer', 'glass', 'circuit'] },
+    { label: '100M-1B', ids: ['lens', 'laser', 'basic_computer', 'solar_panel'] },
+    { label: '1B-100B', ids: ['laser_torch', 'advanced_battery', 'thermal_scanner', 'advanced_computer', 'navigation_module', 'plasma_torch', 'radio_tower'] },
     { label: 'End Game', ids: ['telescope', 'satellite_dish', 'motor', 'accumulator', 'nuclear_capsule', 'wind_turbine', 'space_probe', 'nuclear_reactor', 'collider', 'gravity_chamber', 'robot', 'fusion_capsule', 'teleporter', 'fusion_reactor', 'subspace_relay', 'advanced_robot', 'advanced_teleporter', 'quantum_cpu', 'deflector_shield', 'warp_core', 'deep_space_scanner', 'antimatter_cell'] },
   ],
 }
@@ -129,9 +129,6 @@ function effectiveTime(id) {
   return mult ? e.time / mult : e.time
 }
 
-function itemSmeltTime(id) {
-  return calcSmeltTime(id, 1, overrides, settings)
-}
 function itemCraftTime(id) {
   return calcCraftTime(id, 1, overrides, settings)
 }

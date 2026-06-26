@@ -91,6 +91,10 @@ export function getBeaconMult(planetNumber, settings) {
   return mod || 1
 }
 
+export function getOreTargetingMult(settings) {
+  return settings.projects?.oreTargeting ? 1.15 : null
+}
+
 export function getMiningSpeedMult(settings) {
   let mult = 1
   const engMod = getModifier('rooms', 'engineering', settings)
@@ -210,24 +214,11 @@ export function calcSmeltTime(id, qty, overrides, settings, visited) {
   return Math.round(t)
 }
 
-export function calcCraftTime(id, qty, overrides, settings, visited) {
-  visited = visited || new Set()
-  if (visited.has(id)) return 0
-  visited.add(id)
+export function calcCraftTime(id, qty, overrides, settings) {
   const e = getEntity(id)
-  if (!e || e.type === 'ore' || e.type === 'alloy') return 0
-  let t = 0
-  if (e.type === 'item' && e.time) {
-    const craftMult = getCraftSpeedMult(settings)
-    t = (craftMult ? e.time / craftMult : e.time) * qty
-  }
-  if (e.ingredients) {
-    const ingMod = getIngredientMod('item', settings)
-    for (const ing of e.ingredients) {
-      const ingQty = ingMod != null ? Math.floor(ing.qty * ingMod) : ing.qty
-      t += calcCraftTime(ing.id, ingQty * qty, overrides, settings, visited)
-    }
-  }
+  if (!e || e.type !== 'item' || !e.time) return 0
+  const craftMult = getCraftSpeedMult(settings)
+  const t = (craftMult ? e.time / craftMult : e.time) * qty
   return Math.round(t)
 }
 
