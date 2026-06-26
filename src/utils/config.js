@@ -48,6 +48,7 @@ export const SETTINGS_CONFIG = {
     { key: 'superiorAlloyValue', label: 'Superior Alloy Value', desc: 'Alloy value ×1.2', baseEffect: 1.2 },
     { key: 'advancedItemValue', label: 'Advanced Item Value', desc: 'Item value ×1.2', baseEffect: 1.2 },
     { key: 'superiorItemValue', label: 'Superior Item Value', desc: 'Item value ×1.2', baseEffect: 1.2 },
+    { key: 'oreTargeting', label: 'Ore Targeting', desc: 'Most valuable ore on each planet +15% mining', baseEffect: 1.15 },
     { key: 'smeltingEfficiency', label: 'Smelting Efficiency', desc: 'Alloy ingredients ×0.8', baseEffect: 0.8 },
     { key: 'craftingEfficiency', label: 'Crafting Efficiency', desc: 'Item ingredients ×0.8', baseEffect: 0.8 },
   ],

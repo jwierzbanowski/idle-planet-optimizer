@@ -58,7 +58,7 @@ const projectGroups = computed(() => {
   const all = SETTINGS_CONFIG.projects
   if (!all) return []
   const groups = [
-    { name: 'Mining', keys: ['advancedMining', 'superiorMining'] },
+    { name: 'Mining', keys: ['advancedMining', 'superiorMining', 'oreTargeting'] },
     { name: 'Smelting', keys: ['advancedFurnace', 'superiorFurnace', 'smeltingEfficiency'] },
     { name: 'Crafting', keys: ['advancedCrafter', 'superiorCrafter', 'craftingEfficiency'] },
     { name: 'Alloy Value', keys: ['advancedAlloyValue', 'superiorAlloyValue'] },
@@ -93,9 +93,9 @@ function switchCat(cat) { activeCat.value = cat }
   background: #121824;
   border: 1px solid #1e2a3a;
   border-radius: 12px;
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
+  width: 95%;
+  max-width: 1000px;
+  max-height: 92vh;
   overflow-y: auto;
 }
 .game-header {
@@ -137,10 +137,14 @@ function switchCat(cat) { activeCat.value = cat }
   flex-wrap: wrap;
   gap: 6px;
 }
+.mgr-list > * {
+  flex: 0 0 calc(25% - 4.5px);
+  max-width: calc(25% - 4.5px);
+}
 
 .mgr-add {
-  width: 140px; padding: 6px; border: 1px dashed #2a3a4a; border-radius: 4px;
-  background: transparent; color: #4fc3f7; font-size: 12px; cursor: pointer;
+  padding: 8px; border: 1px dashed #2a3a4a; border-radius: 4px;
+  background: transparent; color: #4fc3f7; font-size: 13px; cursor: pointer;
   text-align: center;
 }
 

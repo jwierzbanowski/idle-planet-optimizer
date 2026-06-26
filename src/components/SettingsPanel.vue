@@ -198,9 +198,13 @@ function switchCat(cat) { activeCat.value = cat }
   flex-wrap: wrap;
   gap: 6px;
 }
+.mgr-list > * {
+  flex: 0 0 calc(25% - 4.5px);
+  max-width: calc(25% - 4.5px);
+}
 .mgr-add {
-  width: 140px; padding: 6px; border: 1px dashed #2a3a4a; border-radius: 4px;
-  background: transparent; color: #4fc3f7; font-size: 12px; cursor: pointer;
+  padding: 8px; border: 1px dashed #2a3a4a; border-radius: 4px;
+  background: transparent; color: #4fc3f7; font-size: 13px; cursor: pointer;
   text-align: center;
 }
 .mgr-add:hover { border-color: #4fc3f7; background: rgba(79,195,247,0.05); }
