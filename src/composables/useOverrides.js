@@ -25,10 +25,17 @@ export function useOverrides() {
     saveOverrides(overrides)
   }
 
-  function resetOverrides() {
-    for (const key of Object.keys(overrides)) delete overrides[key]
-    localStorage.removeItem('ipm_overrides')
+  function resetTemporary() {
+    for (const key of Object.keys(overrides)) {
+      const entry = overrides[key]
+      if (entry.stars) {
+        overrides[key] = { stars: entry.stars }
+      } else {
+        delete overrides[key]
+      }
+    }
+    saveOverrides(overrides)
   }
 
-  return { overrides, getStars, getMarket, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, setOverride, resetOverrides }
+  return { overrides, getStars, getMarket, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, setOverride, resetTemporary }
 }

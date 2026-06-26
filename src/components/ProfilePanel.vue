@@ -89,12 +89,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useSettings } from '../composables/useSettings'
+import { useProfile } from '../composables/useProfile'
 import { SETTINGS_CONFIG } from '../utils/config'
 
 defineEmits(['close'])
 
-const { getRawSetting, setSetting } = useSettings()
+const { getRawSetting, setSetting } = useProfile()
 
 const activeCat = ref('rooms')
 const categories = [
