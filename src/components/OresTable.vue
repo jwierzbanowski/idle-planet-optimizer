@@ -25,9 +25,10 @@
         </thead>
         <tbody>
           <tr v-for="id in visibleIds"
-:key="id" @click="$emit('show-detail', id)">
+ :key="id" :class="{ 'prev-best-row': id === prevGroupBest?.id && activeGroup !== 'all' }" @click="$emit('show-detail', id)">
             <td class="name-cell">
               {{ DB.ores[id].name }}
+              <span v-if="id === prevGroupBest?.id && activeGroup !== 'all'" class="prev-best-label">(best from {{ prevGroupBest.label }})</span>
               <StarControls
                 :model-value="getStars(id)"
                 @update:model-value="setOverride(id, 'stars', $event)"
@@ -135,7 +136,11 @@ const filterTabs = computed(() => {
 const visibleIds = computed(() => {
   if (activeGroup.value === 'all') return ORDER.value.ores
   const group = groupedOres.value.find((g) => g.key === activeGroup.value)
-  return group ? group.ids : []
+  const ids = group ? [...group.ids] : []
+  if (prevGroupBest.value && !ids.includes(prevGroupBest.value.id)) {
+    ids.unshift(prevGroupBest.value.id)
+  }
+  return ids
 })
 
 const oreMiningData = computed(() => {
@@ -224,6 +229,24 @@ function oreProfitTooltip(oreId) {
   lines.push(`  Total: $${total.toFixed(2)}/s`)
   return lines.join('\n')
 }
+
+const prevGroupBest = computed(() => {
+  if (activeGroup.value === 'all') return null
+  const idx = groupedOres.value.findIndex((g) => g.key === activeGroup.value)
+  if (idx <= 0) return null
+  const prevGroup = groupedOres.value[idx - 1]
+  let bestId = null
+  let bestProfit = -Infinity
+  for (const id of prevGroup.ids) {
+    const profit = oreMiningData.value[id]?.profit || 0
+    if (profit > bestProfit) {
+      bestProfit = profit
+      bestId = id
+    }
+  }
+  if (bestId == null) return null
+  return { id: bestId, label: prevGroup.label }
+})
 </script>
 
 <style scoped>
@@ -304,5 +327,15 @@ function oreProfitTooltip(oreId) {
   font-size: 14px;
   font-weight: 600;
   color: #e8edf5;
+}
+.prev-best-row {
+  background: rgba(30, 136, 229, 0.08);
+}
+.prev-best-label {
+  font-size: 10px;
+  color: #64b5f6;
+  margin-left: 6px;
+  font-weight: 400;
+  vertical-align: middle;
 }
 </style>
