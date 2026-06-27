@@ -2,46 +2,45 @@
   <div class="mgr-card">
     <button
 class="mgr-remove" @click="$emit('remove')">&times;</button>
-    <div class="mgr-row">
-      <button
-        class="mgr-btn"
-        :disabled="manager.stars <= 1"
-        @click="$emit('update:stars', manager.stars - 1)"
-      >
-        −
-      </button>
-      <span class="mgr-value">{{ manager.stars }}</span>
-      <button
-        class="mgr-btn"
-        :disabled="manager.stars >= 7"
-        @click="$emit('update:stars', manager.stars + 1)"
-      >
-        +
-      </button>
+    <div class="mgr-stars-grid" @mouseleave="hoveredStar = 0">
+      <span></span>
+      <div class="mgr-stars-content">
+        <svg
+          v-for="i in 6"
+          :key="i"
+          viewBox="0 0 20 20"
+          width="14"
+          height="14"
+          class="mgr-star"
+          :class="{ filled: hoveredStar ? i <= hoveredStar : i <= manager.stars }"
+          @mouseenter="hoveredStar = i"
+          @click="setStars(i)"
+        >
+          <path d="M10 1l2.5 5.1 5.6.8-4 4 .9 5.6L10 14l-5 2.6.9-5.6-4-4 5.6-.8z" />
+        </svg>
+      </div>
+      <span></span>
+      <span></span>
     </div>
 
-    <div class="mgr-row">
-      <button
-class="mgr-btn" @click="cyclePrimary(-1)">◀</button>
+    <div class="mgr-skill-row">
+      <button class="mgr-btn" @click="cyclePrimary(-1)">◀</button>
       <span class="mgr-skill-name">{{ primaryLabel }}</span>
-      <button
-class="mgr-btn" @click="cyclePrimary(1)">▶</button>
+      <button class="mgr-btn" @click="cyclePrimary(1)">▶</button>
       <span class="mgr-effect">{{ primaryEffect }}</span>
     </div>
 
-    <div class="mgr-row">
-      <button
-class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(-1)">◀</button>
+    <div class="mgr-skill-row">
+      <button class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(-1)">◀</button>
       <span class="mgr-skill-name">{{ secondaryLabel }}</span>
-      <button
-class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(1)">▶</button>
+      <button class="mgr-btn" :disabled="manager.stars < 3" @click="cycleSecondary(1)">▶</button>
       <span class="mgr-effect">{{ secondaryEffect }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import {
   MANAGER_PRIMARY_SKILLS,
   MANAGER_SECONDARY_SKILLS,
@@ -54,6 +53,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['remove', 'update:primarySkill', 'update:secondarySkill', 'update:stars'])
+
+const hoveredStar = ref(0)
 
 const primaryLabel = computed(() => {
   const found = MANAGER_PRIMARY_SKILLS.find((s) => s.value === props.manager.primarySkill)
@@ -69,6 +70,7 @@ const primaryEffect = computed(() => {
   const arr = PRIMARY_EFFECTS[props.manager.primarySkill]
   if (!arr) return '—'
   const stars = props.manager.stars
+  if (stars <= 0) return '—'
   if (arr.length >= stars) return '×' + arr[stars - 1].toFixed(2)
   return '—'
 })
@@ -77,9 +79,15 @@ const secondaryEffect = computed(() => {
   const arr = SECONDARY_EFFECTS[props.manager.secondarySkill]
   if (!arr) return '—'
   const stars = props.manager.stars
+  if (stars <= 0) return '—'
   if (arr.length >= stars && arr[stars - 1] != null) return '×' + arr[stars - 1].toFixed(2)
   return '—'
 })
+
+function setStars(n) {
+  const next = props.manager.stars === n ? 0 : n
+  emit('update:stars', next)
+}
 
 function cyclePrimary(dir) {
   const idx = MANAGER_PRIMARY_SKILLS.findIndex((s) => s.value === props.manager.primarySkill)
@@ -106,6 +114,7 @@ function cycleSecondary(dir) {
   border: 1px solid #1a2235;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 4px;
   position: relative;
 }
@@ -171,16 +180,48 @@ function cycleSecondary(dir) {
   cursor: default;
 }
 
-.mgr-value {
-  text-align: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: #ffd54f;
-  margin: 0 2px;
+.mgr-stars-grid {
+  display: grid;
+  grid-template-columns: 18px 1fr 18px 45px;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+}
+.mgr-stars-content {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+}
+.mgr-star {
+  fill: none;
+  stroke: #6b7a8f;
+  stroke-width: 1.2;
+  transition: fill 0.15s, stroke 0.15s, transform 0.12s;
+  cursor: pointer;
+}
+.mgr-star:hover {
+  transform: scale(1.25);
+}
+.mgr-star.filled {
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+.mgr-skill-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.mgr-skill-row .mgr-btn {
+  flex: 0 0 18px;
+  width: 18px;
+  min-width: 18px;
 }
 
 .mgr-skill-name {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   text-align: center;
   font-size: 11px;
   font-weight: 500;
@@ -189,12 +230,14 @@ function cycleSecondary(dir) {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .mgr-effect {
+  flex: 0 0 45px;
+  width: 45px;
+  min-width: 45px;
   font-size: 11px;
   font-weight: 600;
   color: #4fc3f7;
-  min-width: 40px;
   text-align: right;
+  overflow: hidden;
 }
 </style>

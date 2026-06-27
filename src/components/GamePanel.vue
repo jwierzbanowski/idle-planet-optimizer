@@ -4,38 +4,12 @@
     <div class="game-modal">
       <div class="game-header">
         <h2 class="game-title">Game</h2>
-        <span class="game-desc">Projects &amp; managers for current playthrough</span>
+        <span class="game-desc">Projects for current playthrough</span>
         <button
 class="game-close" @click="$emit('close')">&times;</button>
       </div>
-      <div class="settings-categories">
-        <button
-          v-for="cat in categories"
-          :key="cat.key"
-          class="settings-cat"
-          :class="{ active: activeCat === cat.key }"
-          @click="switchCat(cat.key)"
-        >
-          {{ cat.label }}
-        </button>
-      </div>
       <div class="settings-content">
-        <div v-if="activeCat === 'managers'"
-class="mgr-list">
-          <ManagerCard
-            v-for="(mgr, i) in managers"
-            :key="i"
-            :manager="mgr"
-            @remove="removeManager(i)"
-            @update:primary-skill="updateManagerPrimarySkill(i, $event)"
-            @update:secondary-skill="updateManagerSecondarySkill(i, $event)"
-            @update:stars="updateManagerStars(i, $event)"
-          />
-          <button
-class="mgr-add" @click="addManager">+ Add</button>
-        </div>
-        <template v-else>
-          <div v-for="group in projectGroups"
+        <div v-for="group in projectGroups"
 :key="group.name" class="project-group">
             <div class="project-group-title">
               {{ group.name }}
@@ -55,36 +29,19 @@ v-if="getVal(item.key) && item.baseEffect" class="settings-effect"
               >
             </label>
           </div>
-        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useGame } from '../composables/useGame'
 import { SETTINGS_CONFIG } from '../utils/config'
-import ManagerCard from './ManagerCard.vue'
 
 defineEmits(['close'])
 
-const {
-  getRawSetting,
-  setSetting,
-  getManagers,
-  addManager,
-  removeManager,
-  updateManagerStars,
-  updateManagerPrimarySkill,
-  updateManagerSecondarySkill,
-} = useGame()
-
-const activeCat = ref('projects')
-const categories = [
-  { key: 'projects', label: 'Projects' },
-  { key: 'managers', label: 'Managers' },
-]
+const { getRawSetting, setSetting } = useGame()
 
 const projectGroups = computed(() => {
   const all = SETTINGS_CONFIG.projects
@@ -102,8 +59,6 @@ const projectGroups = computed(() => {
   }))
 })
 
-const managers = computed(() => getManagers())
-
 function getVal(key) {
   return getRawSetting('projects', key)
 }
@@ -111,10 +66,6 @@ function getVal(key) {
 function toggleItem(key) {
   const current = getRawSetting('projects', key)
   setSetting('projects', key, current ? 0 : 1)
-}
-
-function switchCat(cat) {
-  activeCat.value = cat
 }
 </script>
 
@@ -168,32 +119,5 @@ function switchCat(cat) {
 .game-close:hover {
   color: #fff;
   background: #1a2235;
-}
-
-.mgr-list {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.mgr-list > * {
-  flex: 0 0 calc(25% - 4.5px);
-  max-width: calc(25% - 4.5px);
-}
-
-.mgr-add {
-  padding: 8px;
-  border: 1px dashed #2a3a4a;
-  border-radius: 4px;
-  background: transparent;
-  color: #4fc3f7;
-  font-size: 13px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.mgr-add:hover {
-  border-color: #4fc3f7;
-  background: rgba(79, 195, 247, 0.05);
 }
 </style>

@@ -32,7 +32,7 @@ export const SETTINGS_CONFIG = {
     {
       key: 'engineering',
       label: 'Engineering',
-      desc: 'Increase mine speed',
+      desc: 'Mine Rate',
       baseEffect: 1.25,
       perLevel: 0.15,
       maxLevel: 60,
@@ -40,7 +40,7 @@ export const SETTINGS_CONFIG = {
     {
       key: 'forge',
       label: 'Forge',
-      desc: 'Increase smelt speed',
+      desc: 'Smelt Speed',
       baseEffect: 1.2,
       perLevel: 0.1,
       maxLevel: 60,
@@ -48,7 +48,7 @@ export const SETTINGS_CONFIG = {
     {
       key: 'workshop',
       label: 'Workshop',
-      desc: 'Increase craft speed',
+      desc: 'Craft Speed',
       baseEffect: 1.2,
       perLevel: 0.1,
       maxLevel: 60,
@@ -56,15 +56,15 @@ export const SETTINGS_CONFIG = {
     {
       key: 'underforge',
       label: 'Underforge',
-      desc: 'Decrease smelter ingredients',
+      desc: 'Smelting Prices',
       baseEffect: 0.9,
       perLevel: -0.04,
       maxLevel: 11,
     },
     {
       key: 'dorm',
-      label: 'Dorm',
-      desc: 'Decrease crafter ingredients',
+      label: 'Dorms',
+      desc: 'Crafting Prices',
       baseEffect: 0.9,
       perLevel: -0.04,
       maxLevel: 11,
@@ -72,7 +72,7 @@ export const SETTINGS_CONFIG = {
     {
       key: 'sales',
       label: 'Sales',
-      desc: 'Increase alloy and item value',
+      desc: 'Alloy/Item Values',
       baseEffect: 1.15,
       perLevel: 0.05,
       maxLevel: 60,
@@ -80,7 +80,7 @@ export const SETTINGS_CONFIG = {
     {
       key: 'astronomy',
       label: 'Astronomy',
-      desc: 'Decrease planet upgrade cost',
+      desc: 'Planet Upgrade Prices',
       baseEffect: 0.9,
       perLevel: -0.04,
       maxLevel: 11,

@@ -88,7 +88,7 @@ export function useGame() {
 
   function updateManagerStars(index, stars) {
     if (!game.managers || !game.managers[index]) return
-    game.managers[index].stars = Math.max(1, Math.min(7, stars))
+    game.managers[index].stars = Math.max(1, Math.min(6, stars))
     const m = game.managers[index]
     if (m.stars < 3) {
       m.secondarySkill = 'empty'
@@ -120,7 +120,6 @@ export function useGame() {
 
   function resetGame() {
     game.projects = {}
-    game.managers = []
     game.pinnedItems = []
     _managerVersion.value++
     saveGame(game)
