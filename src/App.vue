@@ -1,14 +1,38 @@
 <template>
   <div class="container">
-    <h1>Idle Planet Optimizer</h1>
+    <div class="top-bar">
+      <h1>Idle Planet Optimizer</h1>
+      <div class="header-actions">
+        <button
+class="profile-btn" @click="showProfile = true" title="Profile"><User :size="18" /></button>
+        <div class="btn-badge-wrap">
+          <button
+class="game-btn" @click="showGame = true; showGameBadge = false" title="Game"><Gamepad2 :size="18" /></button>
+          <span v-if="showGameBadge" class="badge-dot" />
+        </div>
+        <button
+class="reset-btn" @click="resetAll" title="Reset playthrough"><RotateCcw :size="18" /></button>
+        <div class="backup-wrap">
+          <button
+class="backup-btn" @click="backupOpen = !backupOpen">Backup</button>
+          <div v-if="backupOpen" class="backup-dropdown">
+            <button @click="exportProfile(); backupOpen = false"><Download :size="16" /> Export</button>
+            <button @click="triggerImport(); backupOpen = false"><Upload :size="16" /> Import</button>
+          </div>
+        </div>
+        <input ref="fileInput"
+type="file" accept=".json" hidden @change="handleImport"
+/>
+      </div>
+    </div>
     <div class="subtitle">Idle Planet Miner — optimal crafting &amp; smelting</div>
-
-    <MarketPanel />
 
     <div v-if="loadError" class="error-banner">{{ loadError }}</div>
 
     <div v-if="!loading"
-class="stats-bar">
+class="content-row">
+      <div class="stats-bar">
+        <div class="stats-title">Multipliers</div>
       <span class="stats-item">
         Smelt: <strong>{{ debugStats.smeltRate }}</strong>
         <span class="info-icon"
@@ -50,6 +74,8 @@ class="stats-bar">
         >i</span>
       </span>
     </div>
+      <MarketPanel />
+    </div>
 
     <div class="header-row">
       <div class="tabs">
@@ -62,21 +88,6 @@ class="stats-bar">
         >
           {{ t.label }} <span class="count">({{ t.count }})</span>
         </button>
-      </div>
-      <div class="header-actions">
-        <button
-class="icon-btn" @click="exportProfile" title="Export profile">📤</button>
-        <button
-class="icon-btn" @click="triggerImport" title="Import profile">📥</button>
-        <button
-class="profile-btn" @click="showProfile = true" title="Profile">👤</button>
-        <button
-class="game-btn" @click="showGame = true" title="Game">🎮</button>
-        <button
-id="resetBtn" @click="resetAll">Reset playthrough</button>
-        <input ref="fileInput"
-type="file" accept=".json" hidden @change="handleImport"
-/>
       </div>
     </div>
 
@@ -148,6 +159,7 @@ import {
   getManagerSecondaryMult,
 } from './utils/calc'
 import { toggleTip } from './utils/format'
+import { User, Gamepad2, RotateCcw, Download, Upload } from '@lucide/vue'
 
 const { resetTemporary } = useOverrides()
 const { settings, managerVersion } = useSettings()
@@ -160,6 +172,8 @@ const activeTab = ref('ores')
 const detailId = ref(null)
 const showProfile = ref(false)
 const showGame = ref(false)
+const showGameBadge = ref(false)
+const backupOpen = ref(false)
 const counts = reactive({ ores: 0, alloys: 0, items: 0, mining: 0 })
 const loading = ref(true)
 const loadError = ref('')
@@ -361,11 +375,12 @@ function switchTab(tab) {
 
 async function resetAll() {
   const ok = await showConfirm(
-    'Reset playthrough? Projects, managers, market & mining overrides will be cleared. Profile (rooms, station, beacon, stars) stays unchanged.'
+    'Reset playthrough? Projects, market & mining overrides will be cleared. Managers, pinned items, and profile stay unchanged.'
   )
   if (!ok) return
   resetGame()
   resetTemporary()
+  showGameBadge.value = true
   detailId.value = null
 }
 
@@ -389,7 +404,11 @@ function handleImport(event) {
   event.target.value = ''
 }
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.backup-wrap')
+  if (wrap && !wrap.contains(e.target)) {
+    backupOpen.value = false
+  }
   document.querySelectorAll('.info-icon.visible').forEach((icon) => {
     icon.classList.remove('visible')
   })
@@ -417,8 +436,13 @@ h1 {
   font-size: 28px;
   font-weight: 700;
   color: #4fc3f7;
-  margin-bottom: 4px;
   letter-spacing: 0.5px;
+}
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 .subtitle {
   color: #6b7a8f;
@@ -426,13 +450,12 @@ h1 {
   margin-bottom: 24px;
 }
 .tabs {
-  display: flex;
+  display: inline-flex;
   gap: 4px;
   margin-bottom: 20px;
   background: #121824;
   border-radius: 10px;
   padding: 4px;
-  display: inline-flex;
 }
 .tab {
   padding: 10px 28px;
@@ -470,17 +493,33 @@ h1 {
   flex-wrap: wrap;
   gap: 12px;
 }
-.stats-bar {
+.content-row {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 12px;
-  padding: 8px 12px;
+  align-items: flex-start;
+}
+.stats-bar {
+  flex: 7;
+  min-width: 0;
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
   background: #0d1520;
   border-radius: 6px;
   border: 1px solid #1a2235;
   font-size: 12px;
   color: #6b7a8f;
   flex-wrap: wrap;
+  align-content: flex-start;
+}
+.stats-title {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7a8f;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 .stats-item strong {
   color: #4fc3f7;
@@ -500,7 +539,7 @@ h1 {
   font-weight: 700;
   font-style: italic;
   cursor: pointer;
-  margin-right: 5px;
+  margin-left: 4px;
   font-family: 'Times New Roman', serif;
   line-height: 1;
   vertical-align: middle;
@@ -533,7 +572,6 @@ h1 {
   opacity: 1;
 }
 .table-wrap {
-  overflow-x: auto;
   background: #121824;
   border-radius: 10px;
   border: 1px solid #1e2a3a;
@@ -599,8 +637,9 @@ td .ingredient-list {
 .star-controls {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
-  margin-top: 5px;
+  min-width: 0;
 }
 .star-btn {
   width: 24px;
@@ -792,36 +831,93 @@ td .ingredient-list {
   color: #ffd54f;
 }
 .profile-btn,
-.game-btn {
+.game-btn,
+.reset-btn {
   padding: 8px 10px;
   background: transparent;
   border: 1px solid #2a3a4a;
   border-radius: 6px;
-  color: #6b7a8f;
+  color: #4fc3f7;
   font-size: 18px;
   cursor: pointer;
   line-height: 1;
+  display: flex;
+  align-items: center;
 }
-.profile-btn:hover {
+.profile-btn:hover,
+.game-btn:hover,
+.reset-btn:hover {
   border-color: #4fc3f7;
-  color: #4fc3f7;
 }
-.game-btn:hover {
-  border-color: #4caf50;
-  color: #4caf50;
+.profile-btn:hover,
+.game-btn:hover,
+.reset-btn:hover {
+  border-color: #4fc3f7;
 }
-#resetBtn {
+
+.btn-badge-wrap {
+  position: relative;
+  display: flex;
+}
+.badge-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ef5350;
+  border: 2px solid #0a0e17;
+}
+.backup-wrap {
+  position: relative;
+}
+.backup-btn {
   padding: 8px 16px;
   background: transparent;
   border: 1px solid #2a3a4a;
   border-radius: 6px;
-  color: #6b7a8f;
+  color: #4fc3f7;
   font-size: 13px;
   cursor: pointer;
+  font-weight: 600;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  min-height: 36px;
 }
-#resetBtn:hover {
-  border-color: #ef5350;
-  color: #ef5350;
+.backup-btn:hover {
+  border-color: #4fc3f7;
+  color: #4fc3f7;
+}
+.backup-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #121824;
+  border: 1px solid #2a3a4a;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 100;
+  min-width: 150px;
+}
+.backup-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: #c8d0dc;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+.backup-dropdown button:hover {
+  background: #1a2235;
+  color: #fff;
 }
 
 .mining-level-select {
@@ -871,233 +967,6 @@ td .ingredient-list {
   opacity: 0.5;
 }
 
-/* Market panel */
-.market-bar {
-  margin-bottom: 12px;
-}
-#marketToggle {
-  padding: 8px 16px;
-  background: transparent;
-  border: 1px solid #2a3a4a;
-  border-radius: 6px;
-  color: #6b7a8f;
-  font-size: 13px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  font-weight: 600;
-}
-#marketToggle:hover {
-  border-color: #4caf50;
-  color: #4caf50;
-}
-.market-panel {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  background: #121824;
-  border-radius: 10px;
-  border: 1px solid #1e2a3a;
-}
-.market-panel.open {
-  max-height: 3000px;
-  overflow-y: auto;
-}
-.market-search-wrap {
-  padding: 12px 12px 0;
-}
-.market-search {
-  width: 100%;
-  background: #0d1520;
-  border: 1px solid #2a3a4a;
-  border-radius: 6px;
-  color: #e8edf5;
-  font-size: 14px;
-  padding: 8px 12px;
-  outline: none;
-}
-.market-search:focus {
-  border-color: #4caf50;
-}
-.market-search::placeholder {
-  color: #4a5a6a;
-}
-.market-result-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.market-result-row:hover {
-  background: #1a2235;
-}
-.market-result-row.selected {
-  background: #162030;
-}
-.market-result-type {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 3px;
-  min-width: 40px;
-  text-align: center;
-}
-.market-result-type.ore {
-  background: rgba(76, 175, 80, 0.15);
-  color: #4caf50;
-}
-.market-result-type.alloy {
-  background: rgba(79, 195, 247, 0.15);
-  color: #4fc3f7;
-}
-.market-result-type.item {
-  background: rgba(255, 183, 77, 0.15);
-  color: #ffb74d;
-}
-.market-result-name {
-  flex: 1;
-  font-size: 13px;
-  color: #c8d0dc;
-}
-.market-result-pct {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #6b7a8f;
-}
-.market-pct-input {
-  width: 64px;
-  background: #0d1520;
-  border: 1px solid #2a3a4a;
-  border-radius: 4px;
-  color: #e8edf5;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-  padding: 4px;
-  outline: none;
-}
-.market-pct-input:focus {
-  border-color: #4caf50;
-}
-.market-pct-input::-webkit-inner-spin-button {
-  opacity: 0.5;
-}
-.market-unit {
-  color: #6b7a8f;
-  font-size: 12px;
-}
-.market-reset-btn {
-  width: 22px;
-  height: 22px;
-  border: 1px solid #2a3a4a;
-  border-radius: 4px;
-  background: transparent;
-  color: #ef5350;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-.market-reset-btn:hover {
-  border-color: #ef5350;
-  background: rgba(239, 83, 80, 0.1);
-}
-.market-reset-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-.market-no-results {
-  padding: 12px;
-  text-align: center;
-  color: #6b7a8f;
-  font-size: 13px;
-}
-.market-pinned {
-  border-top: 1px solid #1a2235;
-  padding: 8px 0;
-}
-.market-pinned-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7a8f;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 4px 12px 8px;
-}
-.market-pinned-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-}
-.market-pinned-row .market-result-type {
-  min-width: 36px;
-}
-.market-pinned-row .market-result-name {
-  flex: 1;
-  font-size: 13px;
-  color: #c8d0dc;
-}
-.market-controls {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-.market-controls .star-btn {
-  width: 24px;
-  height: 24px;
-  border: 1px solid #2a3a4a;
-  border-radius: 4px;
-  background: #0d1520;
-  color: #6b7a8f;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  padding: 0;
-  user-select: none;
-}
-.market-controls .star-btn:hover {
-  border-color: #4fc3f7;
-  color: #4fc3f7;
-}
-.market-controls .star-btn:active {
-  background: #1a2235;
-}
-.market-controls .star-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-.market-val {
-  min-width: 44px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #e8edf5;
-}
-.market-val.negative {
-  color: #ef5350;
-}
-.market-check {
-  color: #4caf50;
-  font-size: 14px;
-  font-weight: 700;
-}
-.market-results {
-  padding: 4px 0;
-  max-height: 300px;
-  overflow-y: auto;
-}
 
 .settings-categories {
   display: flex;
@@ -1146,7 +1015,8 @@ td .ingredient-list {
   color: #6b7a8f;
 }
 .settings-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
   align-items: center;
   gap: 12px;
   background: #0d1520;
@@ -1155,10 +1025,11 @@ td .ingredient-list {
   border: 1px solid #1a2235;
 }
 .settings-info {
-  flex: 1;
   min-width: 0;
+  text-align: left;
 }
 .settings-label {
+  grid-column: 1 / -1;
   color: #c8d0dc;
   font-size: 13px;
   font-weight: 500;
@@ -1173,7 +1044,7 @@ td .ingredient-list {
   color: #4fc3f7;
   font-size: 14px;
   font-weight: 600;
-  min-width: 56px;
+  min-width: 0;
   text-align: right;
 }
 .manager-select {
@@ -1393,6 +1264,9 @@ td .ingredient-list {
   }
   h1 {
     font-size: 22px;
+  }
+  .content-row {
+    flex-direction: column;
   }
   .tabs {
     width: 100%;

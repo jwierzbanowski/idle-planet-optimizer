@@ -4,7 +4,7 @@
     <div class="profile-modal">
       <div class="profile-header">
         <h2 class="profile-title">Profile</h2>
-        <span class="profile-desc">Rooms, station &amp; beacon settings</span>
+        <span class="profile-desc">Rooms, station, beacon &amp; managers</span>
         <button
 class="profile-close" @click="$emit('close')">&times;</button>
       </div>
@@ -20,18 +20,32 @@ class="profile-close" @click="$emit('close')">&times;</button>
         </button>
       </div>
       <div class="settings-content">
-        <template v-if="activeCat === 'station'">
+        <div v-if="activeCat === 'managers'"
+class="mgr-list">
+          <ManagerCard
+            v-for="(mgr, i) in managers"
+            :key="i"
+            :manager="mgr"
+            @remove="removeManager(i)"
+            @update:primary-skill="updateManagerPrimarySkill(i, $event)"
+            @update:secondary-skill="updateManagerSecondarySkill(i, $event)"
+            @update:stars="updateManagerStars(i, $event)"
+          />
+          <button
+class="mgr-add" @click="addManager">+ Add</button>
+        </div>
+        <template v-else-if="activeCat === 'station'">
           <div v-for="group in stationGroups"
 :key="group.name" class="station-group">
             <div class="project-group-title">
               {{ group.name }}
             </div>
             <div v-for="item in group.items"
-:key="item.key" class="settings-row">
+ :key="item.key" class="settings-row">
+              <span class="settings-label">{{ item.label }}</span>
               <div class="settings-info">
-                <span class="settings-label">{{ item.label }}</span>
                 <span v-if="item.desc"
-class="settings-desc">{{ item.desc }}</span>
+ class="settings-desc">{{ item.desc }}</span>
               </div>
               <template v-if="isNumeric(item)">
                 <div class="star-controls">
@@ -82,11 +96,11 @@ style="color: #4caf50">
             <div class="settings-empty">No settings yet</div>
           </template>
           <div v-for="item in currentConfig"
-:key="item.key" class="settings-row">
+ :key="item.key" class="settings-row">
+            <span class="settings-label">{{ item.label }}</span>
             <div class="settings-info">
-              <span class="settings-label">{{ item.label }}</span>
               <span v-if="item.desc"
-class="settings-desc">{{ item.desc }}</span>
+ class="settings-desc">{{ item.desc }}</span>
             </div>
             <template v-if="isNumeric(item)">
               <div class="star-controls">
@@ -169,18 +183,31 @@ v-if="getVal(item.key) && item.baseEffect != null" class="settings-effect"
 <script setup>
 import { ref, computed } from 'vue'
 import { useProfile } from '../composables/useProfile'
+import { useGame } from '../composables/useGame'
 import { SETTINGS_CONFIG } from '../utils/config'
+import ManagerCard from './ManagerCard.vue'
 
 defineEmits(['close'])
 
 const { getRawSetting, setSetting } = useProfile()
+const {
+  getManagers,
+  addManager,
+  removeManager,
+  updateManagerStars,
+  updateManagerPrimarySkill,
+  updateManagerSecondarySkill,
+} = useGame()
 
 const activeCat = ref('rooms')
 const categories = [
   { key: 'rooms', label: 'Rooms' },
   { key: 'station', label: 'Station' },
   { key: 'beacon', label: 'Beacon' },
+  { key: 'managers', label: 'Managers' },
 ]
+
+const managers = computed(() => getManagers())
 
 const currentConfig = computed(() => SETTINGS_CONFIG[activeCat.value] || [])
 
@@ -247,9 +274,9 @@ function switchCat(cat) {
   background: #121824;
   border: 1px solid #1e2a3a;
   border-radius: 12px;
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
+  width: 95%;
+  max-width: 1000px;
+  max-height: 92vh;
   overflow-y: auto;
 }
 .profile-header {
@@ -292,5 +319,30 @@ function switchCat(cat) {
 }
 .station-group .project-group-title {
   padding: 0 4px;
+}
+
+.mgr-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mgr-list > * {
+  flex: 0 0 calc(25% - 4.5px);
+  max-width: calc(25% - 4.5px);
+}
+.mgr-add {
+  padding: 8px;
+  border: 1px dashed #2a3a4a;
+  border-radius: 4px;
+  background: transparent;
+  color: #4fc3f7;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+}
+.mgr-add:hover {
+  border-color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.05);
 }
 </style>
