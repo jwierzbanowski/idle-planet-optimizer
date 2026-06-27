@@ -12,7 +12,19 @@ if (
 }
 
 const { profile } = useProfile()
-const { game, managerVersion, setPinnedItems } = useGame()
+const {
+  game,
+  managerVersion,
+  setPinnedItems,
+  getRawSetting,
+  setSetting,
+  getManagers,
+  addManager,
+  removeManager,
+  updateManagerStars,
+  updateManagerPrimarySkill,
+  updateManagerSecondarySkill,
+} = useGame()
 
 const settings = reactive({
   rooms: computed(() => profile.rooms || {}),
@@ -24,5 +36,17 @@ const settings = reactive({
 })
 
 export function useSettings() {
-  return { settings, managerVersion, setPinnedItems }
+  return {
+    settings,
+    managerVersion,
+    setPinnedItems,
+    getRawSetting,
+    setSetting,
+    getManagers,
+    addManager,
+    removeManager,
+    updateManagerStars,
+    updateManagerPrimarySkill,
+    updateManagerSecondarySkill,
+  }
 }

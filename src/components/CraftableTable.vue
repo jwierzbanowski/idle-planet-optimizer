@@ -31,11 +31,15 @@
           <tr
             v-for="id in visibleIds"
             :key="id"
-            :class="{ 'best-row': bestInGroup.has(id) }"
+            :class="{
+              'best-row': bestInGroup.has(id) && activeGroup !== 'all',
+              'prev-best-row': id === prevGroupBest?.id && activeGroup !== 'all',
+            }"
             @click="$emit('show-detail', id)"
           >
             <td class="name-cell">
               {{ getEntity(id)?.name }}
+              <span v-if="id === prevGroupBest?.id && activeGroup !== 'all'" class="prev-best-label">(best from {{ prevGroupBest.label }})</span>
               <StarControls
                 :model-value="getStars(id)"
                 @update:model-value="setOverride(id, 'stars', $event)"
@@ -210,7 +214,11 @@ const filterTabs = computed(() => {
 const visibleIds = computed(() => {
   if (activeGroup.value === 'all') return allIds.value
   const group = groupedItems.value.find((g) => g.key === activeGroup.value)
-  return group ? group.ids : []
+  const ids = group ? [...group.ids] : []
+  if (prevGroupBest.value && !ids.includes(prevGroupBest.value.id)) {
+    ids.unshift(prevGroupBest.value.id)
+  }
+  return ids
 })
 const bestInGroup = computed(() => {
   const ids = new Set()
@@ -227,6 +235,24 @@ const bestInGroup = computed(() => {
     if (bestId != null) ids.add(bestId)
   }
   return ids
+})
+
+const prevGroupBest = computed(() => {
+  if (activeGroup.value === 'all') return null
+  const idx = groupedItems.value.findIndex((g) => g.key === activeGroup.value)
+  if (idx <= 0) return null
+  const prevGroup = groupedItems.value[idx - 1]
+  let bestId = null
+  let bestPps = -Infinity
+  for (const id of prevGroup.ids) {
+    const p = pps(id)
+    if (p > bestPps) {
+      bestPps = p
+      bestId = id
+    }
+  }
+  if (bestId == null) return null
+  return { id: bestId, label: prevGroup.label }
 })
 
 const speedMult = computed(() =>
@@ -354,5 +380,15 @@ function profitClass(id) {
 }
 .best-row {
   background: rgba(76, 175, 80, 0.08);
+}
+.prev-best-row {
+  background: rgba(30, 136, 229, 0.08);
+}
+.prev-best-label {
+  font-size: 10px;
+  color: #64b5f6;
+  margin-left: 6px;
+  font-weight: 400;
+  vertical-align: middle;
 }
 </style>
