@@ -1,5 +1,68 @@
 <template>
   <div>
+    <div class="session-controls">
+      <label class="session-label">
+        ⏱ Session:
+        <select v-model.number="sessionDuration" class="session-select">
+          <option value="0.5">30m</option>
+          <option value="1">1h</option>
+          <option value="2">2h</option>
+          <option value="3">3h</option>
+          <option value="4">4h</option>
+          <option value="8">8h</option>
+          <option value="12">12h</option>
+          <option value="24">24h</option>
+          <option value="48">48h</option>
+        </select>
+      </label>
+      <label class="session-label" v-if="sessionDuration > 0">
+        Elapsed:
+        <input
+          type="range"
+          :min="0"
+          :max="sessionDuration"
+          :step="elapsedStep / 60"
+          v-model.number="elapsedTime"
+          class="session-slider"
+        />
+        <span class="session-val">{{ fmtTimeHm(elapsedTime) }}</span>
+      </label>
+      <span class="session-step" v-if="sessionDuration > 0">
+        <button class="step-btn" :class="{ active: elapsedStep === 5 }" @click="elapsedStep = 5">5m</button>
+        <button class="step-btn" :class="{ active: elapsedStep === 15 }" @click="elapsedStep = 15">15m</button>
+        <button class="step-btn" :class="{ active: elapsedStep === 30 }" @click="elapsedStep = 30">30m</button>
+      </span>
+      <span class="session-remaining" v-if="sessionDuration > 0">
+        Remaining: <strong>{{ fmtTimeHm(remainingTime) }}</strong>
+      </span>
+    </div>
+    <div class="best-upgrade-bar" v-if="bestUpgradeSteps.length">
+      <div class="best-label">Roadmap ({{ bestUpgradeSteps.length }} steps):</div>
+      <label class="include-new-cb">
+        <input type="checkbox" v-model="includeNewPlanets" />
+        Include planet purchases
+      </label>
+      <span class="step-size-group">
+        <button class="step-size-btn" :class="{ active: roadmapStepSize === 1 }" @click="roadmapStepSize = 1">1 lvl</button>
+        <button class="step-size-btn" :class="{ active: roadmapStepSize === 5 }" @click="roadmapStepSize = 5">5 lvls</button>
+      </span>
+      <div class="best-steps-list">
+        <div v-for="(s, i) in bestUpgradeSteps" :key="i"
+             class="best-step"
+             :class="{
+               'step-repeat-green': stepCounts[s.id] > 3,
+               'step-repeat-yellow': stepCounts[s.id] > 2 && stepCounts[s.id] <= 3,
+               'step-repeat-orange': stepCounts[s.id] > 1 && stepCounts[s.id] <= 2
+             }">
+          {{ i + 1 }}. <template v-if="s.isBuying">Buy </template>{{ s.number }}. {{ s.name }} (lvl {{ s.fromLvl }}→{{ s.toLvl }})
+          <span v-if="stepCounts[s.id] > 1" class="step-repeat-badge">{{ stepCounts[s.id] }}×</span>
+          <span class="best-detail">Cost: {{ fmtPrice(Math.round(s.upgradeCost)) }}</span>
+          <span class="best-detail">+{{ fmtPrice(s.incProfit) }}/s</span>
+          <span class="best-detail">{{ fmtDuration(s.paybackHours) }}</span>
+          <button class="apply-step-btn" @click="setOverride(s.id, 'miningLevel', s.toLvl)" title="Apply this upgrade">+{{ s.toLvl - s.fromLvl }}</button>
+        </div>
+      </div>
+    </div>
     <div class="filter-tabs">
       <button
         v-for="tab in filterTabs"
@@ -24,13 +87,15 @@
             <th>Rate</th>
             <th>Profit / s</th>
             <th>Upgrade Payback</th>
+            <th>Max Lv</th>
+            <th>Manager</th>
+            <th>Alchemy</th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="row in visibleRows"
             :key="row.id"
-            :class="{ 'best-row': row.id === bestRowId }"
           >
             <td class="name-cell">{{ row.number }}. {{ row.name }}</td>
             <td class="price">
@@ -47,8 +112,8 @@
                 >
                   <span class="ore-target-name">{{ r.name }}</span>
                   <span class="ore-target-yield">{{ r.displayYield }}%</span>
-                  <span v-if="r.isTargeted"
-class="ore-target-badge">TARGET</span>
+                  <span v-if="r.alchemyNext" class="ore-target-alchemy">↓ {{ r.alchemyNext }}</span>
+                  <span v-if="r.isTargeted" class="ore-target-badge">TARGET</span>
                 </div>
               </template>
               <span v-else
@@ -58,7 +123,14 @@ class="ingredient-list">{{ row.resStr }}</span>
               <div class="mining-level-select">
                 <button
                   class="star-btn"
-                  :disabled="row.lvl <= 1"
+                  :disabled="row.lvl < 5"
+                  @click="setOverride(row.id, 'miningLevel', Math.max(0, row.lvl - 5))"
+                >
+                  −5
+                </button>
+                <button
+                  class="star-btn"
+                  :disabled="row.lvl <= 0"
                   @click="setOverride(row.id, 'miningLevel', row.lvl - 1)"
                 >
                   −
@@ -67,13 +139,13 @@ class="ingredient-list">{{ row.resStr }}</span>
                   type="number"
                   class="mining-level-input"
                   :value="row.lvl"
-                  min="1"
+                  min="0"
                   max="100"
                   @change="
                     setOverride(
                       row.id,
                       'miningLevel',
-                      Math.max(1, Math.min(100, parseInt($event.target.value) || 1))
+                      Math.max(0, Math.min(100, parseInt($event.target.value) || 0))
                     )
                   "
                 />
@@ -83,6 +155,13 @@ class="ingredient-list">{{ row.resStr }}</span>
                   @click="setOverride(row.id, 'miningLevel', row.lvl + 1)"
                 >
                   +
+                </button>
+                <button
+                  class="star-btn"
+                  :disabled="row.lvl > 95"
+                  @click="setOverride(row.id, 'miningLevel', Math.min(100, row.lvl + 5))"
+                >
+                  +5
                 </button>
               </div>
             </td>
@@ -153,28 +232,68 @@ style="font-weight: 600">
                 {{ fmtPrice(row.profitPerSec) }}/s
               </td>
               <td v-if="isFinite(row.paybackHours)"
-class="price-small">
+ class="price-small" :class="row.paybackClass">
                 <div>Next: {{ fmtDuration(row.paybackHours) }}</div>
                 <div v-if="isFinite(row.totalPaybackHours)"
-class="total-payback">
+ class="total-payback">
                   Total: {{ fmtDuration(row.totalPaybackHours) }}
                 </div>
                 <span
                   class="info-icon"
-                  :data-tip="
-                    'Next upgrade cost: ' +
-                    fmtPrice(Math.round(row.upgradeCost)) +
-                    '\nTotal invested: ' +
-                    fmtPrice(Math.round(row.totalInvestment))
-                  "
+                  :data-tip="buildPaybackTooltip(row)"
                   @click.stop="toggleTip"
                   >i</span
                 >
               </td>
               <td
-v-else class="price-small">—</td>
+ v-else class="price-small" :class="row.paybackClass">—</td>
+              <td class="price-small">
+                {{ row.maxProfitableLevel > 0 ? row.maxProfitableLevel : '—' }}
+              </td>
+              <td class="manager-cell">
+                <select
+                  :value="row.managerIdx"
+                  @change="
+                    setManager(
+                      row.id,
+                      $event.target.value === '-1' ? -1 : parseInt($event.target.value)
+                    )
+                  "
+                >
+                  <option :value="-1">—</option>
+                  <option
+                    v-for="m in miningManagers"
+                    :key="m._origIdx"
+                    :value="m._origIdx"
+                  >
+                    {{ mgrLabel(m) }}
+                  </option>
+                </select>
+              </td>
+              <td class="alchemy-cell">
+                <label class="alchemy-cb">
+                  <input type="checkbox" :checked="row.alchemyLevel === 1 && row.alchemyOre" @change="toggleAlchemy(row.id, 1, $event.target.checked)" />+1
+                </label>
+                <label class="alchemy-cb">
+                  <input type="checkbox" :checked="row.alchemyLevel === 2 && row.alchemyOre" @change="toggleAlchemy(row.id, 2, $event.target.checked)" />+2
+                </label>
+                <label class="alchemy-cb">
+                  <input type="checkbox" :checked="row.alchemyLevel === 3 && row.alchemyOre" @change="toggleAlchemy(row.id, 3, $event.target.checked)" />+3
+                </label>
+                <div v-if="row.alchemyLevel > 0 && !row.alchemyOre" class="alchemy-opts">
+                  <div v-for="r in row.alchemyResources" :key="r.ore"
+                       class="alchemy-opt"
+                       :class="{ 'alchemy-sel': row.alchemyOre === r.ore }"
+                       @click="selectAlchemyOre(row.id, r.ore, row.alchemyLevel)">
+                    {{ r.oreName }} ↓ {{ r.nextName }}
+                  </div>
+                </div>
+              </td>
             </template>
             <template v-else>
+              <td class="price-small">—</td>
+              <td class="price-small">—</td>
+              <td class="price-small">—</td>
               <td class="price-small">—</td>
               <td class="price-small">—</td>
             </template>
@@ -198,11 +317,13 @@ import {
   getStationMult,
   getModifier,
   getOreTargetingMult,
+  getTotalManagerBuff,
 } from '../utils/calc'
 import { fmtPrice, fmtDuration, toggleTip } from '../utils/format'
+import { PRIMARY_EFFECTS } from '../utils/config'
 
 const { DB, ORDER } = useData()
-const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, setOverride } =
+const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, getManager, setManager, setOverride } =
   useOverrides()
 const { settings } = useSettings()
 
@@ -213,6 +334,8 @@ const PLANET_GROUPS = [
 ]
 
 const activeGroup = ref('all')
+const includeNewPlanets = ref(false)
+const roadmapStepSize = ref(1)
 
 function setProbe(id, val) {
   setOverride(id, 'probe', val)
@@ -223,6 +346,35 @@ function setOreTarget(planetId, oreId, isCurrentlyTargeted) {
   setOverride(planetId, 'oreTarget', isCurrentlyTargeted ? null : oreId)
 }
 
+function fmtTimeHm(hours) {
+  const mins = Math.round(hours * 60)
+  if (mins < 60) return mins + 'm'
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return m > 0 ? h + 'h ' + m + 'm' : h + 'h'
+}
+
+function toggleAlchemy(id, level, checked) {
+  if (!checked) {
+    setOverride(id, 'alchemyLevel', 0)
+    setOverride(id, 'alchemyOre', null)
+  } else {
+    const cur = overrides[id]?.alchemyLevel || 0
+    setOverride(id, 'alchemyLevel', level)
+    if (cur !== level) setOverride(id, 'alchemyOre', null)
+  }
+}
+
+function selectAlchemyOre(id, ore, level) {
+  for (const pid of ORDER.value.planets) {
+    if (pid !== id && (overrides[pid]?.alchemyLevel || 0) === level) {
+      setOverride(pid, 'alchemyLevel', 0)
+      setOverride(pid, 'alchemyOre', null)
+    }
+  }
+  setOverride(id, 'alchemyOre', ore)
+}
+
 const engineering = computed(() => getModifier('rooms', 'engineering', settings))
 const miningProj = computed(() =>
   getProjectMultiplier(settings, ['advancedMining', 'superiorMining'])
@@ -231,10 +383,41 @@ const stnMine = computed(() => getStationMult(settings, ['mining1', 'mining2']))
 const global12 = computed(() => (settings.station?.miningGlobal ? 1.2 : null))
 const miningMult = computed(() => getMiningSpeedMult(settings) || 1)
 const astronomyMod = computed(() => getModifier('rooms', 'astronomy', settings))
+const managerRoomMult = computed(() => getTotalManagerBuff(settings))
+
+const sessionDuration = ref(2)
+const elapsedTime = ref(0)
+const elapsedStep = ref(15)
+const remainingTime = computed(() => Math.max(0, sessionDuration.value - elapsedTime.value))
+
+const nextOreMap = computed(() => {
+  const map = {}
+  const ores = ORDER.value.ores
+  for (let i = 0; i < ores.length - 1; i++) {
+    map[ores[i]] = ores[i + 1]
+  }
+  return map
+})
+
+const miningManagers = computed(() =>
+  (settings.managers || [])
+    .map((m, origIdx) => ({ ...m, _origIdx: origIdx }))
+    .filter((m) => m.primarySkill === 'mineRate')
+)
+
+function mgrLabel(m) {
+  const stars = '★'.repeat(Math.min(m.stars, 5)) + (m.stars > 5 ? '+' + (m.stars - 5) : '')
+  const base = PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)]
+  const mult = 1 + (base - 1) * (managerRoomMult.value || 1)
+  return stars + ' ' + mult.toFixed(2) + '×'
+}
 
 function buildRateTooltip(row) {
   const lines = ['Mine Rate']
-  lines.push('  baseRate (lvl' + row.lvl + '): ' + row.baseRate.toFixed(3) + '/s')
+  if (row.lvl <= 0) {
+    lines.push('  No mining — planet not upgraded')
+  } else {
+    lines.push('  baseRate (lvl' + row.lvl + '): ' + row.baseRate.toFixed(3) + '/s')
   if (engineering.value) lines.push('  Engineering room: ' + engineering.value.toFixed(2) + '×')
   if (miningProj.value) lines.push('  Mining projects: ' + miningProj.value.toFixed(2) + '×')
   if (stnMine.value) lines.push('  Mining stations: ' + stnMine.value.toFixed(2) + '×')
@@ -263,7 +446,31 @@ function buildRateTooltip(row) {
   ) {
     lines.push('  ─────────────────')
   }
-  lines.push('  Result: ' + (row.displayRate || row.rate).toFixed(3) + '/s')
+    lines.push('  Result: ' + (row.displayRate || row.rate).toFixed(3) + '/s')
+  }
+  return lines.join('\n')
+}
+
+function buildPaybackTooltip(row) {
+  const lines = []
+  for (const s of ['+1', '+5', '+10']) {
+    const proj = row.paybackProjection[s]
+    if (proj) {
+      lines.push(
+        s + ' levels: ' + fmtDuration(proj.hours) +
+        ' (cost: ' + fmtPrice(Math.round(proj.cost)) +
+        ', +' + fmtPrice(proj.incProfit) + '/s)'
+      )
+    } else {
+      const stepsNum = parseInt(s)
+      if (row.lvl + stepsNum > 100) {
+        lines.push(s + ' levels: — (max level)')
+      } else {
+        lines.push(s + ' levels: ∞ (no profit increase)')
+      }
+    }
+  }
+  lines.push('Total invested: ' + fmtPrice(Math.round(row.totalInvestment)))
   return lines.join('\n')
 }
 
@@ -278,7 +485,30 @@ const sortedRows = computed(() => {
       const miningLevel = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
       const beaconMult = getBeaconMult(p.number, settings)
       const coloniesMult = 1 + 0.3 * colonies
-      const rate = miningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult
+      const managerIdx = getManager(id)
+      let managerLabel = ''
+      let mgrMult = 1
+      if (managerIdx >= 0 && managerIdx < settings.managers.length) {
+        const m = settings.managers[managerIdx]
+        if (m.primarySkill === 'mineRate') {
+          managerLabel = mgrLabel(m)
+          mgrMult = 1 + (PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)] - 1) * (managerRoomMult.value || 1)
+        }
+      }
+
+      const alchemyLevel = overrides[id]?.alchemyLevel || 0
+      const alchemyOre = overrides[id]?.alchemyOre || null
+
+      function getNextOre(oreId, steps) {
+        let cur = oreId
+        for (let i = 0; i < steps; i++) {
+          cur = nextOreMap.value[cur]
+          if (!cur) return null
+        }
+        return cur
+      }
+
+      const rate = lvl <= 0 ? 0 : miningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
 
       let profitPerSec = 0
       let weightedPrice = 0
@@ -289,7 +519,11 @@ const sortedRows = computed(() => {
       if (p.distance != null && p.distance > 0) {
         for (const r of p.resources) {
           const ore = DB.value.ores[r.ore]
-          if (ore) weightedPrice += (r.yield / 100) * effectivePrice(ore.id, overrides, settings)
+          if (!ore) continue
+          const priceId = alchemyLevel > 0 && alchemyOre === r.ore
+            ? (getNextOre(r.ore, alchemyLevel) || r.ore)
+            : r.ore
+          weightedPrice += (r.yield / 100) * effectivePrice(priceId, overrides, settings)
         }
         if (oreTargetMult) {
           let bestPrice = 0
@@ -320,24 +554,88 @@ const sortedRows = computed(() => {
       let totalInvestment = 0
       let totalPaybackHours = Infinity
       if (p.distance != null && p.distance > 0 && lvl < 100) {
-        upgradeCost = (p.basePrice / 20) * Math.pow(1.3, lvl - 1)
-        if (astronomyMod.value) upgradeCost *= astronomyMod.value
+        const ratio = 1.3
+        const astroMod = astronomyMod.value || 1
+        const baseCost = p.basePrice / 20
+
+        upgradeCost = baseCost * Math.pow(ratio, lvl - 1) * astroMod
+
+        if (lvl % 2 === 1) {
+          const h = Math.floor((lvl + 1) / 2)
+          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
+        }
+
         const nextMiningLevel = DB.value.mining['lvl' + (lvl + 1)] || miningLevel
         const rateNext =
-          nextMiningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult
+          nextMiningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
         const incProfit = (rateNext - rate) * weightedPrice
         if (incProfit > 0) paybackHours = upgradeCost / (incProfit * 3600)
+      }
+      const paybackProjection = {}
+      if (p.distance != null && p.distance > 0) {
+        const ratio = 1.3
+        const astroMod = astronomyMod.value || 1
+        const baseCost = p.basePrice / 20
+
+        for (const steps of [1, 5, 10]) {
+          if (lvl + steps > 100) { paybackProjection['+' + steps] = null; continue }
+          let totalCost = 0
+          for (let i = 0; i < steps; i++) {
+            totalCost += baseCost * Math.pow(ratio, lvl + i - 1) * astroMod
+          }
+          const fromHalf = Math.floor(lvl / 2)
+          const toHalf = Math.floor((lvl + steps) / 2)
+          for (let h = fromHalf + 1; h <= toHalf; h++) {
+            totalCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
+          }
+          const targetLevel = DB.value.mining['lvl' + (lvl + steps)]
+          const rateTarget = targetLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+          const incProj = (rateTarget - rate) * weightedPrice
+          paybackProjection['+' + steps] = incProj > 0
+            ? { cost: totalCost, incProfit: incProj, hours: totalCost / (incProj * 3600) }
+            : null
+        }
       }
       if (p.distance != null && p.distance > 0) {
         totalInvestment = p.basePrice
         if (lvl > 1) {
           const ratio = 1.3
-          const upgradeSum = (Math.pow(ratio, lvl - 1) - 1) / (ratio - 1)
-          let upgradesCost = (p.basePrice / 20) * upgradeSum
-          if (astronomyMod.value) upgradesCost *= astronomyMod.value
-          totalInvestment += upgradesCost
+          const astroMod = astronomyMod.value || 1
+          const baseCost = p.basePrice / 20
+
+          const mineSum = (Math.pow(ratio, lvl - 1) - 1) / (ratio - 1)
+          totalInvestment += baseCost * mineSum * astroMod
+
+          const halfLvl = Math.floor(lvl / 2)
+          if (halfLvl > 0) {
+            const csSum = (Math.pow(ratio, halfLvl) - 1) / (ratio - 1)
+            totalInvestment += 2 * baseCost * csSum * astroMod
+          }
         }
         if (profitPerSec > 0) totalPaybackHours = totalInvestment / (profitPerSec * 3600)
+      }
+
+      let maxProfitableLevel = 0
+      const sessionTime = remainingTime.value > 0 ? remainingTime.value : sessionDuration.value
+      if (sessionDuration.value > 0 && weightedPrice > 0) {
+        const ratio = 1.3
+        const astroMod = astronomyMod.value || 1
+        const baseCost = p.basePrice / 20
+        const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+        for (let L = 1; L < 100; L++) {
+          let cost = baseCost * Math.pow(ratio, L - 1) * astroMod
+          if (L % 2 === 1) {
+            cost += 2 * baseCost * Math.pow(ratio, (L - 1) / 2) * astroMod
+          }
+          const rateL = DB.value.mining['lvl' + L]
+          const rateL1 = DB.value.mining['lvl' + (L + 1)]
+          if (!rateL || !rateL1) continue
+          const incProfit = (rateL1.rate - rateL.rate) * rateMult * weightedPrice
+          if (incProfit <= 0) continue
+          if (cost / (incProfit * 3600) <= sessionTime) {
+            maxProfitableLevel = L + 1
+          }
+        }
       }
 
       const resList = oreTargetMult
@@ -345,12 +643,16 @@ const sortedRows = computed(() => {
             const ore = DB.value.ores[r.ore]
             const isTargeted = r.ore === targetId
             const displayYield = isTargeted ? r.yield + (oreTargetMult - 1) * 100 : r.yield
+            const isAlchemy = alchemyLevel > 0 && alchemyOre === r.ore
+            const nextId = isAlchemy ? getNextOre(r.ore, alchemyLevel) : null
+            const nextOre = nextId ? DB.value.ores[nextId] : null
             return {
               ore: r.ore,
               name: ore ? ore.name : r.ore,
               yield: r.yield,
               displayYield: displayYield.toFixed(0),
               isTargeted,
+              alchemyNext: isAlchemy && nextOre ? nextOre.name : null,
             }
           })
         : null
@@ -358,15 +660,16 @@ const sortedRows = computed(() => {
       const resStr = p.resources
         .map((r) => {
           const ore = DB.value.ores[r.ore]
+          const isAlchemy = alchemyLevel > 0 && alchemyOre === r.ore
+          const nextId = isAlchemy ? getNextOre(r.ore, alchemyLevel) : null
+          const nextOre = nextId ? DB.value.ores[nextId] : null
+          let line = (ore ? ore.name : r.ore) + ' ' + r.yield + '%'
+          if (isAlchemy && nextOre) line += ' ↓ ' + nextOre.name
           if (oreTargetMult && targetId && r.ore === targetId) {
-            return (
-              (ore ? ore.name : r.ore) +
-              ' ' +
-              (r.yield + (oreTargetMult - 1) * 100).toFixed(0) +
-              '%'
-            )
+            line = (ore ? ore.name : r.ore) + ' ' + (r.yield + (oreTargetMult - 1) * 100).toFixed(0) + '%'
+            if (isAlchemy && nextOre) line += ' ↓ ' + nextOre.name
           }
-          return (ore ? ore.name : r.ore) + ' ' + r.yield + '%'
+          return line
         })
         .join('\n')
 
@@ -389,8 +692,23 @@ const sortedRows = computed(() => {
         colonies,
         probe,
         probeMult,
+        managerIdx,
+        managerLabel,
+        alchemyLevel,
+        alchemyOre,
+        alchemyResources: alchemyLevel > 0 ? p.resources.map((r) => {
+          const ore = DB.value.ores[r.ore]
+          const nextId = getNextOre(r.ore, alchemyLevel)
+          const nextOre = nextId ? DB.value.ores[nextId] : null
+          return {
+            ore: r.ore,
+            oreName: ore ? ore.name : r.ore,
+            nextName: nextOre ? nextOre.name : '—',
+            yield: r.yield,
+          }
+        }) : [],
         rate,
-        baseRate: miningLevel.rate,
+        baseRate: lvl <= 0 ? 0 : miningLevel.rate,
         displayRate,
         resStr,
         resList,
@@ -398,8 +716,26 @@ const sortedRows = computed(() => {
         profitPerSec,
         upgradeCost,
         paybackHours,
+        paybackProjection,
         totalInvestment,
         totalPaybackHours,
+        maxProfitableLevel,
+        paybackClass:
+          isFinite(paybackHours) && paybackHours > 0
+            ? (sessionDuration.value > 0
+                ? paybackHours < sessionTime
+                  ? 'payback-green'
+                  : paybackHours <= sessionTime * 1.15
+                    ? 'payback-yellow'
+                    : 'payback-red'
+                : isFinite(totalPaybackHours) && totalPaybackHours > 0
+                  ? paybackHours < totalPaybackHours
+                    ? 'payback-green'
+                    : paybackHours <= totalPaybackHours * 1.15
+                      ? 'payback-yellow'
+                      : 'payback-red'
+                  : '')
+            : '',
         hasProfit: p.distance != null && p.distance > 0,
         groupKey,
       }
@@ -433,21 +769,134 @@ const visibleRows = computed(() => {
   return sortedRows.value.filter((r) => r.groupKey === activeGroup.value)
 })
 
+const bestUpgradeSteps = computed(() => {
+  const steps = []
+  const simLvls = {}
+  for (const id of ORDER.value.planets) {
+    simLvls[id] = getMiningLevel(id)
+  }
+
+  const stepSize = roadmapStepSize.value
+
+  for (let s = 0; s < 10; s++) {
+    let best = null
+
+    for (const id of ORDER.value.planets) {
+      let lvl = simLvls[id]
+      if (lvl >= 100) continue
+
+      const isBuying = lvl < 1
+      if (isBuying && !includeNewPlanets.value) continue
+      if (isBuying) lvl = 0
+
+      const p = DB.value.planets[id]
+      if (p.distance == null || p.distance <= 0) continue
+      if (!isBuying && lvl + stepSize > 100) continue
+
+      const targetLvl = isBuying ? stepSize : lvl + stepSize
+      const targetData = DB.value.mining['lvl' + targetLvl]
+      if (!targetData) continue
+
+      const beaconMult = getBeaconMult(p.number, settings)
+      const coloniesMult = 1 + 0.3 * getMiningColonies(id)
+      const probe = getProbe(id)
+      const probeMult = probe ? getProbeSpeed(id) || 1 : 1
+
+      const managerIdx = getManager(id)
+      let mgrMult = 1
+      if (managerIdx >= 0 && managerIdx < settings.managers.length) {
+        const m = settings.managers[managerIdx]
+        if (m.primarySkill === 'mineRate') {
+          mgrMult = 1 + (PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)] - 1) * (managerRoomMult.value || 1)
+        }
+      }
+
+      let weightedPrice = 0
+      for (const r of p.resources) {
+        const ore = DB.value.ores[r.ore]
+        if (ore) weightedPrice += (r.yield / 100) * effectivePrice(ore.id, overrides, settings)
+      }
+      const oreTargetMult = getOreTargetingMult(settings)
+      if (oreTargetMult && p.resources.length) {
+        let bestPrice = 0
+        for (const r of p.resources) {
+          const ore = DB.value.ores[r.ore]
+          if (ore) bestPrice = Math.max(bestPrice, effectivePrice(r.ore, overrides, settings))
+        }
+        weightedPrice += (oreTargetMult - 1) * bestPrice
+      }
+      if (weightedPrice <= 0) continue
+
+      const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+      const rateNow = isBuying ? 0 : (lvl <= 0 ? 0 : DB.value.mining['lvl' + lvl]?.rate || 0) * rateMult
+      const rateTarget = targetData.rate * rateMult
+      const incProfit = (rateTarget - rateNow) * weightedPrice
+      if (incProfit <= 0) continue
+
+      const astroMod = astronomyMod.value || 1
+      const ratio = 1.3
+      const baseCost = p.basePrice / 20
+      let upgradeCost = 0
+
+      if (isBuying) {
+        upgradeCost = p.basePrice * astroMod
+        for (let i = 1; i < stepSize; i++) {
+          upgradeCost += baseCost * Math.pow(ratio, i - 1) * astroMod
+        }
+        for (let L = 1; L < stepSize; L += 2) {
+          const h = Math.floor((L + 1) / 2)
+          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
+        }
+      } else {
+        for (let i = 0; i < stepSize; i++) {
+          upgradeCost += baseCost * Math.pow(ratio, lvl + i - 1) * astroMod
+        }
+        const fromHalf = Math.floor(lvl / 2)
+        const toHalf = Math.floor((lvl + stepSize) / 2)
+        for (let h = fromHalf + 1; h <= toHalf; h++) {
+          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
+        }
+      }
+
+      const payback = upgradeCost / (incProfit * 3600)
+      if (!isFinite(payback) || payback <= 0) continue
+
+      if (!best || payback < best.paybackHours) {
+        best = {
+          id,
+          name: p.name,
+          number: p.number,
+          fromLvl: isBuying ? 0 : lvl,
+          toLvl: isBuying ? stepSize : lvl + stepSize,
+          paybackHours: payback,
+          upgradeCost,
+          incProfit,
+          isBuying,
+        }
+      }
+    }
+
+    if (!best) break
+
+    steps.push(best)
+    simLvls[best.id] = best.toLvl
+  }
+
+  return steps
+})
+
+const stepCounts = computed(() => {
+  const counts = {}
+  for (const s of bestUpgradeSteps.value) {
+    counts[s.id] = (counts[s.id] || 0) + 1
+  }
+  return counts
+})
+
 function profitClass(v) {
   return v >= 0 ? 'positive' : 'negative'
 }
 
-const bestRowId = computed(() => {
-  let best = null
-  let bestProfit = -Infinity
-  for (const row of visibleRows.value) {
-    if (row.hasProfit && row.profitPerSec > bestProfit) {
-      bestProfit = row.profitPerSec
-      best = row.id
-    }
-  }
-  return best
-})
 </script>
 
 <style scoped>
@@ -500,6 +949,191 @@ const bestRowId = computed(() => {
   opacity: 0.5;
 }
 
+.session-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  background: #121824;
+  border-radius: 10px;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+}
+.session-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c8d0dc;
+  font-size: 13px;
+  font-weight: 500;
+}
+.session-select {
+  background: #0d1520;
+  border: 1px solid #2a3a4a;
+  border-radius: 4px;
+  color: #e8edf5;
+  font-size: 13px;
+  padding: 3px 8px;
+  outline: none;
+  cursor: pointer;
+}
+.session-select:focus {
+  border-color: #4fc3f7;
+}
+.session-slider {
+  width: 120px;
+  accent-color: #4fc3f7;
+  cursor: pointer;
+}
+.session-step {
+  display: flex;
+  gap: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.step-btn {
+  background: #0d1520;
+  border: 1px solid #2a3a4a;
+  color: #6b7a8f;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+  margin: 0;
+}
+.step-btn:first-child { border-radius: 4px 0 0 4px; }
+.step-btn:last-child { border-radius: 0 4px 4px 0; }
+.step-btn.active {
+  background: #1e88e5;
+  color: #fff;
+  border-color: #1e88e5;
+}
+.session-val {
+  color: #e8edf5;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 32px;
+}
+.session-remaining {
+  color: #6b7a8f;
+  font-size: 13px;
+  margin-left: auto;
+}
+.session-remaining strong {
+  color: #e8edf5;
+}
+.best-upgrade-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  background: #121824;
+  border: 1px solid #4fc3f7;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #c8d0dc;
+  flex-wrap: wrap;
+}
+.best-label {
+  color: #4fc3f7;
+  font-weight: 600;
+}
+.include-new-cb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c8d0dc;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.include-new-cb input {
+  accent-color: #4fc3f7;
+  cursor: pointer;
+}
+.step-size-group {
+  display: flex;
+  gap: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.step-size-btn {
+  background: #0d1520;
+  border: 1px solid #2a3a4a;
+  color: #6b7a8f;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+  margin: 0;
+}
+.step-size-btn:first-child { border-radius: 4px 0 0 4px; }
+.step-size-btn:last-child { border-radius: 0 4px 4px 0; }
+.step-size-btn.active {
+  background: #1e88e5;
+  color: #fff;
+  border-color: #1e88e5;
+}
+.best-detail {
+  color: #6b7a8f;
+  font-size: 12px;
+}
+.best-steps-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+.best-step {
+  color: #c8d0dc;
+  font-size: 12px;
+  padding: 4px 10px;
+  background: rgba(79, 195, 247, 0.06);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.best-step.step-repeat-green {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.35);
+}
+.best-step.step-repeat-yellow {
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+.best-step.step-repeat-orange {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+}
+.step-repeat-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(79, 195, 247, 0.15);
+  color: #4fc3f7;
+}
+.best-step .best-detail {
+  color: #6b7a8f;
+  margin-left: 0;
+}
+.apply-step-btn {
+  margin-left: auto;
+  background: #1e88e5;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.apply-step-btn:hover {
+  background: #1976d2;
+}
 .filter-tabs {
   display: flex;
   gap: 4px;
@@ -538,10 +1172,6 @@ const bestRowId = computed(() => {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.best-row {
-  background: rgba(76, 175, 80, 0.08);
-}
-
 .ore-target-row {
   display: flex;
   align-items: center;
@@ -575,9 +1205,87 @@ const bestRowId = computed(() => {
   border-radius: 3px;
   letter-spacing: 0.5px;
 }
+.ore-target-alchemy {
+  font-size: 10px;
+  color: #4fc3f7;
+  font-weight: 500;
+}
 .total-payback {
   color: #6b7a8f;
   font-size: 10px;
   margin-top: 1px;
+}
+.payback-green {
+  background: rgba(76, 175, 80, 0.12);
+  border-radius: 4px;
+}
+.payback-yellow {
+  background: rgba(255, 193, 7, 0.12);
+  border-radius: 4px;
+}
+.payback-red {
+  background: rgba(244, 67, 54, 0.12);
+  border-radius: 4px;
+}
+.manager-cell select {
+  background: #0d1520;
+  border: 1px solid #2a3a4a;
+  border-radius: 4px;
+  color: #e8edf5;
+  font-size: 11px;
+  padding: 2px 4px;
+  max-width: 110px;
+  outline: none;
+  cursor: pointer;
+}
+.manager-cell select:focus {
+  border-color: #4fc3f7;
+}
+.manager-cell select option:disabled {
+  color: #4a5a6a;
+}
+.alchemy-cell {
+  position: relative;
+}
+.alchemy-cb {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 6px;
+  color: #6b7a8f;
+  font-size: 11px;
+  cursor: pointer;
+}
+.alchemy-cb input {
+  accent-color: #4fc3f7;
+  cursor: pointer;
+}
+.alchemy-opts {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  background: #121824;
+  border: 1px solid #2a3a4a;
+  border-radius: 6px;
+  padding: 4px;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.alchemy-opt {
+  color: #c8d0dc;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.alchemy-opt:hover {
+  background: rgba(79, 195, 247, 0.12);
+}
+.alchemy-sel {
+  color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.1);
+  font-weight: 600;
 }
 </style>

@@ -170,6 +170,7 @@ const projectGroups = computed(() => {
   const all = SETTINGS_CONFIG.projects
   if (!all) return []
   const groups = [
+    { name: 'Manager', keys: ['managerTraining', 'advancedManagerTraining', 'superiorManagerTraining'] },
     { name: 'Mining', keys: ['advancedMining', 'superiorMining'] },
     { name: 'Smelting', keys: ['advancedFurnace', 'superiorFurnace', 'smeltingEfficiency'] },
     { name: 'Crafting', keys: ['advancedCrafter', 'superiorCrafter', 'craftingEfficiency'] },
