@@ -85,8 +85,19 @@ export const SETTINGS_CONFIG = {
       perLevel: -0.04,
       maxLevel: 11,
     },
+    {
+      key: 'classroom',
+      label: 'Classroom',
+      desc: 'Manager Effects',
+      baseEffect: 1.15,
+      perLevel: 0.05,
+      maxLevel: 60,
+    },
   ],
   projects: [
+    { key: 'managerTraining', label: 'Manager Training', desc: 'Manager effects ×1.1', baseEffect: 1.1 },
+    { key: 'advancedManagerTraining', label: 'Advanced Manager Training', desc: 'Manager effects ×1.1', baseEffect: 1.1 },
+    { key: 'superiorManagerTraining', label: 'Superior Manager Training', desc: 'Manager effects ×1.1', baseEffect: 1.1 },
     { key: 'advancedMining', label: 'Advanced Mining', desc: 'Mine speed ×1.25', baseEffect: 1.25 },
     { key: 'superiorMining', label: 'Superior Mining', desc: 'Mine speed ×1.25', baseEffect: 1.25 },
     {

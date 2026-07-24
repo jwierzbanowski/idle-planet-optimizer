@@ -38,12 +38,28 @@
     </div>
     <div class="best-upgrade-bar" v-if="bestUpgradeSteps.length">
       <div class="best-label">Roadmap ({{ bestUpgradeSteps.length }} steps):</div>
+      <label class="include-new-cb">
+        <input type="checkbox" v-model="includeNewPlanets" />
+        Include planet purchases
+      </label>
+      <span class="step-size-group">
+        <button class="step-size-btn" :class="{ active: roadmapStepSize === 1 }" @click="roadmapStepSize = 1">1 lvl</button>
+        <button class="step-size-btn" :class="{ active: roadmapStepSize === 5 }" @click="roadmapStepSize = 5">5 lvls</button>
+      </span>
       <div class="best-steps-list">
-        <div v-for="(s, i) in bestUpgradeSteps" :key="i" class="best-step">
-          {{ i + 1 }}. {{ s.number }}. {{ s.name }} (lvl {{ s.fromLvl }}→{{ s.toLvl }})
+        <div v-for="(s, i) in bestUpgradeSteps" :key="i"
+             class="best-step"
+             :class="{
+               'step-repeat-green': stepCounts[s.id] > 3,
+               'step-repeat-yellow': stepCounts[s.id] > 2 && stepCounts[s.id] <= 3,
+               'step-repeat-orange': stepCounts[s.id] > 1 && stepCounts[s.id] <= 2
+             }">
+          {{ i + 1 }}. <template v-if="s.isBuying">Buy </template>{{ s.number }}. {{ s.name }} (lvl {{ s.fromLvl }}→{{ s.toLvl }})
+          <span v-if="stepCounts[s.id] > 1" class="step-repeat-badge">{{ stepCounts[s.id] }}×</span>
           <span class="best-detail">Cost: {{ fmtPrice(Math.round(s.upgradeCost)) }}</span>
           <span class="best-detail">+{{ fmtPrice(s.incProfit) }}/s</span>
           <span class="best-detail">{{ fmtDuration(s.paybackHours) }}</span>
+          <button class="apply-step-btn" @click="setOverride(s.id, 'miningLevel', s.toLvl)" title="Apply this upgrade">+{{ s.toLvl - s.fromLvl }}</button>
         </div>
       </div>
     </div>
@@ -301,6 +317,7 @@ import {
   getStationMult,
   getModifier,
   getOreTargetingMult,
+  getTotalManagerBuff,
 } from '../utils/calc'
 import { fmtPrice, fmtDuration, toggleTip } from '../utils/format'
 import { PRIMARY_EFFECTS } from '../utils/config'
@@ -317,6 +334,8 @@ const PLANET_GROUPS = [
 ]
 
 const activeGroup = ref('all')
+const includeNewPlanets = ref(false)
+const roadmapStepSize = ref(1)
 
 function setProbe(id, val) {
   setOverride(id, 'probe', val)
@@ -364,6 +383,7 @@ const stnMine = computed(() => getStationMult(settings, ['mining1', 'mining2']))
 const global12 = computed(() => (settings.station?.miningGlobal ? 1.2 : null))
 const miningMult = computed(() => getMiningSpeedMult(settings) || 1)
 const astronomyMod = computed(() => getModifier('rooms', 'astronomy', settings))
+const managerRoomMult = computed(() => getTotalManagerBuff(settings))
 
 const sessionDuration = ref(2)
 const elapsedTime = ref(0)
@@ -387,7 +407,8 @@ const miningManagers = computed(() =>
 
 function mgrLabel(m) {
   const stars = '★'.repeat(Math.min(m.stars, 5)) + (m.stars > 5 ? '+' + (m.stars - 5) : '')
-  const mult = PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)]
+  const base = PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)]
+  const mult = 1 + (base - 1) * (managerRoomMult.value || 1)
   return stars + ' ' + mult.toFixed(2) + '×'
 }
 
@@ -473,7 +494,7 @@ const sortedRows = computed(() => {
         if (m.primarySkill === 'mineRate') {
           manager = m
           managerLabel = mgrLabel(m)
-          mgrMult = PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)]
+          mgrMult = 1 + (PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)] - 1) * (managerRoomMult.value || 1)
         }
       }
 
@@ -757,18 +778,26 @@ const bestUpgradeSteps = computed(() => {
     simLvls[id] = getMiningLevel(id)
   }
 
+  const stepSize = roadmapStepSize.value
+
   for (let s = 0; s < 10; s++) {
     let best = null
 
     for (const id of ORDER.value.planets) {
-      const lvl = simLvls[id]
-      if (lvl < 1 || lvl >= 100) continue
+      let lvl = simLvls[id]
+      if (lvl >= 100) continue
+
+      const isBuying = lvl < 1
+      if (isBuying && !includeNewPlanets.value) continue
+      if (isBuying) lvl = 0
+
       const p = DB.value.planets[id]
       if (p.distance == null || p.distance <= 0) continue
+      if (!isBuying && lvl + stepSize > 100) continue
 
-      const miningData = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
-      const nextData = DB.value.mining['lvl' + (lvl + 1)]
-      if (!nextData) continue
+      const targetLvl = isBuying ? stepSize : lvl + stepSize
+      const targetData = DB.value.mining['lvl' + targetLvl]
+      if (!targetData) continue
 
       const beaconMult = getBeaconMult(p.number, settings)
       const coloniesMult = 1 + 0.3 * getMiningColonies(id)
@@ -780,7 +809,7 @@ const bestUpgradeSteps = computed(() => {
       if (managerIdx >= 0 && managerIdx < settings.managers.length) {
         const m = settings.managers[managerIdx]
         if (m.primarySkill === 'mineRate') {
-          mgrMult = PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)]
+          mgrMult = 1 + (PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)] - 1) * (managerRoomMult.value || 1)
         }
       }
 
@@ -801,18 +830,34 @@ const bestUpgradeSteps = computed(() => {
       if (weightedPrice <= 0) continue
 
       const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
-      const rateNow = (lvl <= 0 ? 0 : miningData.rate) * rateMult
-      const rateNext = nextData.rate * rateMult
-      const incProfit = (rateNext - rateNow) * weightedPrice
+      const rateNow = isBuying ? 0 : (lvl <= 0 ? 0 : DB.value.mining['lvl' + lvl]?.rate || 0) * rateMult
+      const rateTarget = targetData.rate * rateMult
+      const incProfit = (rateTarget - rateNow) * weightedPrice
       if (incProfit <= 0) continue
 
-      const ratio = 1.3
       const astroMod = astronomyMod.value || 1
+      const ratio = 1.3
       const baseCost = p.basePrice / 20
-      let upgradeCost = baseCost * Math.pow(ratio, lvl - 1) * astroMod
-      if (lvl % 2 === 1) {
-        const h = Math.floor((lvl + 1) / 2)
-        upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
+      let upgradeCost = 0
+
+      if (isBuying) {
+        upgradeCost = p.basePrice * astroMod
+        for (let i = 1; i < stepSize; i++) {
+          upgradeCost += baseCost * Math.pow(ratio, i - 1) * astroMod
+        }
+        for (let L = 1; L < stepSize; L += 2) {
+          const h = Math.floor((L + 1) / 2)
+          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
+        }
+      } else {
+        for (let i = 0; i < stepSize; i++) {
+          upgradeCost += baseCost * Math.pow(ratio, lvl + i - 1) * astroMod
+        }
+        const fromHalf = Math.floor(lvl / 2)
+        const toHalf = Math.floor((lvl + stepSize) / 2)
+        for (let h = fromHalf + 1; h <= toHalf; h++) {
+          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
+        }
       }
 
       const payback = upgradeCost / (incProfit * 3600)
@@ -823,11 +868,12 @@ const bestUpgradeSteps = computed(() => {
           id,
           name: p.name,
           number: p.number,
-          fromLvl: lvl,
-          toLvl: lvl + 1,
+          fromLvl: isBuying ? 0 : lvl,
+          toLvl: isBuying ? stepSize : lvl + stepSize,
           paybackHours: payback,
           upgradeCost,
           incProfit,
+          isBuying,
         }
       }
     }
@@ -839,6 +885,14 @@ const bestUpgradeSteps = computed(() => {
   }
 
   return steps
+})
+
+const stepCounts = computed(() => {
+  const counts = {}
+  for (const s of bestUpgradeSteps.value) {
+    counts[s.id] = (counts[s.id] || 0) + 1
+  }
+  return counts
 })
 
 function profitClass(v) {
@@ -986,6 +1040,41 @@ function profitClass(v) {
   color: #4fc3f7;
   font-weight: 600;
 }
+.include-new-cb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c8d0dc;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.include-new-cb input {
+  accent-color: #4fc3f7;
+  cursor: pointer;
+}
+.step-size-group {
+  display: flex;
+  gap: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.step-size-btn {
+  background: #0d1520;
+  border: 1px solid #2a3a4a;
+  color: #6b7a8f;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+  margin: 0;
+}
+.step-size-btn:first-child { border-radius: 4px 0 0 4px; }
+.step-size-btn:last-child { border-radius: 0 4px 4px 0; }
+.step-size-btn.active {
+  background: #1e88e5;
+  color: #fff;
+  border-color: #1e88e5;
+}
 .best-detail {
   color: #6b7a8f;
   font-size: 12px;
@@ -993,20 +1082,59 @@ function profitClass(v) {
 .best-steps-list {
   width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
+  flex-direction: column;
+  gap: 4px;
   margin-top: 6px;
 }
 .best-step {
   color: #c8d0dc;
   font-size: 12px;
-  white-space: nowrap;
-  padding: 2px 6px;
+  padding: 4px 10px;
   background: rgba(79, 195, 247, 0.06);
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.best-step.step-repeat-green {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.35);
+}
+.best-step.step-repeat-yellow {
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+.best-step.step-repeat-orange {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+}
+.step-repeat-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(79, 195, 247, 0.15);
+  color: #4fc3f7;
 }
 .best-step .best-detail {
-  margin-left: 4px;
+  color: #6b7a8f;
+  margin-left: 0;
+}
+.apply-step-btn {
+  margin-left: auto;
+  background: #1e88e5;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.apply-step-btn:hover {
+  background: #1976d2;
 }
 .filter-tabs {
   display: flex;

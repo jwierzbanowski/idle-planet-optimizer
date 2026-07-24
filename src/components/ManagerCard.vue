@@ -47,6 +47,8 @@ import {
   PRIMARY_EFFECTS,
   SECONDARY_EFFECTS,
 } from '../utils/config'
+import { getTotalManagerBuff } from '../utils/calc'
+import { useSettings } from '../composables/useSettings'
 
 const props = defineProps({
   manager: { type: Object, required: true },
@@ -55,6 +57,10 @@ const props = defineProps({
 const emit = defineEmits(['remove', 'update:primarySkill', 'update:secondarySkill', 'update:stars'])
 
 const hoveredStar = ref(0)
+
+const { settings } = useSettings()
+
+const managerBuff = computed(() => getTotalManagerBuff(settings) || 1)
 
 const primaryLabel = computed(() => {
   const found = MANAGER_PRIMARY_SKILLS.find((s) => s.value === props.manager.primarySkill)
@@ -71,7 +77,10 @@ const primaryEffect = computed(() => {
   if (!arr) return '—'
   const stars = props.manager.stars
   if (stars <= 0) return '—'
-  if (arr.length >= stars) return '×' + arr[stars - 1].toFixed(2)
+  if (arr.length >= stars) {
+    const eff = 1 + (arr[stars - 1] - 1) * managerBuff.value
+    return '×' + eff.toFixed(2)
+  }
   return '—'
 })
 
@@ -80,7 +89,10 @@ const secondaryEffect = computed(() => {
   if (!arr) return '—'
   const stars = props.manager.stars
   if (stars <= 0) return '—'
-  if (arr.length >= stars && arr[stars - 1] != null) return '×' + arr[stars - 1].toFixed(2)
+  if (arr.length >= stars && arr[stars - 1] != null) {
+    const eff = 1 + (arr[stars - 1] - 1) * managerBuff.value
+    return '×' + eff.toFixed(2)
+  }
   return '—'
 })
 

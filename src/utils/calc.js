@@ -73,14 +73,35 @@ export function getStationValueMult(settings) {
   return getStationMult(settings, STATION_VALUE_KEYS)
 }
 
+export function getManagerRoomMult(settings) {
+  return getModifier('rooms', 'classroom', settings)
+}
+
+const MANAGER_TRAINING_KEYS = ['managerTraining', 'advancedManagerTraining', 'superiorManagerTraining']
+
+export function getManagerTrainingMult(settings) {
+  return getProjectMultiplier(settings, MANAGER_TRAINING_KEYS)
+}
+
+export function getTotalManagerBuff(settings) {
+  const room = getManagerRoomMult(settings) || 1
+  const training = getManagerTrainingMult(settings) || 1
+  const total = room * training
+  return total > 1 ? total : null
+}
+
 export function getManagerSecondaryMult(settings, skill) {
   const mgrs = settings.managers
   if (!Array.isArray(mgrs)) return null
+  const buff = getTotalManagerBuff(settings) || 1
   let mult = 1
   for (const m of mgrs) {
     if (m.secondarySkill === skill && m.stars >= 1 && m.stars <= 7) {
       const val = SECONDARY_EFFECTS[skill]?.[m.stars - 1]
-      if (val != null) mult *= val
+      if (val != null) {
+        const eff = 1 + (val - 1) * buff
+        mult *= eff
+      }
     }
   }
   return mult > 1 ? mult : null

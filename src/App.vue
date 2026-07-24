@@ -73,6 +73,11 @@ class="content-row">
         <span class="info-icon" :data-tip="debugStats.planetCostInfo" @click.stop="toggleTip"
         >i</span>
       </span>
+      <span class="stats-item">
+        Manager: <strong>{{ debugStats.managerMult }}</strong>
+        <span class="info-icon"
+        :data-tip="debugStats.classroomInfo" @click.stop="toggleTip">i</span>
+      </span>
     </div>
       <MarketPanel />
     </div>
@@ -157,6 +162,8 @@ import {
   getStationMult,
   getStationValueMult,
   getManagerSecondaryMult,
+  getManagerRoomMult,
+  getManagerTrainingMult,
 } from './utils/calc'
 import { toggleTip } from './utils/format'
 import { User, Gamepad2, RotateCcw, Download, Upload } from '@lucide/vue'
@@ -246,6 +253,8 @@ const debugStats = computed(() => {
   const engineering = getModifier('rooms', 'engineering', settings)
   const sales = getModifier('rooms', 'sales', settings)
   const astronomy = getModifier('rooms', 'astronomy', settings)
+  const classroom = getManagerRoomMult(settings)
+  const mgrTraining = getManagerTrainingMult(settings)
 
   const furnaceProj = getProjectMultiplier(settings, ['advancedFurnace', 'superiorFurnace'])
   const crafterProj = getProjectMultiplier(settings, ['advancedCrafter', 'superiorCrafter'])
@@ -349,6 +358,16 @@ const debugStats = computed(() => {
     astronomy
   )
 
+  const mgrBuff = (classroom || 1) * (mgrTraining || 1)
+  const classroomInfo = infoLines(
+    'Manager Effects',
+    [
+      ['Classroom room', classroom],
+      ['Training projects', mgrTraining],
+    ],
+    mgrBuff > 1 ? mgrBuff : null
+  )
+
   return {
     mineRate: fmt(mineRate),
     smeltRate: fmt(smeltRate),
@@ -358,6 +377,7 @@ const debugStats = computed(() => {
     alloyVal: alloyV,
     itemVal: itemV,
     planetUpgradeCost: fmt(astronomy),
+    managerMult: mgrBuff > 1 ? fmt(mgrBuff) : '1.00×',
     smeltInfo,
     craftInfo,
     smeltCostInfo,
@@ -366,6 +386,7 @@ const debugStats = computed(() => {
     alloyInfo,
     itemInfo,
     planetCostInfo,
+    classroomInfo,
   }
 })
 
