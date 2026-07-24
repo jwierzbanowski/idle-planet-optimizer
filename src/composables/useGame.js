@@ -138,5 +138,6 @@ export function useGame() {
     managerVersion: _managerVersion,
     setPinnedItems,
     resetGame,
+    saveGame,
   }
 }

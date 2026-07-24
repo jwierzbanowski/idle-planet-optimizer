@@ -1,6 +1,7 @@
 import { reactive } from 'vue'
 import { SETTINGS_CONFIG } from '../utils/config'
 import { useOverrides } from './useOverrides'
+import { useGame } from './useGame'
 
 const STORAGE_KEY = 'ipm_profile'
 const OLD_KEY = 'ipm_settings'
@@ -52,23 +53,35 @@ export function useProfile() {
   }
 
   function exportProfile() {
-    const { overrides } = useOverrides()
-    const stars = {}
-    for (const [id, data] of Object.entries(overrides)) {
-      if (data.stars) stars[id] = data.stars
-    }
+    const { overrides, managerAssign } = useOverrides()
+    const { game } = useGame()
     const data = {
       rooms: profile.rooms || {},
       station: profile.station || {},
       beacon: profile.beacon || {},
-      stars,
+      overrides: JSON.parse(JSON.stringify(overrides)),
+      managerAssign: JSON.parse(JSON.stringify(managerAssign)),
+      projects: game.projects || {},
+      managers: game.managers || [],
+      pinnedItems: game.pinnedItems || [],
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     const now = new Date()
-    const ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + '-' + String(now.getMinutes()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0')
+    const ts =
+      now.getFullYear() +
+      '-' +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(now.getDate()).padStart(2, '0') +
+      '_' +
+      String(now.getHours()).padStart(2, '0') +
+      '-' +
+      String(now.getMinutes()).padStart(2, '0') +
+      '-' +
+      String(now.getSeconds()).padStart(2, '0')
     a.download = 'profile-' + ts + '.json'
     document.body.appendChild(a)
     a.click()
@@ -104,15 +117,49 @@ export function useProfile() {
     }
     saveProfile(profile)
 
-    // Restore stars
-    if (data.stars && typeof data.stars === 'object') {
-      const { setOverride } = useOverrides()
+    // Restore overrides (new format — full override objects)
+    const { setOverride, setManager } = useOverrides()
+    if (data.overrides && typeof data.overrides === 'object') {
+      for (const [id, vals] of Object.entries(data.overrides)) {
+        if (vals && typeof vals === 'object') {
+          for (const [field, val] of Object.entries(vals)) {
+            if (val != null && val !== '') {
+              setOverride(id, field, val)
+            }
+          }
+        }
+      }
+    } else if (data.stars && typeof data.stars === 'object') {
+      // Backward compatibility: old format with only stars
       for (const [id, stars] of Object.entries(data.stars)) {
         if (typeof stars === 'number' && stars > 0) {
           setOverride(id, 'stars', Math.max(0, Math.min(7, stars)))
         }
       }
     }
+
+    // Restore manager assignments
+    if (data.managerAssign && typeof data.managerAssign === 'object') {
+      for (const [id, idx] of Object.entries(data.managerAssign)) {
+        if (typeof idx === 'number') {
+          setManager(id, idx)
+        }
+      }
+    }
+
+    // Restore game state
+    const { game, saveGame, managerVersion } = useGame()
+    if (data.projects && typeof data.projects === 'object') {
+      game.projects = data.projects
+    }
+    if (Array.isArray(data.managers)) {
+      game.managers = data.managers
+      managerVersion.value++
+    }
+    if (Array.isArray(data.pinnedItems)) {
+      game.pinnedItems = data.pinnedItems
+    }
+    saveGame(game)
   }
 
   return { profile, getRawSetting, setSetting, exportProfile, importProfile }

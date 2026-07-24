@@ -104,6 +104,7 @@ export function useOverrides() {
 
   return {
     overrides,
+    managerAssign,
     getStars,
     getMarket,
     getMiningLevel,
