@@ -4,10 +4,10 @@
       <h1>Idle Planet Optimizer</h1>
       <div class="header-actions">
         <button
-class="profile-btn" @click="showProfile = true" title="Profile"><User :size="18" /></button>
+class="profile-btn" @click="showProfile = true; trackAction('profile')" title="Profile"><User :size="18" /></button>
         <div class="btn-badge-wrap">
           <button
-class="game-btn" @click="showGame = true; showGameBadge = false" title="Game"><Gamepad2 :size="18" /></button>
+class="game-btn" @click="showGame = true; showGameBadge = false; trackAction('game')" title="Game"><Gamepad2 :size="18" /></button>
           <span v-if="showGameBadge" class="badge-dot" />
         </div>
         <button
@@ -16,8 +16,8 @@ class="reset-btn" @click="resetAll" title="Reset playthrough"><RotateCcw :size="
           <button
 class="backup-btn" @click="backupOpen = !backupOpen">Backup</button>
           <div v-if="backupOpen" class="backup-dropdown">
-            <button @click="exportProfile(); backupOpen = false"><Download :size="16" /> Export</button>
-            <button @click="triggerImport(); backupOpen = false"><Upload :size="16" /> Import</button>
+            <button @click="exportProfile(); backupOpen = false; trackAction('export')"><Download :size="16" /> Export</button>
+            <button @click="triggerImport(); backupOpen = false; trackAction('import')"><Upload :size="16" /> Import</button>
           </div>
         </div>
         <input ref="fileInput"
@@ -167,8 +167,10 @@ import {
 } from './utils/calc'
 import { toggleTip } from './utils/format'
 import { User, Gamepad2, RotateCcw, Download, Upload } from '@lucide/vue'
+import { useAnalytics } from './composables/useAnalytics'
 
 const { resetTemporary } = useOverrides()
+const { initTabTracking, trackAction } = useAnalytics()
 const { settings, managerVersion } = useSettings()
 const { resetGame } = useGame()
 const { exportProfile, importProfile } = useProfile()
@@ -176,6 +178,7 @@ const { exportProfile, importProfile } = useProfile()
 const fileInput = ref(null)
 
 const activeTab = ref('ores')
+initTabTracking(activeTab)
 const detailId = ref(null)
 const showProfile = ref(false)
 const showGame = ref(false)
@@ -395,6 +398,7 @@ function switchTab(tab) {
 }
 
 async function resetAll() {
+  trackAction('reset')
   const ok = await showConfirm(
     'Reset playthrough? Projects, market & mining overrides will be cleared. Managers, pinned items, and profile stay unchanged.'
   )

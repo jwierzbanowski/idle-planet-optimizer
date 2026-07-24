@@ -24,6 +24,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: echo "VITE_GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID }}" >> .env.production
       - run: npm run lint
       - run: npm run build
       - uses: actions/configure-pages@v6
