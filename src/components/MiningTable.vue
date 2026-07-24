@@ -122,19 +122,10 @@ class="ingredient-list">{{ row.resStr }}</span>
             <td>
               <div class="mining-level-select">
                 <button
-                  class="star-btn"
-                  :disabled="row.lvl < 5"
-                  @click="setOverride(row.id, 'miningLevel', Math.max(0, row.lvl - 5))"
-                >
-                  −5
-                </button>
-                <button
-                  class="star-btn"
+                  class="star-btn ml-btn"
                   :disabled="row.lvl <= 0"
-                  @click="setOverride(row.id, 'miningLevel', row.lvl - 1)"
-                >
-                  −
-                </button>
+                  @click="adjustMiningLvl(row.id, 1, -1, $event)"
+                >{{ multiplier === 1 ? '−' : '−' + multiplier }}</button>
                 <input
                   type="number"
                   class="mining-level-input"
@@ -148,32 +139,22 @@ class="ingredient-list">{{ row.resStr }}</span>
                       Math.max(0, Math.min(100, parseInt($event.target.value) || 0))
                     )
                   "
+                  @focus="$event.target.select()"
                 />
                 <button
-                  class="star-btn"
+                  class="star-btn ml-btn"
                   :disabled="row.lvl >= 100"
-                  @click="setOverride(row.id, 'miningLevel', row.lvl + 1)"
-                >
-                  +
-                </button>
-                <button
-                  class="star-btn"
-                  :disabled="row.lvl > 95"
-                  @click="setOverride(row.id, 'miningLevel', Math.min(100, row.lvl + 5))"
-                >
-                  +5
-                </button>
+                  @click="adjustMiningLvl(row.id, 1, 1, $event)"
+                >{{ multiplier === 1 ? '+' : '+' + multiplier }}</button>
               </div>
             </td>
             <td>
               <div class="mining-level-select">
                 <button
-                  class="star-btn"
+                  class="star-btn ml-btn"
                   :disabled="row.colonies <= 0"
-                  @click="setOverride(row.id, 'colonies', row.colonies - 1)"
-                >
-                  −
-                </button>
+                  @click="adjustColonies(row.id, 1, -1, $event)"
+                >{{ multiplier === 1 ? '−' : '−' + multiplier }}</button>
                 <input
                   type="number"
                   class="mining-level-input"
@@ -187,14 +168,13 @@ class="ingredient-list">{{ row.resStr }}</span>
                       Math.max(0, Math.min(100, parseInt($event.target.value) || 0))
                     )
                   "
+                  @focus="$event.target.select()"
                 />
                 <button
-                  class="star-btn"
+                  class="star-btn ml-btn"
                   :disabled="row.colonies >= 100"
-                  @click="setOverride(row.id, 'colonies', row.colonies + 1)"
-                >
-                  +
-                </button>
+                  @click="adjustColonies(row.id, 1, 1, $event)"
+                >{{ multiplier === 1 ? '+' : '+' + multiplier }}</button>
               </div>
             </td>
             <td class="price">
@@ -307,6 +287,7 @@ style="font-weight: 600">
 <script setup>
 import { ref, computed } from 'vue'
 import { useData } from '../composables/useData'
+import { useModifierKeys } from '../composables/useModifierKeys'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
 import {
@@ -326,6 +307,7 @@ const { DB, ORDER } = useData()
 const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, getManager, setManager, setOverride } =
   useOverrides()
 const { settings } = useSettings()
+const { multiplier } = useModifierKeys()
 
 const PLANET_GROUPS = [
   { label: '100M', min: 1, max: 13 },
@@ -345,6 +327,26 @@ function setProbe(id, val) {
 
 function setOreTarget(planetId, oreId, isCurrentlyTargeted) {
   setOverride(planetId, 'oreTarget', isCurrentlyTargeted ? null : oreId)
+}
+
+function adjustMiningLvl(id, baseStep, direction, e) {
+  let m = 1
+  if (e.ctrlKey) m = 5
+  if (e.shiftKey) m = 10
+  if (e.ctrlKey && e.shiftKey) m = 50
+  const step = baseStep * m
+  const current = getMiningLevel(id)
+  setOverride(id, 'miningLevel', Math.max(0, Math.min(100, current + direction * step)))
+}
+
+function adjustColonies(id, baseStep, direction, e) {
+  let m = 1
+  if (e.ctrlKey) m = 5
+  if (e.shiftKey) m = 10
+  if (e.ctrlKey && e.shiftKey) m = 50
+  const step = baseStep * m
+  const current = getMiningColonies(id)
+  setOverride(id, 'colonies', Math.max(0, Math.min(100, current + direction * step)))
 }
 
 function fmtTimeHm(hours) {
@@ -905,6 +907,10 @@ function profitClass(v) {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+.ml-btn {
+  width: 28px !important;
+  font-size: 13px !important;
 }
 .mining-level-input {
   width: 48px;
