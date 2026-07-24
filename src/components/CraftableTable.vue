@@ -99,24 +99,24 @@ import StarControls from './StarControls.vue'
 const GROUPS = {
   alloy: [
     {
-      label: '10M-100M',
-      ids: ['copper_bar', 'iron_bar', 'lead_bar', 'silicon_bar', 'aluminium_bar'],
+      label: '100M',
+      ids: ['copper_bar', 'iron_bar', 'lead_bar', 'silicon_bar', 'aluminium_bar', 'silver_bar'],
     },
     {
-      label: '100M-1B',
-      ids: ['silver_bar', 'gold_bar', 'bronze_bar', 'steel_bar', 'platinum_bar', 'titanium_bar'],
+      label: '10B',
+      ids: ['gold_bar', 'bronze_bar', 'steel_bar', 'platinum_bar', 'titanium_bar'],
     },
     {
-      label: '1B-100B',
-      ids: ['iridium_bar', 'palladium_bar', 'osmium_bar', 'rhodium_bar', 'inerton_alloy'],
+      label: '10T',
+      ids: ['iridium_bar', 'palladium_bar', 'osmium_bar', 'rhodium_bar'],
     },
     {
-      label: 'End Game',
+      label: '10q',
+      ids: ['inerton_alloy', 'quadium_alloy', 'scrith_alloy', 'uru_alloy', 'vibranium_alloy'],
+    },
+    {
+      label: 'Other',
       ids: [
-        'quadium_alloy',
-        'scrith_alloy',
-        'uru_alloy',
-        'vibranium_alloy',
         'aether_alloy',
         'viterium_alloy',
         'xynium_alloy',
@@ -130,48 +130,24 @@ const GROUPS = {
   ],
   item: [
     {
-      label: '10M-100M',
+      label: '100M',
       ids: ['copper_wire', 'iron_nail', 'battery', 'hammer', 'glass', 'circuit'],
     },
-    { label: '100M-1B', ids: ['lens', 'laser', 'basic_computer', 'solar_panel'] },
     {
-      label: '1B-100B',
-      ids: [
-        'laser_torch',
-        'advanced_battery',
-        'thermal_scanner',
-        'advanced_computer',
-        'navigation_module',
-        'plasma_torch',
-        'radio_tower',
-      ],
+      label: '10B',
+      ids: ['lens', 'laser', 'basic_computer', 'solar_panel', 'laser_torch', 'advanced_battery', 'thermal_scanner', 'advanced_computer'],
     },
     {
-      label: 'End Game',
-      ids: [
-        'telescope',
-        'satellite_dish',
-        'motor',
-        'accumulator',
-        'nuclear_capsule',
-        'wind_turbine',
-        'space_probe',
-        'nuclear_reactor',
-        'collider',
-        'gravity_chamber',
-        'robot',
-        'fusion_capsule',
-        'teleporter',
-        'fusion_reactor',
-        'subspace_relay',
-        'advanced_robot',
-        'advanced_teleporter',
-        'quantum_cpu',
-        'deflector_shield',
-        'warp_core',
-        'deep_space_scanner',
-        'antimatter_cell',
-      ],
+      label: '10T',
+      ids: ['navigation_module', 'plasma_torch', 'radio_tower', 'telescope', 'satellite_dish', 'motor', 'accumulator', 'nuclear_capsule', 'wind_turbine'],
+    },
+    {
+      label: '10q',
+      ids: ['space_probe', 'nuclear_reactor', 'collider', 'gravity_chamber', 'robot', 'fusion_capsule', 'teleporter'],
+    },
+    {
+      label: 'Other',
+      ids: ['fusion_reactor', 'subspace_relay', 'advanced_robot', 'advanced_teleporter', 'quantum_cpu', 'deflector_shield', 'warp_core', 'deep_space_scanner', 'antimatter_cell'],
     },
   ],
 }

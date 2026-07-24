@@ -328,9 +328,10 @@ const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, g
 const { settings } = useSettings()
 
 const PLANET_GROUPS = [
-  { label: '10M-100M', min: 1, max: 13 },
-  { label: '100M-1B', min: 14, max: 22 },
-  { label: '1B-100B', min: 23, max: 76 },
+  { label: '100M', min: 1, max: 13 },
+  { label: '10B', min: 14, max: 22 },
+  { label: '10T', min: 23, max: 34 },
+  { label: '10q', min: 35, max: 49 },
 ]
 
 const activeGroup = ref('all')

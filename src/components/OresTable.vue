@@ -90,16 +90,13 @@ const {
 const { settings } = useSettings()
 
 const ORE_GROUPS = [
-  { label: '10M-100M', ids: ['copper', 'iron', 'lead', 'silica', 'aluminium'] },
-  { label: '100M-1B', ids: ['silver', 'gold', 'diamond', 'platinum', 'titanium'] },
-  { label: '1B-100B', ids: ['iridium', 'palladium', 'osmium', 'rhodium', 'inerton'] },
+  { label: '100M', ids: ['copper', 'iron', 'lead', 'silica', 'aluminium', 'silver'] },
+  { label: '10B', ids: ['gold', 'diamond', 'platinum', 'titanium'] },
+  { label: '10T', ids: ['iridium', 'palladium', 'osmium', 'rhodium'] },
+  { label: '10q', ids: ['inerton', 'quadium', 'scrith', 'uru', 'vibranium'] },
   {
-    label: 'End Game',
+    label: 'Other',
     ids: [
-      'quadium',
-      'scrith',
-      'uru',
-      'vibranium',
       'aether',
       'viterium',
       'xynium',
