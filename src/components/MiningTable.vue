@@ -1,78 +1,96 @@
 <template>
   <div>
-    <div class="session-controls">
-      <label class="session-label">
-        ⏱ Session:
-        <select v-model.number="sessionDuration" class="session-select">
-          <option value="0.5">30m</option>
-          <option value="1">1h</option>
-          <option value="2">2h</option>
-          <option value="3">3h</option>
-          <option value="4">4h</option>
-          <option value="8">8h</option>
-          <option value="12">12h</option>
-          <option value="24">24h</option>
-          <option value="48">48h</option>
-        </select>
-      </label>
-      <label class="session-label" v-if="sessionDuration > 0">
-        Elapsed:
-        <input
-          type="range"
-          :min="0"
-          :max="sessionDuration"
-          :step="elapsedStep / 60"
-          v-model.number="elapsedTime"
-          class="session-slider"
-        />
-        <span class="session-val">{{ fmtTimeHm(elapsedTime) }}</span>
-      </label>
-      <span class="session-step" v-if="sessionDuration > 0">
-        <button class="step-btn" :class="{ active: elapsedStep === 5 }" @click="elapsedStep = 5">5m</button>
-        <button class="step-btn" :class="{ active: elapsedStep === 15 }" @click="elapsedStep = 15">15m</button>
-        <button class="step-btn" :class="{ active: elapsedStep === 30 }" @click="elapsedStep = 30">30m</button>
-      </span>
-      <span class="session-remaining" v-if="sessionDuration > 0">
-        Remaining: <strong>{{ fmtTimeHm(remainingTime) }}</strong>
-      </span>
-    </div>
-    <div class="best-upgrade-bar" v-if="bestUpgradeSteps.length">
-      <div class="best-label">Roadmap ({{ bestUpgradeSteps.length }} steps):</div>
-      <label class="include-new-cb">
-        <input type="checkbox" v-model="includeNewPlanets" />
-        Include planet purchases
-      </label>
-      <span class="step-size-group">
-        <button class="step-size-btn" :class="{ active: roadmapStepSize === 1 }" @click="roadmapStepSize = 1">1 lvl</button>
-        <button class="step-size-btn" :class="{ active: roadmapStepSize === 5 }" @click="roadmapStepSize = 5">5 lvls</button>
-      </span>
-      <div class="best-steps-list">
-        <div v-for="(s, i) in bestUpgradeSteps" :key="i"
-             class="best-step"
-             :class="{
-               'step-repeat-green': stepCounts[s.id] > 3,
-               'step-repeat-yellow': stepCounts[s.id] > 2 && stepCounts[s.id] <= 3,
-               'step-repeat-orange': stepCounts[s.id] > 1 && stepCounts[s.id] <= 2
-             }">
-          {{ i + 1 }}. <template v-if="s.isBuying">Buy </template>{{ s.number }}. {{ s.name }} (lvl {{ s.fromLvl }}→{{ s.toLvl }})
-          <span v-if="stepCounts[s.id] > 1" class="step-repeat-badge">{{ stepCounts[s.id] }}×</span>
-          <span class="best-detail">Cost: {{ fmtPrice(Math.round(s.upgradeCost)) }}</span>
-          <span class="best-detail">+{{ fmtPrice(s.incProfit) }}/s</span>
-          <span class="best-detail">{{ fmtDuration(s.paybackHours) }}</span>
-          <button class="apply-step-btn" @click="setOverride(s.id, 'miningLevel', s.toLvl)" title="Apply this upgrade">+{{ s.toLvl - s.fromLvl }}</button>
+    <div class="session-panel">
+      <div class="session-header" @click="sessionPanelOpen = !sessionPanelOpen">
+        <div class="session-controls" @click.stop>
+          <label class="session-label">
+            ⏱ Session:
+            <select v-model.number="sessionDuration" class="session-select">
+              <option value="0.5">30m</option>
+              <option value="1">1h</option>
+              <option value="2">2h</option>
+              <option value="3">3h</option>
+              <option value="4">4h</option>
+              <option value="8">8h</option>
+              <option value="12">12h</option>
+              <option value="24">24h</option>
+              <option value="48">48h</option>
+            </select>
+          </label>
+          <label class="session-label" v-if="sessionDuration > 0">
+            Elapsed:
+            <input
+              type="range"
+              :min="0"
+              :max="sessionDuration"
+              :step="elapsedStep / 60"
+              v-model.number="elapsedTime"
+              class="session-slider"
+            />
+            <span class="session-val">{{ fmtTimeHm(elapsedTime) }}</span>
+          </label>
+          <span class="session-step" v-if="sessionDuration > 0">
+            <button class="step-btn" :class="{ active: elapsedStep === 5 }" @click="elapsedStep = 5">5m</button>
+            <button class="step-btn" :class="{ active: elapsedStep === 15 }" @click="elapsedStep = 15">15m</button>
+            <button class="step-btn" :class="{ active: elapsedStep === 30 }" @click="elapsedStep = 30">30m</button>
+          </span>
+          <span class="session-remaining" v-if="sessionDuration > 0">
+            Remaining: <strong>{{ fmtTimeHm(remainingTime) }}</strong>
+          </span>
+        </div>
+        <span class="panel-toggle">
+          <span class="toggle-label">Roadmap</span>
+          <ChevronDown v-if="sessionPanelOpen" :size="16" />
+          <ChevronRight v-else :size="16" />
+        </span>
+      </div>
+      <div class="panel-body" :class="{ open: sessionPanelOpen }">
+        <div class="best-upgrade-bar" v-if="bestUpgradeSteps.length">
+          <div class="best-label">Roadmap ({{ bestUpgradeSteps.length }} steps):</div>
+          <label class="include-new-cb">
+            <input type="checkbox" v-model="includeNewPlanets" />
+            Include planet purchases
+          </label>
+          <span class="step-size-group">
+            <button class="step-size-btn" :class="{ active: roadmapStepSize === 1 }" @click="roadmapStepSize = 1">1 lvl</button>
+            <button class="step-size-btn" :class="{ active: roadmapStepSize === 5 }" @click="roadmapStepSize = 5">5 lvls</button>
+          </span>
+          <div class="best-steps-list">
+            <div v-for="(s, i) in bestUpgradeSteps" :key="i"
+                 class="best-step"
+                 :class="{
+                   'step-repeat-green': stepCounts[s.id] > 3,
+                   'step-repeat-yellow': stepCounts[s.id] > 2 && stepCounts[s.id] <= 3,
+                   'step-repeat-orange': stepCounts[s.id] > 1 && stepCounts[s.id] <= 2
+                 }">
+              {{ i + 1 }}. <template v-if="s.isBuying">Buy </template>{{ s.number }}. {{ s.name }} (lvl {{ s.fromLvl }}→{{ s.toLvl }})
+              <span v-if="stepCounts[s.id] > 1" class="step-repeat-badge">{{ stepCounts[s.id] }}×</span>
+              <span class="best-detail">Cost: {{ fmtPrice(Math.round(s.upgradeCost)) }}</span>
+              <span class="best-detail">+{{ fmtPrice(s.incProfit) }}/s</span>
+              <span class="best-detail">{{ fmtDuration(s.paybackHours) }}</span>
+              <button class="apply-step-btn" @click="setOverride(s.id, 'miningLevel', s.toLvl)" title="Apply this upgrade">+{{ s.toLvl - s.fromLvl }}</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <div class="filter-tabs">
-      <button
-        v-for="tab in filterTabs"
-        :key="tab.key"
-        class="filter-tab"
-        :class="{ active: activeGroup === tab.key }"
-        @click="activeGroup = tab.key"
-      >
-        {{ tab.label }} <span class="count">({{ tab.count }})</span>
-      </button>
+      <div class="filter-tabs-left">
+        <button
+          v-for="tab in filterTabs"
+          :key="tab.key"
+          class="filter-tab"
+          :class="{ active: activeGroup === tab.key }"
+          @click="activeGroup = tab.key"
+        >
+          {{ tab.label }} <span class="count">({{ tab.count }})</span>
+        </button>
+      </div>
+      <div class="filter-tabs-right">
+        <button class="mode-btn" :class="{ active: panelMode === 'basic' }" @click="panelMode = 'basic'">Basic</button>
+        <button class="mode-btn" :class="{ active: panelMode === 'advanced' }" @click="panelMode = 'advanced'">Advanced</button>
+        <button class="mode-btn" :class="{ active: panelMode === 'pro' }" @click="panelMode = 'pro'">Pro</button>
+      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -228,7 +246,12 @@ style="font-weight: 600">
               <td
  v-else class="price-small" :class="row.paybackClass">—</td>
               <td class="price-small">
-                {{ row.maxProfitableLevel > 0 ? row.maxProfitableLevel : '—' }}
+                <span
+                  v-if="row.maxProfitableLevel > 0"
+                  class="max-lv-click"
+                  @click="setOverride(row.id, 'miningLevel', row.maxProfitableLevel)"
+                >{{ row.maxProfitableLevel }}</span>
+                <span v-else>—</span>
               </td>
               <td class="manager-cell">
                 <select
@@ -286,6 +309,7 @@ style="font-weight: 600">
 
 <script setup>
 import { ref, computed } from 'vue'
+import { ChevronDown, ChevronRight } from '@lucide/vue'
 import { useData } from '../composables/useData'
 import { useModifierKeys } from '../composables/useModifierKeys'
 import { useOverrides } from '../composables/useOverrides'
@@ -316,7 +340,16 @@ const PLANET_GROUPS = [
   { label: '10q', min: 35, max: 49 },
 ]
 
+const BASIC_PRICE_GROUPS = [
+  { label: '10M-100M', min: 10_000_000, max: 100_000_000 },
+  { label: '100M-1B', min: 100_000_000, max: 1_000_000_000 },
+  { label: '1B-10B', min: 1_000_000_000, max: 10_000_000_000 },
+  { label: '10B-100B', min: 10_000_000_000, max: 100_000_000_000 },
+  { label: '100B-1T', min: 100_000_000_000, max: 1_000_000_000_000 },
+]
+
 const activeGroup = ref('all')
+const panelMode = ref('advanced')
 const includeNewPlanets = ref(false)
 const roadmapStepSize = ref(1)
 
@@ -335,7 +368,8 @@ function adjustMiningLvl(id, baseStep, direction, e) {
   if (e.shiftKey) m = 10
   if (e.ctrlKey && e.shiftKey) m = 50
   const step = baseStep * m
-  const current = getMiningLevel(id)
+  let current = getMiningLevel(id)
+  if (direction > 0 && current === 0 && m > 1) current = 1
   setOverride(id, 'miningLevel', Math.max(0, Math.min(100, current + direction * step)))
 }
 
@@ -388,6 +422,7 @@ const miningMult = computed(() => getMiningSpeedMult(settings) || 1)
 const astronomyMod = computed(() => getModifier('rooms', 'astronomy', settings))
 const managerRoomMult = computed(() => getTotalManagerBuff(settings))
 
+const sessionPanelOpen = ref(true)
 const sessionDuration = ref(2)
 const elapsedTime = ref(0)
 const elapsedStep = ref(15)
@@ -677,9 +712,18 @@ const sortedRows = computed(() => {
         .join('\n')
 
       let groupKey = 'all'
-      for (const g of PLANET_GROUPS) {
-        if (p.number >= g.min && p.number <= g.max) {
-          groupKey = g.label.toLowerCase().replace(/\s+/g, '_')
+      if (panelMode.value === 'basic') {
+        for (const g of BASIC_PRICE_GROUPS) {
+          if (p.basePrice >= g.min && p.basePrice < g.max) {
+            groupKey = g.label.toLowerCase().replace(/[-\s]+/g, '_')
+            break
+          }
+        }
+      } else {
+        for (const g of PLANET_GROUPS) {
+          if (p.number >= g.min && p.number <= g.max) {
+            groupKey = g.label.toLowerCase().replace(/\s+/g, '_')
+          }
         }
       }
 
@@ -750,15 +794,20 @@ const sortedRows = computed(() => {
     }))
 })
 
+function groupKey(g) {
+  return g.label.toLowerCase().replace(/[-\s]+/g, '_')
+}
+
 const filterTabs = computed(() => {
+  const groups = panelMode.value === 'basic' ? BASIC_PRICE_GROUPS : PLANET_GROUPS
   const counts = {}
-  for (const g of PLANET_GROUPS) {
-    const key = g.label.toLowerCase().replace(/\s+/g, '_')
+  for (const g of groups) {
+    const key = groupKey(g)
     counts[key] = sortedRows.value.filter((r) => r.groupKey === key).length
   }
   const tabs = []
-  for (const g of PLANET_GROUPS) {
-    const key = g.label.toLowerCase().replace(/\s+/g, '_')
+  for (const g of groups) {
+    const key = groupKey(g)
     if (counts[key] > 0) {
       tabs.push({ key, label: g.label, count: counts[key] })
     }
@@ -956,14 +1005,58 @@ function profitClass(v) {
   opacity: 0.5;
 }
 
+.session-panel {
+  margin-bottom: 12px;
+  background: #121824;
+  border-radius: 10px;
+  border: 1px solid #1e2a3a;
+}
+.session-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 10px 10px 0 0;
+}
+.session-header:hover {
+  background: rgba(255,255,255,0.04);
+}
+.session-header .session-controls {
+  cursor: default;
+}
+.panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: #6b7a8f;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.session-header:hover .panel-toggle {
+  color: #4fc3f7;
+}
+.panel-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  border-top: 0 solid #1e2a3a;
+}
+.panel-body.open {
+  max-height: 3000px;
+  overflow-y: auto;
+  border-top-width: 1px;
+}
 .session-controls {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 12px;
-  background: #121824;
-  border-radius: 10px;
-  padding: 8px 16px;
   flex-wrap: wrap;
 }
 .session-label {
@@ -1032,11 +1125,7 @@ function profitClass(v) {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
-  background: #121824;
-  border: 1px solid #4fc3f7;
-  border-radius: 10px;
-  padding: 8px 16px;
+  padding: 12px 16px;
   font-size: 13px;
   color: #c8d0dc;
   flex-wrap: wrap;
@@ -1126,6 +1215,13 @@ function profitClass(v) {
   color: #6b7a8f;
   margin-left: 0;
 }
+.max-lv-click {
+  cursor: pointer;
+  font-weight: 400;
+}
+.max-lv-click:hover {
+  font-weight: 700;
+}
 .apply-step-btn {
   margin-left: auto;
   background: #1e88e5;
@@ -1143,12 +1239,39 @@ function profitClass(v) {
 }
 .filter-tabs {
   display: flex;
-  gap: 4px;
+  justify-content: space-between;
   margin-bottom: 12px;
   background: #121824;
   border-radius: 10px;
   padding: 4px;
-  display: inline-flex;
+}
+.filter-tabs-left {
+  display: flex;
+  gap: 4px;
+}
+.filter-tabs-right {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.mode-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #6b7a8f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.mode-btn:hover {
+  color: #c8d0dc;
+  background: #1a2235;
+}
+.mode-btn.active {
+  color: #fff;
+  background: #1e88e5;
 }
 .filter-tab {
   padding: 8px 20px;
