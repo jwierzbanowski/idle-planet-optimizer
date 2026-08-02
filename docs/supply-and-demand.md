@@ -41,5 +41,5 @@ Change the market here and every table updates immediately.
 
 ## Related
 
-- Market overrides are **temporary** and cleared by [Reset](reset.md).
+- Pinned items and their market changes are **temporary** and are cleared by [Reset](reset.md).
 - They are included in [Backup](backup.md) exports.

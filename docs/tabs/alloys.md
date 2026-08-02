@@ -22,6 +22,8 @@ The **Alloys** tab lists every smelted bar and alloy and ranks them by profitabi
 
 Alloys are grouped by product price tier (**100M**, **10B**, **10T**, **10q**, **Other**) with an **All** option.
 
+![Alloys tab with the best from the previous group highlighted](../screenshots/11-alloys-prev-best.png)
+
 - **Best in group** (green) — the alloy with the highest profit per second in the current group.
 - **Best from previous group** (blue) — the best alloy from the previous tier, shown at the top for comparison.
 

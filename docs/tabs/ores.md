@@ -21,6 +21,8 @@ Ores are grouped by price tier (**100M**, **10B**, **10T**, **10q**, **Other**) 
 
 ## Highlights
 
+![Ores tab with the best from the previous group highlighted](../screenshots/10-ores-prev-best.png)
+
 While a group is selected, the **best ore from the previous group** (by mining profit per second) is highlighted in blue and pinned to the top for comparison, labeled `(best from <group>)`.
 
 ## Notes

@@ -22,6 +22,8 @@ The **Items** tab lists every crafted item and ranks them by profitability.
 
 Items are grouped by product price tier (**100M**, **10B**, **10T**, **10q**, **Other**) with an **All** option.
 
+![Items tab with the best from the previous group highlighted](../screenshots/12-items-prev-best.png)
+
 - **Best in group** (green) — the item with the highest profit per second in the current group.
 - **Best from previous group** (blue) — the best item from the previous tier, shown at the top for comparison.
 

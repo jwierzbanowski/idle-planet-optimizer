@@ -14,8 +14,11 @@ Drop the PNG screenshots used by the docs into this folder using the filenames b
 | `08-market-applied.png` | Supply & Demand — pinned resources with market changes applied. | [Supply & Demand](../supply-and-demand.md) |
 | `09-tabs-panel.png` | The tab bar (Ores, Alloys, Items, Mining) with group filters. | [Tabs](../tabs/README.md) |
 | `10-ores.png` | Main screen, Ores tab open. | [Ores](../tabs/ores.md) |
+| `10-ores-prev-best.png` | Ores tab, best from the previous group highlighted. | [Ores](../tabs/ores.md) |
 | `11-alloys.png` | Alloys tab. | [Alloys](../tabs/alloys.md) |
+| `11-alloys-prev-best.png` | Alloys tab, best from the previous group highlighted. | [Alloys](../tabs/alloys.md) |
 | `12-items.png` | Items tab. | [Items](../tabs/items.md) |
+| `12-items-prev-best.png` | Items tab, best from the previous group highlighted. | [Items](../tabs/items.md) |
 | `13-mining.png` | Mining tab with the session panel. | [Mining](../tabs/mining.md) |
 | `14-mining-roadmap.png` | Mining tab, roadmap expanded. | [Mining](../tabs/mining.md) |
 

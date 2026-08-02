@@ -5,13 +5,12 @@ The **Reset playthrough** button (↺ icon) in the top bar clears the **temporar
 ## What reset clears
 
 - **Projects** (the checkboxes in the [Game](game.md) modal)
-- **Market overrides** (set in the [Supply & Demand panel](supply-and-demand.md))
+- **Supply & Demand** (pinned items and their market changes, set in the [Supply & Demand panel](supply-and-demand.md))
 - **Mining overrides** (mining levels, colonies, probes, rovers, ore targeting, alchemy)
 
 ## What reset keeps
 
 - **Managers** and their stars/skills
-- **Pinned items** in the Supply & Demand panel
 - Your **Profile** (rooms, station, beacon)
 
 ## After a reset
