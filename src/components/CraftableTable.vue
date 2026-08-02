@@ -1,15 +1,22 @@
 <template>
   <div>
     <div class="filter-tabs">
-      <button
-        v-for="tab in filterTabs"
-        :key="tab.key"
-        class="filter-tab"
-        :class="{ active: activeGroup === tab.key }"
-        @click="activeGroup = tab.key"
-      >
-        {{ tab.label }} <span class="count">({{ tab.count }})</span>
-      </button>
+      <div class="filter-tabs-left">
+        <button
+          v-for="tab in filterTabs"
+          :key="tab.key"
+          class="filter-tab"
+          :class="{ active: activeGroup === tab.key }"
+          @click="activeGroup = tab.key"
+        >
+          {{ tab.label }} <span class="count">({{ tab.count }})</span>
+        </button>
+      </div>
+      <div class="filter-tabs-right">
+        <button class="mode-btn" :class="{ active: panelMode === 'basic' }" @click="panelMode = 'basic'">Basic</button>
+        <button class="mode-btn" :class="{ active: panelMode === 'advanced' }" @click="panelMode = 'advanced'">Advanced</button>
+        <button class="mode-btn" :class="{ active: panelMode === 'pro' }" @click="panelMode = 'pro'">Pro</button>
+      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -161,13 +168,33 @@ const { settings, managerVersion } = useSettings()
 
 const isAlloy = computed(() => props.type === 'alloy')
 const activeGroup = ref('all')
+const panelMode = ref('advanced')
 const allIds = computed(() => {
   managerVersion.value
   return isAlloy.value ? ORDER.value.alloys : ORDER.value.items
 })
 
+const BASIC_PRICE_GROUPS = [
+  { label: '10M-100M', min: 10_000_000, max: 100_000_000 },
+  { label: '100M-1B', min: 100_000_000, max: 1_000_000_000 },
+  { label: '1B-10B', min: 1_000_000_000, max: 10_000_000_000 },
+  { label: '10B-100B', min: 10_000_000_000, max: 100_000_000_000 },
+  { label: '100B-1T', min: 100_000_000_000, max: 1_000_000_000_000 },
+]
+
 const groupedItems = computed(() => {
   const available = new Set(allIds.value)
+  if (panelMode.value === 'basic') {
+    return BASIC_PRICE_GROUPS.map((g) => ({
+      key: g.label.toLowerCase().replace(/[-\s]+/g, '_'),
+      label: g.label,
+      ids: allIds.value.filter((id) => {
+        if (!available.has(id)) return false
+        const price = getEntity(id)?.basePrice || 0
+        return price >= g.min && price < g.max
+      }),
+    })).filter((g) => g.ids.length > 0)
+  }
   return GROUPS[props.type]
     .map((g) => ({
       key: g.label.toLowerCase().replace(/\s+/g, '_'),
@@ -278,12 +305,39 @@ function profitClass(id) {
 <style scoped>
 .filter-tabs {
   display: flex;
-  gap: 4px;
+  justify-content: space-between;
   margin-bottom: 12px;
   background: #121824;
   border-radius: 10px;
   padding: 4px;
-  display: inline-flex;
+}
+.filter-tabs-left {
+  display: flex;
+  gap: 4px;
+}
+.filter-tabs-right {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.mode-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #6b7a8f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.mode-btn:hover {
+  color: #c8d0dc;
+  background: #1a2235;
+}
+.mode-btn.active {
+  color: #fff;
+  background: #1e88e5;
 }
 .filter-tab {
   padding: 8px 20px;
