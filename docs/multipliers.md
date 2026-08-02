@@ -29,7 +29,7 @@ Factors: **Dorms room**.
 ### Mine Rate
 Mining speed multiplier for ore production.
 Factors: **Engineering room**, **Mining projects** (Advanced/Superior Mining), **Mining stations** 1–2, **Global 1.2×** station.
-Per planet, the mining rate additionally includes: **beacon**, **colonies**, **probe**, **rover**, **assigned manager**, and **Ore Targeting**.
+Per planet, the mining rate additionally includes: **beacon**, **colonies**, **probe**, **rover**, **assigned manager**, and **Ore Targeting** projects.
 
 ### Planet Cost
 Planet upgrade price modifier (below `1.00×` = cheaper upgrades).

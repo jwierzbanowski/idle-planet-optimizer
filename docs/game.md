@@ -25,6 +25,7 @@ Projects are grouped by category. Each checked project applies its multiplier.
 | Advanced Mining | Mine speed ×1.25 |
 | Superior Mining | Mine speed ×1.25 |
 | Ore Targeting | Most valuable ore on each planet +15% mining |
+| Advanced Ore Targeting | Most valuable ore on each planet +15% mining |
 
 ### Rovers
 

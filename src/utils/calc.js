@@ -133,8 +133,14 @@ export function getBeaconMult(planetNumber, settings) {
   return mod || 1
 }
 
+const ORE_TARGETING_KEYS = ['oreTargeting', 'advancedOreTargeting']
+
 export function getOreTargetingMult(settings) {
-  return settings.projects?.oreTargeting ? 1.15 : null
+  let n = 0
+  for (const key of ORE_TARGETING_KEYS) {
+    if (settings.projects?.[key]) n++
+  }
+  return n > 0 ? 1 + 0.15 * n : null
 }
 
 const ROVER_PROJECT_KEYS = ['rover1', 'rover2']

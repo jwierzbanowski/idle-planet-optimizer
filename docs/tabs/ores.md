@@ -28,4 +28,4 @@ While a group is selected, the **best ore from the previous group** (by mining p
 ## Notes
 
 - Ore **Production** is aggregated from every planet that mines the ore. It depends on the mining level, colonies, probes, rovers, beacons, and managers you set on the [Mining tab](mining.md).
-- With **Ore Targeting** enabled ([Game projects](../game.md)), the most valuable ore on each planet receives +15% mining — this is reflected in the Production and tooltip numbers.
+- With **Ore Targeting** / **Advanced Ore Targeting** enabled ([Game projects](../game.md)), the most valuable ore on each planet receives +15% mining per project — this is reflected in the Production and tooltip numbers.

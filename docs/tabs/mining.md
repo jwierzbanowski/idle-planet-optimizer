@@ -12,7 +12,7 @@ The table has a filter bar (price groups such as **100M / 10B / 10T / 10q**, or 
 | --- | --- |
 | **Planet** | Planet number and name. |
 | **Base Price** | Planet purchase price. |
-| **Resources** | The ores on this planet and their yields. With **Ore Targeting** enabled ([Game projects](../game.md)), each resource becomes clickable — click one to target it (marked **TARGET**); the app auto-targets the most valuable ore when none is chosen. Alchemy upgrades show a `↓ next-ore` hint. |
+| **Resources** | The ores on this planet and their yields. With **Ore Targeting** enabled ([Game projects](../game.md)), each resource becomes clickable — click one to target it (marked **TARGET**); the app auto-targets the most valuable ore when none is chosen. Each Ore Targeting project adds +15% mining to the targeted ore. Alchemy upgrades show a `↓ next-ore` hint. |
 | **Mining Lv** | Mining level (0–100). Use **− / +** steppers (with [keyboard shortcuts](README.md#keyboard-shortcuts)) or type a value. |
 | **Colonies** | Number of colonies (0–100). Each colony adds +30% mining rate. |
 | **Probe** | Checkbox to enable a probe, plus a multiplier field for its speed. |

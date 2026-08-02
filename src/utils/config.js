@@ -163,6 +163,12 @@ export const SETTINGS_CONFIG = {
       baseEffect: 1.15,
     },
     {
+      key: 'advancedOreTargeting',
+      label: 'Advanced Ore Targeting',
+      desc: 'Most valuable ore on each planet +15% mining',
+      baseEffect: 1.15,
+    },
+    {
       key: 'rover1',
       label: 'Rover Resupply',
       desc: 'Rover mining ×2.5',
