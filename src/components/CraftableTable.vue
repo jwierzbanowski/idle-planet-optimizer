@@ -42,7 +42,6 @@
               'best-row': bestInGroup.has(id) && activeGroup !== 'all',
               'prev-best-row': id === prevGroupBest?.id && activeGroup !== 'all',
             }"
-            @click="$emit('show-detail', id)"
           >
             <td class="name-cell">
               {{ getEntity(id)?.name }}

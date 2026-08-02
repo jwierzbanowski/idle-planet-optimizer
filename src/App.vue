@@ -104,23 +104,18 @@ class="loading">
 
     <template v-else>
       <div v-show="activeTab === 'ores'" class="tab-content">
-        <OresTable @show-detail="detailId = $event" />
+        <OresTable />
       </div>
       <div v-show="activeTab === 'alloys'" class="tab-content">
-        <CraftableTable type="alloy"
-@show-detail="detailId = $event" />
+        <CraftableTable type="alloy" />
       </div>
       <div v-show="activeTab === 'items'" class="tab-content">
-        <CraftableTable type="item"
-@show-detail="detailId = $event" />
+        <CraftableTable type="item" />
       </div>
       <div v-show="activeTab === 'mining'" class="tab-content">
         <MiningTable />
       </div>
     </template>
-
-    <DetailPanel :detail-id="detailId"
-@close="detailId = null" />
 
     <ProfilePanel v-if="showProfile"
 @close="showProfile = false" />
@@ -142,7 +137,6 @@ class="loading">
 <script setup>
 import { ref, computed, reactive } from 'vue'
 import MarketPanel from './components/MarketPanel.vue'
-import DetailPanel from './components/DetailPanel.vue'
 import ProfilePanel from './components/ProfilePanel.vue'
 import GamePanel from './components/GamePanel.vue'
 import OresTable from './components/OresTable.vue'

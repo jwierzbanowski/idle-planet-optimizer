@@ -1,6 +1,5 @@
 import { SETTINGS_CONFIG, SECONDARY_EFFECTS } from './config'
 import { getEntity } from './registry'
-import { fmtPrice, fmtTime, fmtQty } from './format'
 
 function getStars(overrides, id) {
   return overrides[id]?.stars ?? 0
@@ -278,63 +277,4 @@ export function calcDirectIngredientCost(id, qty, overrides, settings) {
     cost += effectivePrice(ing.id, overrides, settings) * ing.qty * qty
   }
   return cost
-}
-
-export function buildTree(id, qty, overrides, settings, visited) {
-  visited = visited || new Set()
-  if (visited.has(id)) return null
-  visited.add(id)
-  const e = getEntity(id)
-  if (!e) return null
-  let effTime = e.time || 0
-  if (e.type === 'alloy' && effTime) {
-    const smeltMult = getSmeltSpeedMult(settings)
-    if (smeltMult) effTime = effTime / smeltMult
-  }
-  if (e.type === 'item' && effTime) {
-    const craftMult = getCraftSpeedMult(settings)
-    if (craftMult) effTime = effTime / craftMult
-  }
-  const node = {
-    id,
-    name: e.name,
-    type: e.type,
-    qty,
-    basePrice: e.basePrice,
-    time: Math.round(effTime),
-    children: [],
-  }
-  if (e.ingredients) {
-    const ingMod = getIngredientMod(e.type, settings)
-    for (const ing of e.ingredients) {
-      const ingQty = ingMod != null ? Math.floor(ing.qty * ingMod) : ing.qty
-      const child = buildTree(ing.id, ingQty * qty, overrides, settings, new Set(visited))
-      if (child) node.children.push(child)
-    }
-  }
-  return node
-}
-
-export function renderTree(node, overrides) {
-  if (!node) return ''
-  const stars = overrides[node.id]?.stars ?? 0
-  const market = overrides[node.id]?.market ?? 1
-  const starStr =
-    stars > 0
-      ? ' <span style="color:#ffd54f">' +
-        '★'.repeat(Math.min(stars, 5)) +
-        (stars > 5 ? '+' + (stars - 5) : '') +
-        '</span>'
-      : ''
-  const mktStr = market !== 1 ? ' <span style="color:#4fc3f7">x' + market + '</span>' : ''
-  let html = '<div class="tree-node' + (node.children.length === 0 ? ' root' : '') + '">'
-  html += '<div class="tree-item">'
-  html += '<span class="tree-qty">' + (node.qty > 1 ? fmtQty(node.qty) + '×' : '') + '</span>'
-  html += '<span class="tree-name">' + node.name + '</span>'
-  html += '<span class="tree-price">' + fmtPrice(node.basePrice) + starStr + mktStr + '</span>'
-  if (node.time > 0) html += '<span class="tree-time">' + fmtTime(node.time) + '</span>'
-  html += '</div>'
-  for (const child of node.children) html += renderTree(child, overrides)
-  html += '</div>'
-  return html
 }
