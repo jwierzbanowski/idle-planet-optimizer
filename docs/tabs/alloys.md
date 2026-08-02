@@ -1,6 +1,6 @@
 # Tabs — Alloys
 
-![Alloys tab](../screenshots/02-alloys.png)
+![Alloys tab](../screenshots/11-alloys.png)
 
 The **Alloys** tab lists every smelted bar and alloy and ranks them by profitability.
 

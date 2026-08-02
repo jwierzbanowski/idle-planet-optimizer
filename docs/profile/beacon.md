@@ -1,6 +1,6 @@
 # Profile — Beacon
 
-![Profile modal — Beacon](../screenshots/08-profile-beacon.png)
+![Profile modal — Beacon](../screenshots/03-profile-beacon.png)
 
 The **Beacon** tab controls beacon levels for ranges of planets. Each beacon level adds **+2% mining rate** for every planet in that range.
 

@@ -2,6 +2,8 @@
 
 The four main tables of the app live in tabs below the Multipliers bar: **Ores**, **Alloys**, **Items**, and **Mining**. Each tab shows its entry count next to its name.
 
+![The tab bar with the Ores, Alloys, Items, and Mining tabs and the group filters](../screenshots/09-tabs-panel.png)
+
 ## Shared concepts
 
 All four tabs are built around a few common ideas.

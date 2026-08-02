@@ -1,6 +1,6 @@
 # Game
 
-![Game modal — projects](../screenshots/10-game-projects.png)
+![Game modal — projects](screenshots/05-game-projects.png)
 
 The **Game** modal lists **projects** for your current playthrough. It is opened with the **Game** button (gamepad icon) in the top bar.
 

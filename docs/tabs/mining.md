@@ -1,6 +1,6 @@
 # Tabs — Mining
 
-![Mining tab with the session panel](../screenshots/04-mining.png)
+![Mining tab with the session panel](../screenshots/13-mining.png)
 
 The **Mining** tab is the most powerful view. It shows every planet, lets you configure its mining setup, and computes rates, profits, paybacks, and a recommended upgrade plan.
 
@@ -21,7 +21,7 @@ The session drives two things:
 
 Open the panel body (click the **Roadmap** toggle) to see an ordered **Roadmap** of the most profitable mining upgrades for your current session.
 
-![Roadmap expanded](../screenshots/05-mining-roadmap.png)
+![Roadmap expanded](../screenshots/14-mining-roadmap.png)
 
 - **Include planet purchases** — include buying planets that are not yet owned.
 - **Step size** — plan upgrades in **1**, **5**, or **10** level steps.

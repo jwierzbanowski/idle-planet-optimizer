@@ -1,6 +1,6 @@
 # Profile — Managers
 
-![Profile modal — Managers](../screenshots/09-profile-managers.png)
+![Profile modal — Managers](../screenshots/04-profile-managers.png)
 
 The **Managers** tab lets you define the managers you own. Managers provide global and per-planet bonuses and can be assigned to planets on the [Mining tab](../tabs/mining.md).
 

@@ -1,15 +1,19 @@
 # Supply & Demand
 
+![Typing a search to see the matching resources](screenshots/07-market-search.png)
+
 The **Supply & Demand** panel sits next to the Multipliers bar. It lets you set the **current market change** of any resource — ore, alloy, or item. These overrides feed the **effective price** used by every table in the app.
 
 ## Pinning a resource
 
-1. Type in the search box to find a resource by name (e.g. `copper`, `steel_bar`, `laser`).
+1. Type in the search box to find a resource by name (e.g. `copper`, `steel_bar`, `laser`). While typing, the matching results appear in a list below the search box.
 2. Click a result to **pin** it. A ✓ appears next to pinned results, and the resource moves into the list below.
 
 Search matches ores, alloys, and items, each shown with a colored type badge (Ore, Alloy, Item).
 
 ## Setting the market change
+
+![Pinned resources with market changes applied](screenshots/08-market-applied.png)
 
 Each pinned resource has **− / +** buttons. The market change ranges from **−2 to +4**, which maps to these effective multipliers:
 

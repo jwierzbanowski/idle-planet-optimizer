@@ -1,6 +1,6 @@
 # Profile — Rooms
 
-![Profile modal — Rooms](../screenshots/06-profile-rooms.png)
+![Profile modal — Rooms](../screenshots/01-profile-rooms.png)
 
 The **Rooms** tab lists all nine rooms. Each room has a level (adjusted with **− / +**) and produces a multiplier that feeds the [Multipliers bar](../multipliers.md).
 

@@ -1,6 +1,6 @@
 # Tabs — Items
 
-![Items tab](../screenshots/03-items.png)
+![Items tab](../screenshots/12-items.png)
 
 The **Items** tab lists every crafted item and ranks them by profitability.
 

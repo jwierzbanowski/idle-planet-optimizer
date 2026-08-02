@@ -1,5 +1,7 @@
 # Multipliers
 
+![The Multipliers bar](screenshots/06-multipliers.png)
+
 The **Multipliers** bar sits at the top of the main screen and shows ten summary values. Each reflects your current profile, projects, managers, and market state.
 
 Each value has a small **`i`** info icon — click it to see the tooltip with the full breakdown of every factor and the resulting multiplier. The lists below describe exactly those factors.

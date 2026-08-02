@@ -1,6 +1,6 @@
 # Profile — Station
 
-![Profile modal — Station](../screenshots/07-profile-station.png)
+![Profile modal — Station](../screenshots/02-profile-station.png)
 
 The **Station** tab holds the levels of all station groups. Station levels stack to produce the speed and value multipliers used across the app.
 

@@ -1,6 +1,6 @@
 # Tabs — Ores
 
-![Main screen with the Ores tab open](../screenshots/01-main-ores.png)
+![Main screen with the Ores tab open](../screenshots/10-ores.png)
 
 The **Ores** tab lists every mineable ore and shows how much each one earns per second across all planets.
 

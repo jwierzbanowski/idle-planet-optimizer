@@ -2,8 +2,6 @@
 
 The **Backup ▾** button in the top bar manages your data as a JSON file. All configuration is otherwise stored only in your browser's `localStorage`.
 
-![Backup dropdown](../screenshots/11-backup.png)
-
 ## Export
 
 **Export** downloads a JSON file named `profile-YYYY-MM-DD_HH-MM-SS.json` containing your full configuration:
