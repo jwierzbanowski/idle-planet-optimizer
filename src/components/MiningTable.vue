@@ -15,26 +15,31 @@
               <option value="12">12h</option>
               <option value="24">24h</option>
               <option value="48">48h</option>
+              <option value="-1">Custom</option>
             </select>
           </label>
-          <label class="session-label" v-if="sessionDuration > 0">
+          <span class="session-label" v-if="sessionDuration === -1">
+            Custom:
+            <TimePicker v-model="customSessionHours" class="session-time-picker" />
+          </span>
+          <label class="session-label" v-if="effectiveSessionHours > 0">
             Elapsed:
             <input
               type="range"
               :min="0"
-              :max="sessionDuration"
+              :max="effectiveSessionHours"
               :step="elapsedStep / 60"
               v-model.number="elapsedTime"
               class="session-slider"
             />
             <span class="session-val">{{ fmtTimeHm(elapsedTime) }}</span>
           </label>
-          <span class="session-step" v-if="sessionDuration > 0">
+          <span class="session-step" v-if="effectiveSessionHours > 0">
             <button class="step-btn" :class="{ active: elapsedStep === 5 }" @click="elapsedStep = 5">5m</button>
             <button class="step-btn" :class="{ active: elapsedStep === 15 }" @click="elapsedStep = 15">15m</button>
             <button class="step-btn" :class="{ active: elapsedStep === 30 }" @click="elapsedStep = 30">30m</button>
           </span>
-          <span class="session-remaining" v-if="sessionDuration > 0">
+          <span class="session-remaining" v-if="effectiveSessionHours > 0">
             Remaining: <strong>{{ fmtTimeHm(remainingTime) }}</strong>
           </span>
         </div>
@@ -310,6 +315,7 @@ import { useModifierKeys } from '../composables/useModifierKeys'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
 import { useMode } from '../composables/useMode'
+import TimePicker from './TimePicker.vue'
 import {
   effectivePrice,
   getMiningSpeedMult,
@@ -422,7 +428,13 @@ const sessionPanelOpen = ref(true)
 const sessionDuration = ref(2)
 const elapsedTime = ref(0)
 const elapsedStep = ref(15)
-const remainingTime = computed(() => Math.max(0, sessionDuration.value - elapsedTime.value))
+const customSessionHours = ref(2)
+const effectiveSessionHours = computed(() =>
+  sessionDuration.value === -1 ? Math.max(0, customSessionHours.value) : sessionDuration.value
+)
+const remainingTime = computed(() =>
+  Math.max(0, effectiveSessionHours.value - elapsedTime.value)
+)
 
 const nextOreMap = computed(() => {
   const map = {}
@@ -650,8 +662,8 @@ const sortedRows = computed(() => {
       }
 
       let maxProfitableLevel = 0
-      const sessionTime = remainingTime.value > 0 ? remainingTime.value : sessionDuration.value
-      if (sessionDuration.value > 0 && weightedPrice > 0) {
+      const sessionTime = remainingTime.value > 0 ? remainingTime.value : effectiveSessionHours.value
+      if (effectiveSessionHours.value > 0 && weightedPrice > 0) {
         const ratio = 1.3
         const astroMod = astronomyMod.value || 1
         const baseCost = p.basePrice / 20
@@ -765,7 +777,7 @@ const sortedRows = computed(() => {
         maxProfitableLevel,
         paybackClass:
           isFinite(paybackHours) && paybackHours > 0
-            ? (sessionDuration.value > 0
+            ? (effectiveSessionHours.value > 0
                 ? paybackHours < sessionTime
                   ? 'payback-green'
                   : paybackHours <= sessionTime * 1.15
