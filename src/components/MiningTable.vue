@@ -153,6 +153,8 @@
           <tr
             v-for="row in visibleRows"
             :key="row.id"
+            :class="{ 'mgr-suggest': managerSuggestion[row.id] }"
+            :style="mgrSuggestionStyle(managerSuggestion[row.id])"
           >
             <td class="name-cell">{{ row.number }}. {{ row.name }}</td>
             <td class="price">
@@ -320,6 +322,7 @@ style="font-weight: 600">
                     {{ mgrLabel(m) }}
                   </option>
                 </select>
+                <span v-if="managerSuggestion[row.id]" class="mgr-suggest-badge">→ {{ '★'.repeat(managerSuggestion[row.id].stars) }}</span>
               </td>
               <td class="alchemy-cell">
                 <label class="alchemy-cb">
@@ -582,6 +585,7 @@ const sortedRows = computed(() => {
       const rover = getRover(id)
       const roverMult = rover ? getRoverMult(settings) : 1
       const miningLevel = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
+      const baseMiningRate = DB.value.mining['lvl1']?.rate || 0
       const beaconMult = getBeaconMult(p.number, settings)
       const coloniesMult = 1 + 0.3 * colonies
       const managerIdx = getManager(id)
@@ -818,10 +822,12 @@ const sortedRows = computed(() => {
         }) : [],
         rate,
         baseRate: lvl <= 0 ? 0 : miningLevel.rate,
+        potentialProfit: baseMiningRate * roverMult * weightedPrice,
         displayRate,
         resStr,
         resList,
         oreTargetMult,
+        weightedPrice,
         profitPerSec,
         upgradeCost,
         paybackHours,
@@ -859,6 +865,31 @@ const sortedRows = computed(() => {
 function groupKey(g) {
   return g.label.toLowerCase().replace(/[-\s]+/g, '_')
 }
+
+const managerSuggestion = computed(() => {
+  const result = {}
+  const available = miningManagers.value
+    .filter((m) => m.stars > 0)
+    .sort((a, b) => b.stars - a.stars)
+  if (!available.length) return result
+
+  const candidates = sortedRows.value
+    .filter((r) => r.hasProfit && r.lvl > 0 && r.potentialProfit > 0)
+    .sort((a, b) => b.potentialProfit - a.potentialProfit)
+
+  const count = Math.min(available.length, candidates.length)
+  for (let i = 0; i < count; i++) {
+    const m = available[i]
+    const mult =
+      1 +
+      (PRIMARY_EFFECTS.mineRate[Math.min(m.stars - 1, 6)] - 1) * (managerRoomMult.value || 1)
+    result[candidates[i].id] = {
+      stars: m.stars,
+      gain: candidates[i].potentialProfit * (mult - 1),
+    }
+  }
+  return result
+})
 
 const filterTabs = computed(() => {
   const groups = panelMode.value === 'basic' ? BASIC_PRICE_GROUPS : PLANET_GROUPS
@@ -1046,6 +1077,15 @@ const sortedRoadmapSteps = computed(() => {
 
 function profitClass(v) {
   return v >= 0 ? 'positive' : 'negative'
+}
+
+function mgrSuggestionStyle(sug) {
+  if (!sug) return null
+  const alpha = 0.15 + (sug.stars - 1) * 0.16
+  return {
+    '--mgr-color': `rgba(255, 215, 0, ${alpha.toFixed(3)})`,
+    '--mgr-bg': `rgba(255, 215, 0, ${(alpha * 0.08).toFixed(3)})`,
+  }
 }
 
 </script>
@@ -1464,6 +1504,22 @@ function profitClass(v) {
 }
 .manager-cell select option:disabled {
   color: #4a5a6a;
+}
+.manager-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+tr.mgr-suggest .manager-cell {
+  background: var(--mgr-bg);
+  box-shadow: inset 0 0 0 2px var(--mgr-color);
+}
+.mgr-suggest-badge {
+  color: #ffd54f;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
 }
 .alchemy-cell {
   position: relative;
