@@ -155,6 +155,18 @@ export const SETTINGS_CONFIG = {
       baseEffect: 1.15,
     },
     {
+      key: 'rover1',
+      label: 'Rover Resupply',
+      desc: 'Rover mining ×2.5',
+      baseEffect: 2.5,
+    },
+    {
+      key: 'rover2',
+      label: 'Advanced Rover Resupply',
+      desc: 'Rover mining ×2.5 (total ×5)',
+      baseEffect: 2.5,
+    },
+    {
       key: 'smeltingEfficiency',
       label: 'Smelting Efficiency',
       desc: 'Alloy ingredients ×0.8',

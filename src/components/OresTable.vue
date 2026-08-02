@@ -73,6 +73,7 @@ import {
   getMiningSpeedMult,
   getBeaconMult,
   getOreTargetingMult,
+  getRoverMult,
 } from '../utils/calc'
 import { fmtPrice, fmtQty, toggleTip } from '../utils/format'
 import { getEntity } from '../utils/registry'
@@ -86,6 +87,7 @@ const {
   getMiningColonies,
   getProbe,
   getProbeSpeed,
+  getRover,
   setOverride,
 } = useOverrides()
 const { settings } = useSettings()
@@ -171,10 +173,12 @@ const oreMiningData = computed(() => {
     const colonies = getMiningColonies(pid)
     const probe = getProbe(pid)
     const probeMult = probe ? getProbeSpeed(pid) || 1 : 1
+    const rover = getRover(pid)
+    const roverMult = rover ? getRoverMult(settings) : 1
     const miningLevel = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
     const beaconMult = getBeaconMult(p.number, settings)
     const coloniesMult = 1 + 0.3 * colonies
-    const rate = miningLevel.rate * miningMult * beaconMult * coloniesMult * probeMult
+    const rate = miningLevel.rate * miningMult * beaconMult * coloniesMult * probeMult * roverMult
     const oreTargetMult = getOreTargetingMult(settings)
     let bestOreId = null
     if (oreTargetMult) {
@@ -216,10 +220,12 @@ function oreProfitTooltip(oreId) {
     const colonies = getMiningColonies(pid)
     const probe = getProbe(pid)
     const probeMult = probe ? getProbeSpeed(pid) || 1 : 1
+    const rover = getRover(pid)
+    const roverMult = rover ? getRoverMult(settings) : 1
     const miningLevel = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
     const beaconMult = getBeaconMult(p.number, settings)
     const coloniesMult = 1 + 0.3 * colonies
-    const rate = miningLevel.rate * miningMult * beaconMult * coloniesMult * probeMult
+    const rate = miningLevel.rate * miningMult * beaconMult * coloniesMult * probeMult * roverMult
     let oreRate = rate * (res.yield / 100)
     const oreTargetMult = getOreTargetingMult(settings)
     if (oreTargetMult) {

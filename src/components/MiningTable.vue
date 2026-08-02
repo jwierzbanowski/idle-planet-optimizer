@@ -140,6 +140,7 @@
             <th>Mining Lv</th>
             <th>Colonies</th>
             <th>Probe</th>
+            <th>Rover</th>
             <th>Rate</th>
             <th>Profit / s</th>
             <th>Upgrade Payback</th>
@@ -258,6 +259,15 @@ class="ingredient-list">{{ row.resStr }}</span>
               </template>
             </td>
             <td class="price">
+              <input
+                type="checkbox"
+                class="probe-check"
+                :checked="row.rover"
+                @change="setOverride(row.id, 'rover', $event.target.checked)"
+                title="Rover"
+              />
+            </td>
+            <td class="price">
               {{ (row.displayRate || row.rate).toFixed(3) }}/s
               <span class="info-icon"
 :data-tip="row.rateTooltip" @click.stop="toggleTip">i</span>
@@ -362,13 +372,14 @@ import {
   getStationMult,
   getModifier,
   getOreTargetingMult,
+  getRoverMult,
   getTotalManagerBuff,
 } from '../utils/calc'
 import { fmtPrice, fmtDuration, toggleTip } from '../utils/format'
 import { PRIMARY_EFFECTS } from '../utils/config'
 
 const { DB, ORDER } = useData()
-const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, getManager, setManager, setOverride } =
+const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, getRover, getManager, setManager, setOverride } =
   useOverrides()
 const { settings } = useSettings()
 const { multiplier } = useModifierKeys()
@@ -518,6 +529,7 @@ function buildRateTooltip(row) {
       '×'
   )
   if (row.probe) lines.push('  Probe: ' + row.probeMult.toFixed(2) + '×')
+  if (row.rover) lines.push('  Rover: ' + getRoverMult(settings).toFixed(2) + '×')
   const oreTargetMult = getOreTargetingMult(settings)
   if (oreTargetMult) lines.push('  Ore Targeting: ' + oreTargetMult.toFixed(2) + '×')
   if (
@@ -526,6 +538,7 @@ function buildRateTooltip(row) {
     stnMine.value ||
     global12.value ||
     row.probe ||
+    row.rover ||
     oreTargetMult
   ) {
     lines.push('  ─────────────────')
@@ -566,6 +579,8 @@ const sortedRows = computed(() => {
       const colonies = getMiningColonies(id)
       const probe = getProbe(id)
       const probeMult = probe ? getProbeSpeed(id) || 1 : 1
+      const rover = getRover(id)
+      const roverMult = rover ? getRoverMult(settings) : 1
       const miningLevel = DB.value.mining['lvl' + lvl] || DB.value.mining['lvl1']
       const beaconMult = getBeaconMult(p.number, settings)
       const coloniesMult = 1 + 0.3 * colonies
@@ -592,7 +607,7 @@ const sortedRows = computed(() => {
         return cur
       }
 
-      const rate = lvl <= 0 ? 0 : miningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+      const rate = lvl <= 0 ? 0 : miningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult * roverMult
 
       let profitPerSec = 0
       let weightedPrice = 0
@@ -651,7 +666,7 @@ const sortedRows = computed(() => {
 
         const nextMiningLevel = DB.value.mining['lvl' + (lvl + 1)] || miningLevel
         const rateNext =
-          nextMiningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+          nextMiningLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult * roverMult
         const incProfit = (rateNext - rate) * weightedPrice
         if (incProfit > 0) paybackHours = upgradeCost / (incProfit * 3600)
       }
@@ -673,7 +688,7 @@ const sortedRows = computed(() => {
             totalCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
           }
           const targetLevel = DB.value.mining['lvl' + (lvl + steps)]
-          const rateTarget = targetLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+          const rateTarget = targetLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult * roverMult
           const incProj = (rateTarget - rate) * weightedPrice
           paybackProjection['+' + steps] = incProj > 0
             ? { cost: totalCost, incProfit: incProj, hours: totalCost / (incProj * 3600) }
@@ -705,7 +720,7 @@ const sortedRows = computed(() => {
         const ratio = 1.3
         const astroMod = astronomyMod.value || 1
         const baseCost = p.basePrice / 20
-        const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+        const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult * roverMult
         for (let L = 1; L < 100; L++) {
           let cost = baseCost * Math.pow(ratio, L - 1) * astroMod
           if (L % 2 === 1) {
@@ -785,6 +800,7 @@ const sortedRows = computed(() => {
         colonies,
         probe,
         probeMult,
+        rover,
         managerIdx,
         managerLabel,
         alchemyLevel,
@@ -899,6 +915,7 @@ const bestUpgradeSteps = computed(() => {
       const coloniesMult = 1 + 0.3 * getMiningColonies(id)
       const probe = getProbe(id)
       const probeMult = probe ? getProbeSpeed(id) || 1 : 1
+      const roverMult = getRover(id) ? getRoverMult(settings) : 1
 
       const managerIdx = getManager(id)
       let mgrMult = 1
@@ -925,7 +942,7 @@ const bestUpgradeSteps = computed(() => {
       }
       if (weightedPrice <= 0) continue
 
-      const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult
+      const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult * roverMult
       const rateNow = isBuying ? 0 : (lvl <= 0 ? 0 : DB.value.mining['lvl' + lvl]?.rate || 0) * rateMult
       const rateTarget = targetData.rate * rateMult
       const incProfit = (rateTarget - rateNow) * weightedPrice
