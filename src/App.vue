@@ -119,11 +119,6 @@ class="content-row">
           {{ t.label }} <span class="count">({{ t.count }})</span>
         </button>
       </div>
-      <div class="mode-switch">
-        <button class="mode-btn" :class="{ active: panelMode === 'basic' }" @click="panelMode = 'basic'">Basic</button>
-        <button class="mode-btn" :class="{ active: panelMode === 'advanced' }" @click="panelMode = 'advanced'">Advanced</button>
-        <button class="mode-btn" :class="{ active: panelMode === 'pro' }" @click="panelMode = 'pro'">Pro</button>
-      </div>
     </div>
 
     <div v-if="loading"
@@ -176,7 +171,6 @@ import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
 import { useProfile } from './composables/useProfile'
 import { useGame } from './composables/useGame'
-import { useMode } from './composables/useMode'
 import { loadData } from './composables/useData'
 import {
   getModifier,
@@ -200,7 +194,6 @@ const { initTabTracking, trackAction } = useAnalytics()
 const { settings, managerVersion } = useSettings()
 const { resetGame } = useGame()
 const { exportProfile, importProfile } = useProfile()
-const { panelMode } = useMode()
 
 const fileInput = ref(null)
 
