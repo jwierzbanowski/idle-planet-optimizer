@@ -86,11 +86,6 @@
           {{ tab.label }} <span class="count">({{ tab.count }})</span>
         </button>
       </div>
-      <div class="filter-tabs-right">
-        <button class="mode-btn" :class="{ active: panelMode === 'basic' }" @click="panelMode = 'basic'">Basic</button>
-        <button class="mode-btn" :class="{ active: panelMode === 'advanced' }" @click="panelMode = 'advanced'">Advanced</button>
-        <button class="mode-btn" :class="{ active: panelMode === 'pro' }" @click="panelMode = 'pro'">Pro</button>
-      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -314,6 +309,7 @@ import { useData } from '../composables/useData'
 import { useModifierKeys } from '../composables/useModifierKeys'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
+import { useMode } from '../composables/useMode'
 import {
   effectivePrice,
   getMiningSpeedMult,
@@ -332,6 +328,7 @@ const { overrides, getMiningLevel, getMiningColonies, getProbe, getProbeSpeed, g
   useOverrides()
 const { settings } = useSettings()
 const { multiplier } = useModifierKeys()
+const { panelMode } = useMode()
 
 const PLANET_GROUPS = [
   { label: '100M', min: 1, max: 13 },
@@ -349,7 +346,6 @@ const BASIC_PRICE_GROUPS = [
 ]
 
 const activeGroup = ref('all')
-const panelMode = ref('advanced')
 const includeNewPlanets = ref(false)
 const roadmapStepSize = ref(1)
 
@@ -1248,30 +1244,6 @@ function profitClass(v) {
 .filter-tabs-left {
   display: flex;
   gap: 4px;
-}
-.filter-tabs-right {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.mode-btn {
-  padding: 8px 16px;
-  border: none;
-  background: transparent;
-  color: #6b7a8f;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-.mode-btn:hover {
-  color: #c8d0dc;
-  background: #1a2235;
-}
-.mode-btn.active {
-  color: #fff;
-  background: #1e88e5;
 }
 .filter-tab {
   padding: 8px 20px;

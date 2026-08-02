@@ -12,11 +12,6 @@
           {{ tab.label }} <span class="count">({{ tab.count }})</span>
         </button>
       </div>
-      <div class="filter-tabs-right">
-        <button class="mode-btn" :class="{ active: panelMode === 'basic' }" @click="panelMode = 'basic'">Basic</button>
-        <button class="mode-btn" :class="{ active: panelMode === 'advanced' }" @click="panelMode = 'advanced'">Advanced</button>
-        <button class="mode-btn" :class="{ active: panelMode === 'pro' }" @click="panelMode = 'pro'">Pro</button>
-      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -72,6 +67,7 @@ import { ref, computed } from 'vue'
 import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
+import { useMode } from '../composables/useMode'
 import {
   effectivePrice,
   getMiningSpeedMult,
@@ -81,8 +77,6 @@ import {
 import { fmtPrice, fmtQty, toggleTip } from '../utils/format'
 import { getEntity } from '../utils/registry'
 import StarControls from './StarControls.vue'
-
-defineEmits(['show-detail'])
 
 const { DB, ORDER } = useData()
 const {
@@ -95,6 +89,7 @@ const {
   setOverride,
 } = useOverrides()
 const { settings } = useSettings()
+const { panelMode } = useMode()
 
 const BASIC_PRICE_GROUPS = [
   { label: '10M-100M', min: 10_000_000, max: 100_000_000 },
@@ -125,7 +120,6 @@ const ORE_GROUPS = [
 ]
 
 const activeGroup = ref('all')
-const panelMode = ref('advanced')
 
 const groupedOres = computed(() => {
   const available = new Set(ORDER.value.ores)
@@ -285,30 +279,6 @@ const prevGroupBest = computed(() => {
 .filter-tabs-left {
   display: flex;
   gap: 4px;
-}
-.filter-tabs-right {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.mode-btn {
-  padding: 8px 16px;
-  border: none;
-  background: transparent;
-  color: #6b7a8f;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-.mode-btn:hover {
-  color: #c8d0dc;
-  background: #1a2235;
-}
-.mode-btn.active {
-  color: #fff;
-  background: #1e88e5;
 }
 .filter-tab {
   padding: 8px 20px;
