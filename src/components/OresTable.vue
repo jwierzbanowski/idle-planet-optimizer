@@ -32,7 +32,7 @@
         </thead>
         <tbody>
           <tr v-for="id in visibleIds"
- :key="id" :class="{ 'prev-best-row': id === prevGroupBest?.id && activeGroup !== 'all' }" @click="$emit('show-detail', id)">
+ :key="id" :class="{ 'prev-best-row': id === prevGroupBest?.id && activeGroup !== 'all' }">
             <td class="name-cell">
               {{ DB.ores[id].name }}
               <span v-if="id === prevGroupBest?.id && activeGroup !== 'all'" class="prev-best-label">(best from {{ prevGroupBest.label }})</span>
