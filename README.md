@@ -19,6 +19,20 @@ A browser-based calculator for **Idle Planet Miner**. Reads game data from JSON 
 - **Profile import/export** — save and restore all configuration as a JSON file
 - **Persistence** — all state stored in browser localStorage
 
+## Documentation
+
+Full user documentation lives in [`docs/`](docs/README.md) — a user guide, per-tab references (ores, crafting, mining), profile and game setup, and backup/persistence details, with screenshots under [`docs/screenshots/`](docs/screenshots/README.md).
+
+The docs are also built into the GitHub Pages site and available at **https://jwierzbanowski.github.io/idle-planet-optimizer/docs/**.
+
+To preview the docs locally:
+
+```bash
+npm run docs
+```
+
+Open `http://localhost:3000`.
+
 ## Usage
 
 ```bash

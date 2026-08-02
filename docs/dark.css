@@ -1,0 +1,189 @@
+html[data-theme="dark"] body {
+  background-color: #1d2125;
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] .content {
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] a {
+  color: #82aaff;
+}
+
+html[data-theme="dark"] a:hover {
+  color: #a6c1ff;
+}
+
+html[data-theme="dark"] .sidebar {
+  background-color: #16191c;
+  color: #c8d0d8;
+  border-right: 1px solid #2b3036;
+}
+
+html[data-theme="dark"] .sidebar-toggle {
+  background-color: transparent;
+}
+
+html[data-theme="dark"] .sidebar-toggle span {
+  background-color: #82aaff;
+}
+
+html[data-theme="dark"] .sidebar .search input {
+  background-color: #1d2125;
+  border-color: #3a4149;
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] .sidebar .search input::placeholder {
+  color: #7a838c;
+}
+
+html[data-theme="dark"] .sidebar ul li a {
+  color: #a9b2bb;
+}
+
+html[data-theme="dark"] .sidebar ul li a:hover {
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] .sidebar ul li.active > a {
+  color: #82aaff;
+  border-right: 2px solid;
+}
+
+html[data-theme="dark"] .sidebar ul li a.active {
+  color: #82aaff;
+}
+
+html[data-theme="dark"] .sidebar-nav,
+html[data-theme="dark"] .search {
+  border-bottom: 1px solid #2b3036;
+}
+
+html[data-theme="dark"] .markdown-section {
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] .markdown-section h1,
+html[data-theme="dark"] .markdown-section h2,
+html[data-theme="dark"] .markdown-section h3,
+html[data-theme="dark"] .markdown-section h4,
+html[data-theme="dark"] .markdown-section h5,
+html[data-theme="dark"] .markdown-section h6,
+html[data-theme="dark"] .markdown-section strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .markdown-section .anchor span {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .markdown-section a {
+  color: #82aaff;
+}
+
+html[data-theme="dark"] .markdown-section a:hover {
+  color: #a6c1ff;
+}
+
+html[data-theme="dark"] .markdown-section code,
+html[data-theme="dark"] .markdown-section tt {
+  background-color: #2b3036;
+  color: #f0c674;
+}
+
+html[data-theme="dark"] .markdown-section pre,
+html[data-theme="dark"] .markdown-section pre > code {
+  background-color: #16191c;
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] .markdown-section pre::after {
+  content: attr(data-lang);
+  color: #7a838c;
+}
+
+html[data-theme="dark"] .markdown-section blockquote {
+  border-left: 4px solid #3a4149;
+  color: #a9b2bb;
+}
+
+html[data-theme="dark"] .markdown-section table tr {
+  border-top: 1px solid #3a4149;
+}
+
+html[data-theme="dark"] .markdown-section table thead tr {
+  background-color: #2b3036;
+  color: #e6ebf0;
+}
+
+html[data-theme="dark"] .markdown-section table td,
+html[data-theme="dark"] .markdown-section table th {
+  border: 1px solid #3a4149;
+}
+
+html[data-theme="dark"] .markdown-section table tbody tr:nth-child(2n) {
+  background-color: #22262b;
+}
+
+html[data-theme="dark"] .markdown-section hr {
+  border-bottom: 1px solid #3a4149;
+}
+
+html[data-theme="dark"] .markdown-section img {
+  border-radius: 4px;
+}
+
+html[data-theme="dark"] .markdown-section .tip {
+  background-color: #22262b;
+  border-left: 4px solid #42b983;
+}
+
+html[data-theme="dark"] .markdown-section .warn {
+  background-color: #2b2620;
+  border-left: 4px solid #ff9800;
+}
+
+html[data-theme="dark"] .docsify-pagination-container {
+  border-top: 1px solid #3a4149;
+}
+
+html[data-theme="dark"] .docsify-pagination-container .pagination-text {
+  color: #7a838c;
+}
+
+html[data-theme="dark"] .app-nav {
+  background-color: #16191c;
+}
+
+html[data-theme="dark"] .app-nav a {
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] .app-nav a:hover {
+  color: #82aaff;
+}
+
+html[data-theme="dark"] .search-dropdown {
+  background-color: #1d2125;
+  border: 1px solid #3a4149;
+  color: #c8d0d8;
+}
+
+html[data-theme="dark"] .search-dropdown a {
+  color: #82aaff;
+}
+
+html[data-theme="dark"] .github-corner svg {
+  fill: #82aaff;
+  color: #1d2125;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background-color: #3a4149;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-track {
+  background-color: #16191c;
+}

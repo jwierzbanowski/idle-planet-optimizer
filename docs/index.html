@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Idle Planet Optimizer — Docs</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="https://jwierzbanowski.github.io/idle-planet-optimizer/favicon.svg">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="dark.css?v=4">
+  <style>
+    #dark-toggle {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 20;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      background-color: transparent;
+      font-size: 16px;
+      line-height: 1;
+      color: #42b983;
+      padding: 0;
+      transition: background-color 0.2s;
+    }
+    #dark-toggle:hover {
+      background-color: rgba(66, 185, 131, 0.12);
+    }
+    body:not(.close) #dark-toggle {
+      left: 316px;
+    }
+    @media (max-width: 600px) {
+      #dark-toggle {
+        left: 8px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <button id="dark-toggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+  <script>
+    window.$docsify = {
+      name: 'Idle Planet Optimizer Docs',
+      repo: 'https://github.com/jwierzbanowski/idle-planet-optimizer',
+      loadSidebar: true,
+      maxLevel: 3,
+      subMaxLevel: 3,
+      auto2top: true,
+      search: {
+        placeholder: 'Search',
+        maxAge: 86400000,
+      },
+    }
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script>
+    (function () {
+      var KEY = 'docsify-dark-theme';
+      var toggle = document.getElementById('dark-toggle');
+
+      function applyTheme(dark) {
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        toggle.textContent = dark ? '\u2600' : '\u263D';
+      }
+
+      var stored = localStorage.getItem(KEY);
+      if (stored === null) {
+        stored = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      applyTheme(stored === 'dark');
+
+      toggle.addEventListener('click', function () {
+        var dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+        localStorage.setItem(KEY, dark ? 'dark' : 'light');
+        applyTheme(dark);
+      });
+    })();
+  </script>
+</body>
+</html>
