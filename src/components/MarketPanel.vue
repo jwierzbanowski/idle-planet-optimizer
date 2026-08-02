@@ -31,29 +31,40 @@ v-if="results.length === 0" class="market-no-results">No matches</div>
       <div v-for="item in pinnedItems"
 :key="item.id" class="market-pinned-row">
         <span class="market-result-type"
-:class="item.type">{{ item.typeLabel }}</span>
+ :class="item.type">{{ item.typeLabel }}</span>
         <span class="market-result-name">{{ item.name }}</span>
-        <div class="market-controls">
-          <button
-            class="star-btn"
-            :disabled="marketIdx(item.id) <= 0"
-            @click="changeMarket(item.id, -1)"
-          >
-            −
-          </button>
-          <span
-class="market-val" :class="{ negative: getMarket(item.id) < 1 }"
-            >×{{ getMarket(item.id).toFixed(2) }}</span
-          >
-          <button
-            class="star-btn"
-            :disabled="marketIdx(item.id) >= MARKET_VALS.length - 1"
-            @click="changeMarket(item.id, 1)"
-          >
-            +
-          </button>
-          <button
-class="market-reset-btn" @click="unpinItem(item.id)">&times;</button>
+        <div class="market-pinned-side">
+          <div class="market-controls">
+            <button
+              class="star-btn"
+              :disabled="marketIdx(item.id) <= 0"
+              @click="changeMarket(item.id, -1)"
+            >
+              −
+            </button>
+            <span class="market-val-wrap">
+              <span
+                v-if="marketingMult"
+                class="market-raw"
+                :class="{ negative: getMarket(item.id) < 1 }"
+                >{{ marketLabel(item.id) }}</span
+              >
+              <span
+                class="market-val"
+                :class="{ negative: effectiveMarket(item.id) < 1 }"
+                >×{{ effectiveMarket(item.id).toFixed(2) }}</span
+              >
+            </span>
+            <button
+              class="star-btn"
+              :disabled="marketIdx(item.id) >= MARKET_VALS.length - 1"
+              @click="changeMarket(item.id, 1)"
+            >
+              +
+            </button>
+            <button
+              class="market-reset-btn" @click="unpinItem(item.id)">&times;</button>
+          </div>
         </div>
       </div>
     </div>
@@ -66,10 +77,13 @@ import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { useSettings } from '../composables/useSettings'
 import { MARKET_VALS } from '../utils/config'
+import { effectiveMarketVal, getMarketingMult } from '../utils/calc'
 
 const { DB, ORDER } = useData()
 const { getMarket, setOverride } = useOverrides()
 const { settings, setPinnedItems } = useSettings()
+
+const marketingMult = computed(() => getMarketingMult(settings))
 
 const query = ref('')
 
@@ -139,8 +153,19 @@ function unpinItem(id) {
   setOverride(id, 'market', MARKET_VALS[2])
 }
 
+const MARKET_LABELS = ['-2', '-1', '0', '1', '2', '3', '4']
+
 function marketIdx(id) {
   return MARKET_VALS.indexOf(getMarket(id))
+}
+
+function marketLabel(id) {
+  const idx = marketIdx(id)
+  return idx >= 0 ? MARKET_LABELS[idx] : getMarket(id)
+}
+
+function effectiveMarket(id) {
+  return effectiveMarketVal(getMarket(id), settings)
 }
 
 function changeMarket(id, dir) {
@@ -173,6 +198,7 @@ function changeMarket(id, dir) {
   padding: 10px 12px 0;
   flex-shrink: 0;
 }
+
 .market-search-section {
   padding: 10px 12px 0;
   flex-shrink: 0;
@@ -285,7 +311,7 @@ function changeMarket(id, dir) {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 0;
+  padding: 12px 0 4px;
 }
 .market-pinned-row .market-result-type {
   min-width: 36px;
@@ -299,11 +325,17 @@ function changeMarket(id, dir) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.market-pinned-side {
+  flex-shrink: 0;
+}
 .market-controls {
   display: flex;
   align-items: center;
   gap: 1px;
   flex-shrink: 0;
+}
+.market-val-wrap {
+  position: relative;
 }
 .market-val {
   min-width: 44px;
@@ -314,6 +346,20 @@ function changeMarket(id, dir) {
   margin: 0 4px;
 }
 .market-val.negative {
+  color: #ef5350;
+}
+.market-raw {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7a8f;
+  min-width: 0;
+}
+.market-raw.negative {
   color: #ef5350;
 }
 .market-check {

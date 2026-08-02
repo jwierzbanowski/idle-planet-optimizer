@@ -17,6 +17,16 @@ export function getModifier(cat, key, settings) {
   return item.baseEffect + item.perLevel * (capped - 1)
 }
 
+export function getMarketingMult(settings) {
+  return getModifier('rooms', 'marketing', settings)
+}
+
+export function effectiveMarketVal(market, settings) {
+  if (market <= 1) return market
+  const mult = getMarketingMult(settings)
+  return mult != null ? market * mult : market
+}
+
 function getProjectModifier(settings, key) {
   if (!settings.projects?.[key]) return null
   const item = SETTINGS_CONFIG.projects.find((i) => i.key === key)
@@ -190,7 +200,7 @@ export function getCraftSpeedMult(settings) {
 export function effectivePrice(id, overrides, settings) {
   const e = getEntity(id)
   if (!e) return 0
-  let price = e.basePrice * (1 + 0.2 * getStars(overrides, id)) * getMarket(overrides, id)
+  let price = e.basePrice * (1 + 0.2 * getStars(overrides, id)) * effectiveMarketVal(getMarket(overrides, id), settings)
   if (e.type === 'alloy' || e.type === 'item') {
     const salesMod = getModifier('rooms', 'sales', settings)
     if (salesMod) price *= salesMod

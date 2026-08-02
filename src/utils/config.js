@@ -93,6 +93,14 @@ export const SETTINGS_CONFIG = {
       perLevel: 0.05,
       maxLevel: 60,
     },
+    {
+      key: 'marketing',
+      label: 'Marketing',
+      desc: 'All positive market change bonuses',
+      baseEffect: 1.3,
+      perLevel: 0.1,
+      maxLevel: 60,
+    },
   ],
   projects: [
     { key: 'managerTraining', label: 'Manager Training', desc: 'Manager effects ×1.1', baseEffect: 1.1 },
