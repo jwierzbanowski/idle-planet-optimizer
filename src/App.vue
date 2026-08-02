@@ -428,7 +428,7 @@ function switchTab(tab) {
 async function resetAll() {
   trackAction('reset')
   const ok = await showConfirm(
-    'Reset playthrough? Projects, market & mining overrides will be cleared. Managers, pinned items, and profile stay unchanged.'
+    'Reset playthrough? Projects, market & mining overrides, and pinned items (Supply & Demand) will be cleared. Managers and profile stay unchanged.'
   )
   if (!ok) return
   resetGame()
