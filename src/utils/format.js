@@ -7,25 +7,32 @@ export function fmtTime(sec) {
   return h + 'h ' + m + 'm'
 }
 
+const SUFFIXES = ['', 'K', 'M', 'B', 'T', 'q', 'Q', 's', 'S', 'O', 'N', 'D']
+
+function fmtTier(n) {
+  if (n < 1000) return -1
+  return Math.floor(Math.log10(n) / 3)
+}
+
+function fullDigits(n) {
+  return BigInt(Math.round(n)).toString()
+}
+
 export function fmtPrice(n) {
   if (n === 0) return '$0'
   if (n < 1000) return '$' + n.toFixed(2)
-  const suf = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc']
-  const s = n.toFixed(0)
-  const tier = Math.floor((s.length - 1) / 3)
-  if (tier >= suf.length) return '$' + s
+  const tier = fmtTier(n)
+  if (tier >= SUFFIXES.length) return '$' + fullDigits(n)
   const scaled = n / Math.pow(10, tier * 3)
-  return '$' + scaled.toFixed(2) + suf[tier]
+  return '$' + scaled.toFixed(2) + SUFFIXES[tier]
 }
 
 export function fmtQty(n) {
   if (n < 1000) return n.toFixed(1)
-  const suf = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc']
-  const s = Math.floor(n).toString()
-  const tier = Math.floor((s.length - 1) / 3)
-  if (tier >= suf.length) return s
+  const tier = fmtTier(n)
+  if (tier >= SUFFIXES.length) return fullDigits(Math.floor(n))
   const scaled = n / Math.pow(10, tier * 3)
-  return scaled.toFixed(1) + suf[tier]
+  return scaled.toFixed(1) + SUFFIXES[tier]
 }
 
 export function toggleTip(e) {
