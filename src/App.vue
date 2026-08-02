@@ -33,59 +33,69 @@ type="file" accept=".json" hidden @change="handleImport"
 class="content-row">
       <div class="stats-bar">
         <div class="stats-title">Multipliers</div>
-      <div class="stats-item">
-        <span class="stats-label">Smelt</span>
-        <span class="stats-value"><strong>{{ debugStats.smeltRate }}</strong>
-        <span class="info-icon"
-:data-tip="debugStats.smeltInfo" @click.stop="toggleTip">i</span></span>
+      <div class="stats-col">
+        <div class="stats-item">
+          <span class="stats-label">Smelt</span>
+          <span class="stats-value"><strong>{{ debugStats.smeltRate }}</strong>
+          <span class="info-icon"
+          :data-tip="debugStats.smeltInfo" @click.stop="toggleTip">i</span></span>
+        </div>
+        <div class="stats-item">
+          <span class="stats-label">Smelt Cost</span>
+          <span class="stats-value"><strong>{{ debugStats.smeltCost }}</strong>
+          <span class="info-icon" :data-tip="debugStats.smeltCostInfo" @click.stop="toggleTip"
+          >i</span></span>
+        </div>
       </div>
-      <div class="stats-item">
-        <span class="stats-label">Craft</span>
-        <span class="stats-value"><strong>{{ debugStats.craftRate }}</strong>
-        <span class="info-icon"
-:data-tip="debugStats.craftInfo" @click.stop="toggleTip">i</span></span>
+      <div class="stats-col">
+        <div class="stats-item">
+          <span class="stats-label">Craft</span>
+          <span class="stats-value"><strong>{{ debugStats.craftRate }}</strong>
+          <span class="info-icon"
+          :data-tip="debugStats.craftInfo" @click.stop="toggleTip">i</span></span>
+        </div>
+        <div class="stats-item">
+          <span class="stats-label">Craft Cost</span>
+          <span class="stats-value"><strong>{{ debugStats.craftCost }}</strong>
+          <span class="info-icon" :data-tip="debugStats.craftCostInfo" @click.stop="toggleTip"
+          >i</span></span>
+        </div>
       </div>
-      <div class="stats-item">
-        <span class="stats-label">Smelt Cost</span>
-        <span class="stats-value"><strong>{{ debugStats.smeltCost }}</strong>
-        <span class="info-icon" :data-tip="debugStats.smeltCostInfo" @click.stop="toggleTip"
-        >i</span></span>
+      <div class="stats-col">
+        <div class="stats-item">
+          <span class="stats-label">Mine Rate</span>
+          <span class="stats-value"><strong>{{ debugStats.mineRate }}</strong>
+          <span class="info-icon"
+          :data-tip="debugStats.mineInfo" @click.stop="toggleTip">i</span></span>
+        </div>
+        <div class="stats-item">
+          <span class="stats-label">Planet Cost</span>
+          <span class="stats-value"><strong>{{ debugStats.planetUpgradeCost }}</strong>
+          <span class="info-icon" :data-tip="debugStats.planetCostInfo" @click.stop="toggleTip"
+          >i</span></span>
+        </div>
       </div>
-      <div class="stats-item">
-        <span class="stats-label">Craft Cost</span>
-        <span class="stats-value"><strong>{{ debugStats.craftCost }}</strong>
-        <span class="info-icon" :data-tip="debugStats.craftCostInfo" @click.stop="toggleTip"
-        >i</span></span>
+      <div class="stats-col">
+        <div class="stats-item">
+          <span class="stats-label">Alloy Value</span>
+          <span class="stats-value"><strong>{{ debugStats.alloyVal }}</strong>
+          <span class="info-icon"
+          :data-tip="debugStats.alloyInfo" @click.stop="toggleTip">i</span></span>
+        </div>
+        <div class="stats-item">
+          <span class="stats-label">Item Value</span>
+          <span class="stats-value"><strong>{{ debugStats.itemVal }}</strong>
+          <span class="info-icon"
+          :data-tip="debugStats.itemInfo" @click.stop="toggleTip">i</span></span>
+        </div>
       </div>
-      <div class="stats-item">
-        <span class="stats-label">Mine Rate</span>
-        <span class="stats-value"><strong>{{ debugStats.mineRate }}</strong>
-        <span class="info-icon"
-:data-tip="debugStats.mineInfo" @click.stop="toggleTip">i</span></span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">Alloy Value</span>
-        <span class="stats-value"><strong>{{ debugStats.alloyVal }}</strong>
-        <span class="info-icon"
-:data-tip="debugStats.alloyInfo" @click.stop="toggleTip">i</span></span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">Item Value</span>
-        <span class="stats-value"><strong>{{ debugStats.itemVal }}</strong>
-        <span class="info-icon"
-:data-tip="debugStats.itemInfo" @click.stop="toggleTip">i</span></span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">Planet Cost</span>
-        <span class="stats-value"><strong>{{ debugStats.planetUpgradeCost }}</strong>
-        <span class="info-icon" :data-tip="debugStats.planetCostInfo" @click.stop="toggleTip"
-        >i</span></span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">Manager</span>
-        <span class="stats-value"><strong>{{ debugStats.managerMult }}</strong>
-        <span class="info-icon"
-        :data-tip="debugStats.classroomInfo" @click.stop="toggleTip">i</span></span>
+      <div class="stats-col">
+        <div class="stats-item">
+          <span class="stats-label">Manager</span>
+          <span class="stats-value"><strong>{{ debugStats.managerMult }}</strong>
+          <span class="info-icon"
+          :data-tip="debugStats.classroomInfo" @click.stop="toggleTip">i</span></span>
+        </div>
       </div>
     </div>
       <MarketPanel />
@@ -561,8 +571,8 @@ h1 {
 .stats-bar {
   flex: 7;
   min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 10px 12px;
   background: #0d1520;
@@ -572,12 +582,19 @@ h1 {
   color: #6b7a8f;
 }
 .stats-title {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
   font-size: 11px;
   font-weight: 700;
   color: #6b7a8f;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+.stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 170px;
+  min-width: 0;
 }
 .stats-item {
   display: flex;
