@@ -96,6 +96,12 @@ class="content-row">
           <span class="info-icon"
           :data-tip="debugStats.classroomInfo" @click.stop="toggleTip">i</span></span>
         </div>
+        <div class="stats-item">
+          <span class="stats-label">Market Change</span>
+          <span class="stats-value"><strong>{{ debugStats.marketChange }}</strong>
+          <span class="info-icon"
+          :data-tip="debugStats.marketChangeInfo" @click.stop="toggleTip">i</span></span>
+        </div>
       </div>
     </div>
       <MarketPanel />
@@ -183,6 +189,7 @@ import {
   getManagerSecondaryMult,
   getManagerRoomMult,
   getManagerTrainingMult,
+  getMarketingMult,
 } from './utils/calc'
 import { toggleTip } from './utils/format'
 import { User, Gamepad2, RotateCcw, Download, Upload } from '@lucide/vue'
@@ -277,6 +284,7 @@ const debugStats = computed(() => {
   const astronomy = getModifier('rooms', 'astronomy', settings)
   const classroom = getManagerRoomMult(settings)
   const mgrTraining = getManagerTrainingMult(settings)
+  const marketChange = getMarketingMult(settings)
 
   const furnaceProj = getProjectMultiplier(settings, ['advancedFurnace', 'superiorFurnace'])
   const crafterProj = getProjectMultiplier(settings, ['advancedCrafter', 'superiorCrafter'])
@@ -390,6 +398,12 @@ const debugStats = computed(() => {
     mgrBuff > 1 ? mgrBuff : null
   )
 
+  const marketChangeInfo = infoLines(
+    'Market Change',
+    [['Marketing room', marketChange]],
+    marketChange
+  )
+
   return {
     mineRate: fmt(mineRate),
     smeltRate: fmt(smeltRate),
@@ -400,6 +414,7 @@ const debugStats = computed(() => {
     itemVal: itemV,
     planetUpgradeCost: fmt(astronomy),
     managerMult: mgrBuff > 1 ? fmt(mgrBuff) : '1.00×',
+    marketChange: fmt(marketChange),
     smeltInfo,
     craftInfo,
     smeltCostInfo,
@@ -409,6 +424,7 @@ const debugStats = computed(() => {
     itemInfo,
     planetCostInfo,
     classroomInfo,
+    marketChangeInfo,
   }
 })
 
