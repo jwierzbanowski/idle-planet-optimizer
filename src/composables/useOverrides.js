@@ -46,6 +46,9 @@ export function useOverrides() {
   function getProbeSpeed(id) {
     return overrides[id]?.probeSpeed ?? 0
   }
+  function getRover(id) {
+    return overrides[id]?.rover ?? false
+  }
 
   function getManager(id) {
     return managerAssign[id] ?? -1
@@ -81,6 +84,7 @@ export function useOverrides() {
         colonies: 0,
         probe: false,
         probeSpeed: 0,
+        rover: false,
       }
     overrides[id][field] = value
     saveOverrides(overrides)
@@ -111,6 +115,7 @@ export function useOverrides() {
     getMiningColonies,
     getProbe,
     getProbeSpeed,
+    getRover,
     getManager,
     setManager,
     isManagerAssigned,

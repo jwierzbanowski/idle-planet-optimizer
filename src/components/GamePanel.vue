@@ -49,6 +49,7 @@ const projectGroups = computed(() => {
   const groups = [
     { name: 'Manager', keys: ['managerTraining', 'advancedManagerTraining', 'superiorManagerTraining'] },
     { name: 'Mining', keys: ['advancedMining', 'superiorMining', 'oreTargeting'] },
+    { name: 'Rovers', keys: ['rover1', 'rover2'] },
     { name: 'Smelting', keys: ['advancedFurnace', 'superiorFurnace', 'smeltingEfficiency'] },
     { name: 'Crafting', keys: ['advancedCrafter', 'superiorCrafter', 'craftingEfficiency'] },
     { name: 'Alloy Value', keys: ['advancedAlloyValue', 'superiorAlloyValue'] },

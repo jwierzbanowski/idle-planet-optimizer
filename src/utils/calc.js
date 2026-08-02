@@ -127,6 +127,16 @@ export function getOreTargetingMult(settings) {
   return settings.projects?.oreTargeting ? 1.15 : null
 }
 
+const ROVER_PROJECT_KEYS = ['rover1', 'rover2']
+
+export function getRoverMult(settings) {
+  let n = 0
+  for (const key of ROVER_PROJECT_KEYS) {
+    if (settings.projects?.[key]) n++
+  }
+  return n > 0 ? 2.5 * n : 1
+}
+
 export function getMiningSpeedMult(settings) {
   let mult = 1
   const engMod = getModifier('rooms', 'engineering', settings)
