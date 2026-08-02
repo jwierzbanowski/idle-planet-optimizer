@@ -59,22 +59,60 @@
           <span class="step-size-group">
             <button class="step-size-btn" :class="{ active: roadmapStepSize === 1 }" @click="roadmapStepSize = 1">1 lvl</button>
             <button class="step-size-btn" :class="{ active: roadmapStepSize === 5 }" @click="roadmapStepSize = 5">5 lvls</button>
+            <button class="step-size-btn" :class="{ active: roadmapStepSize === 10 }" @click="roadmapStepSize = 10">10 lvls</button>
           </span>
-          <div class="best-steps-list">
-            <div v-for="(s, i) in bestUpgradeSteps" :key="i"
-                 class="best-step"
-                 :class="{
-                   'step-repeat-green': stepCounts[s.id] > 3,
-                   'step-repeat-yellow': stepCounts[s.id] > 2 && stepCounts[s.id] <= 3,
-                   'step-repeat-orange': stepCounts[s.id] > 1 && stepCounts[s.id] <= 2
-                 }">
-              {{ i + 1 }}. <template v-if="s.isBuying">Buy </template>{{ s.number }}. {{ s.name }} (lvl {{ s.fromLvl }}→{{ s.toLvl }})
-              <span v-if="stepCounts[s.id] > 1" class="step-repeat-badge">{{ stepCounts[s.id] }}×</span>
-              <span class="best-detail">Cost: {{ fmtPrice(Math.round(s.upgradeCost)) }}</span>
-              <span class="best-detail">+{{ fmtPrice(s.incProfit) }}/s</span>
-              <span class="best-detail">{{ fmtDuration(s.paybackHours) }}</span>
-              <button class="apply-step-btn" @click="setOverride(s.id, 'miningLevel', s.toLvl)" title="Apply this upgrade">+{{ s.toLvl - s.fromLvl }}</button>
-            </div>
+          <div class="roadmap-table-wrap">
+            <table class="roadmap-table">
+              <thead>
+                <tr>
+                  <th
+                    class="sortable"
+                    :class="{ 'sort-active': roadmapSortKey === 'rank' }"
+                    @click="setRoadmapSort('rank')"
+                  ># {{ roadmapSortKey === 'rank' ? (roadmapSortDir === 'asc' ? '▲' : '▼') : '⇅' }}</th>
+                  <th
+                    class="sortable"
+                    :class="{ 'sort-active': roadmapSortKey === 'number' }"
+                    @click="setRoadmapSort('number')"
+                  >Planet {{ roadmapSortKey === 'number' ? (roadmapSortDir === 'asc' ? '▲' : '▼') : '⇅' }}</th>
+                  <th>Levels</th>
+                  <th
+                    class="sortable"
+                    :class="{ 'sort-active': roadmapSortKey === 'cost' }"
+                    @click="setRoadmapSort('cost')"
+                  >Cost {{ roadmapSortKey === 'cost' ? (roadmapSortDir === 'asc' ? '▲' : '▼') : '⇅' }}</th>
+                  <th
+                    class="sortable"
+                    :class="{ 'sort-active': roadmapSortKey === 'profit' }"
+                    @click="setRoadmapSort('profit')"
+                  >Profit {{ roadmapSortKey === 'profit' ? (roadmapSortDir === 'asc' ? '▲' : '▼') : '⇅' }}</th>
+                  <th>Upgrade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="s in sortedRoadmapSteps"
+                  :key="s.rank"
+                  :class="{
+                    'step-repeat-green': stepCounts[s.id] > 3,
+                    'step-repeat-yellow': stepCounts[s.id] > 2 && stepCounts[s.id] <= 3,
+                    'step-repeat-orange': stepCounts[s.id] > 1 && stepCounts[s.id] <= 2
+                  }"
+                >
+                  <td class="roadmap-rank">{{ s.rank }}</td>
+                  <td>
+                    <template v-if="s.isBuying">Buy </template>{{ s.number }}. {{ s.name }}
+                    <span v-if="stepCounts[s.id] > 1" class="step-repeat-badge">{{ stepCounts[s.id] }}×</span>
+                  </td>
+                  <td>lvl {{ s.fromLvl }}→{{ s.toLvl }}</td>
+                  <td>{{ fmtPrice(Math.round(s.upgradeCost)) }}</td>
+                  <td class="positive">+{{ fmtPrice(s.incProfit) }}/s</td>
+                  <td>
+                    <button class="apply-step-btn" @click="setOverride(s.id, 'miningLevel', s.toLvl)" title="Apply this upgrade">+{{ s.toLvl - s.fromLvl }}</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -953,6 +991,42 @@ const stepCounts = computed(() => {
   return counts
 })
 
+const roadmapSortKey = ref('rank')
+const roadmapSortDir = ref('asc')
+
+function setRoadmapSort(key) {
+  if (roadmapSortKey.value === key) {
+    roadmapSortDir.value = roadmapSortDir.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    roadmapSortKey.value = key
+    roadmapSortDir.value = 'asc'
+  }
+}
+
+const roadmapSteps = computed(() =>
+  bestUpgradeSteps.value.map((s, i) => ({ ...s, rank: i + 1 }))
+)
+
+const sortedRoadmapSteps = computed(() => {
+  const steps = [...roadmapSteps.value]
+  const dir = roadmapSortDir.value === 'asc' ? 1 : -1
+  switch (roadmapSortKey.value) {
+    case 'number':
+      steps.sort((a, b) => (a.number - b.number) * dir)
+      break
+    case 'cost':
+      steps.sort((a, b) => (a.upgradeCost - b.upgradeCost) * dir)
+      break
+    case 'profit':
+      steps.sort((a, b) => (a.incProfit - b.incProfit) * dir)
+      break
+    case 'rank':
+    default:
+      steps.sort((a, b) => (a.rank - b.rank) * dir)
+  }
+  return steps
+})
+
 function profitClass(v) {
   return v >= 0 ? 'positive' : 'negative'
 }
@@ -1177,51 +1251,59 @@ function profitClass(v) {
   color: #fff;
   border-color: #1e88e5;
 }
-.best-detail {
-  color: #6b7a8f;
-  font-size: 12px;
-}
-.best-steps-list {
+.roadmap-table-wrap {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 6px;
+  margin-top: 8px;
+  overflow-x: auto;
 }
-.best-step {
-  color: #c8d0dc;
+.roadmap-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 12px;
-  padding: 4px 10px;
-  background: rgba(79, 195, 247, 0.06);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
 }
-.best-step.step-repeat-green {
-  background: rgba(76, 175, 80, 0.15);
-  border: 1px solid rgba(76, 175, 80, 0.35);
+.roadmap-table th {
+  background: #0d1520;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  color: #6b7a8f;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #1e2a3a;
+  white-space: nowrap;
+  user-select: none;
 }
-.best-step.step-repeat-yellow {
-  background: rgba(255, 193, 7, 0.12);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+.roadmap-table th.sortable {
+  cursor: pointer;
 }
-.best-step.step-repeat-orange {
-  background: rgba(255, 152, 0, 0.1);
-  border: 1px solid rgba(255, 152, 0, 0.25);
-}
-.step-repeat-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
-  background: rgba(79, 195, 247, 0.15);
+.roadmap-table th.sortable:hover,
+.roadmap-table th.sort-active {
   color: #4fc3f7;
 }
-.best-step .best-detail {
-  color: #6b7a8f;
-  margin-left: 0;
+.roadmap-table td {
+  padding: 6px 10px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.roadmap-table tbody tr {
+  transition: background 0.15s;
+}
+.roadmap-table tbody tr:hover {
+  background: rgba(79, 195, 247, 0.08);
+}
+.roadmap-table tbody tr.step-repeat-green {
+  background: rgba(76, 175, 80, 0.15);
+}
+.roadmap-table tbody tr.step-repeat-yellow {
+  background: rgba(255, 193, 7, 0.12);
+}
+.roadmap-table tbody tr.step-repeat-orange {
+  background: rgba(255, 152, 0, 0.1);
+}
+.roadmap-rank {
+  color: #4fc3f7;
+  font-weight: 700;
 }
 .max-lv-click {
   cursor: pointer;
@@ -1230,8 +1312,16 @@ function profitClass(v) {
 .max-lv-click:hover {
   font-weight: 700;
 }
+.step-repeat-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(79, 195, 247, 0.15);
+  color: #4fc3f7;
+  margin-left: 6px;
+}
 .apply-step-btn {
-  margin-left: auto;
   background: #1e88e5;
   border: none;
   border-radius: 4px;
