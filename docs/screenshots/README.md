@@ -19,7 +19,8 @@ Drop the PNG screenshots used by the docs into this folder using the filenames b
 | `11-alloys-prev-best.png` | Alloys tab, best from the previous group highlighted. | [Alloys](../tabs/alloys.md) |
 | `12-items.png` | Items tab. | [Items](../tabs/items.md) |
 | `12-items-prev-best.png` | Items tab, best from the previous group highlighted. | [Items](../tabs/items.md) |
-| `13-mining.png` | Mining tab with the session panel. | [Mining](../tabs/mining.md) |
-| `14-mining-roadmap.png` | Mining tab, roadmap expanded. | [Mining](../tabs/mining.md) |
+| `13-mining.png` | Mining tab with a configured planet table (target, mining, colonies, manager, alchemy). | [Mining](../tabs/mining.md) |
+| `14-mining-session.png` | Session panel with a 48h session and 12h elapsed. | [Mining](../tabs/mining.md) |
+| `15-mining-roadmap.png` | Roadmap with the 10 best upgrades. | [Mining](../tabs/mining.md) |
 
 Recommended capture size: desktop browser, dark UI, ~1400px wide or the default window width, PNG format.

@@ -1,35 +1,10 @@
 # Tabs — Mining
 
-![Mining tab with the session panel](../screenshots/13-mining.png)
-
 The **Mining** tab is the most powerful view. It shows every planet, lets you configure its mining setup, and computes rates, profits, paybacks, and a recommended upgrade plan.
 
-## Session panel
-
-At the top of the tab there is a collapsible **Session** panel used to plan upgrades for a single play session:
-
-- **Session** — pick a duration from **30m** up to **48h**, or **Custom** to enter your own.
-- **Elapsed** — a slider showing how much of the session has already passed, with quick **5m / 15m / 30m** step buttons.
-- **Remaining** — the session time left, shown to the right.
-
-The session drives two things:
-
-- **Upgrade Payback** coloring — green when the payback fits inside the remaining session, yellow when it is close, red when it does not fit.
-- **Max Lv** — the highest mining level whose upgrade pays back within the session.
-
-### Roadmap
-
-Open the panel body (click the **Roadmap** toggle) to see an ordered **Roadmap** of the most profitable mining upgrades for your current session.
-
-![Roadmap expanded](../screenshots/14-mining-roadmap.png)
-
-- **Include planet purchases** — include buying planets that are not yet owned.
-- **Step size** — plan upgrades in **1**, **5**, or **10** level steps.
-- The table lists ranked steps with planet, level change, cost, profit gain per second, and an **Upgrade** button that applies the step (sets the mining level) immediately.
-- Columns **#**, **Planet**, **Cost**, and **Profit** are sortable by clicking the header.
-- Rows that upgrade the same planet repeatedly are color-coded (orange = 2×, yellow = 3×, green = more) to show that a single planet keeps being the best buy.
-
 ## Planet table
+
+![Mining tab with a configured planet table](../screenshots/13-mining.png)
 
 The table has a filter bar (price groups such as **100M / 10B / 10T / 10q**, or **All**) and one row per planet:
 
@@ -48,6 +23,36 @@ The table has a filter bar (price groups such as **100M / 10B / 10T / 10q**, or 
 | **Max Lv** | Highest level that pays back within the current session — click it to apply. Shows `—` when there is no profitable upgrade or no session set. |
 | **Manager** | Assign a mining manager (those with the **Mine Rate** primary skill, see [Managers](../profile/managers.md)). A manager can only be assigned to one planet. |
 | **Alchemy** | Enable **+1 / +2 / +3** alchemy and choose which ore to upgrade (each upgrade moves the ore to the next ore tier). Only one planet can use the same alchemy level. |
+
+## Session panel
+
+![Session panel with a 48h session and 12h elapsed](../screenshots/14-mining-session.png)
+
+At the top of the tab there is a collapsible **Session** panel used to plan upgrades for a single play session:
+
+- **Session** — pick a duration from **30m** up to **48h**, or **Custom** to enter your own. In the example above a **48h** tournament session is selected.
+- **Elapsed** — a slider showing how much of the session has already passed, with quick **5m / 15m / 30m** step buttons. In the example, **12h** have elapsed.
+- **Remaining** — the session time left, shown to the right (48h − 12h = **36h** in the example).
+
+The session drives two things:
+
+- **Upgrade Payback** coloring — green when the payback fits inside the remaining session, yellow when it is close, red when it does not fit.
+- **Max Lv** — the highest mining level whose upgrade pays back within the session. **Click the Max Lv value** to set the planet to that calculated level instantly.
+
+### Roadmap
+
+Open the panel body (click the **Roadmap** toggle) to see an ordered **Roadmap** of the most profitable mining upgrades for your current session.
+
+![Roadmap with the 10 best upgrades](../screenshots/15-mining-roadmap.png)
+
+The roadmap ranks the top **10 upgrades** by the ratio of upgrade **cost** to the resulting **profit gain per second** — the best payback for the invested money.
+
+- **Include planet purchases** — include buying planets that are not yet owned.
+- **Step size** — plan upgrades in **1**, **5**, or **10** level steps. The cost and profit columns adjust accordingly.
+- **Sorting** — the **#**, **Planet**, **Cost**, and **Profit** columns are sortable by clicking the header; click again to reverse the order.
+- Each step shows the planet, the level change (`lvl X→Y`), the upgrade cost, and the profit gained per second.
+- Click **Upgrade** on a step to apply it — the planet's mining level in the table is increased immediately.
+- Rows that upgrade the same planet repeatedly are color-coded (orange = 2×, yellow = 3×, green = more) to show that a single planet keeps being the best buy.
 
 ## Tips
 
