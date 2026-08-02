@@ -94,6 +94,11 @@ class="content-row">
           {{ t.label }} <span class="count">({{ t.count }})</span>
         </button>
       </div>
+      <div class="mode-switch">
+        <button class="mode-btn" :class="{ active: panelMode === 'basic' }" @click="panelMode = 'basic'">Basic</button>
+        <button class="mode-btn" :class="{ active: panelMode === 'advanced' }" @click="panelMode = 'advanced'">Advanced</button>
+        <button class="mode-btn" :class="{ active: panelMode === 'pro' }" @click="panelMode = 'pro'">Pro</button>
+      </div>
     </div>
 
     <div v-if="loading"
@@ -146,6 +151,7 @@ import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
 import { useProfile } from './composables/useProfile'
 import { useGame } from './composables/useGame'
+import { useMode } from './composables/useMode'
 import { loadData } from './composables/useData'
 import {
   getModifier,
@@ -168,12 +174,12 @@ const { initTabTracking, trackAction } = useAnalytics()
 const { settings, managerVersion } = useSettings()
 const { resetGame } = useGame()
 const { exportProfile, importProfile } = useProfile()
+const { panelMode } = useMode()
 
 const fileInput = ref(null)
 
 const activeTab = ref('ores')
 initTabTracking(activeTab)
-const detailId = ref(null)
 const showProfile = ref(false)
 const showGame = ref(false)
 const showGameBadge = ref(false)
@@ -400,7 +406,6 @@ async function resetAll() {
   resetGame()
   resetTemporary()
   showGameBadge.value = true
-  detailId.value = null
 }
 
 function triggerImport() {
@@ -511,6 +516,32 @@ h1 {
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
+}
+.mode-switch {
+  display: inline-flex;
+  gap: 4px;
+  background: #121824;
+  border-radius: 10px;
+  padding: 4px;
+}
+.mode-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #6b7a8f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.mode-btn:hover {
+  color: #c8d0dc;
+  background: #1a2235;
+}
+.mode-btn.active {
+  color: #fff;
+  background: #1e88e5;
 }
 .content-row {
   display: flex;
