@@ -7,6 +7,7 @@
   - [Managers](profile/managers.md)
   - [Badges](profile/badges.md)
   - [Ships](profile/ships.md)
+  - [Modules](profile/modules.md)
 - [Game](game.md)
 - [Reset](reset.md)
 - [Backup](backup.md)

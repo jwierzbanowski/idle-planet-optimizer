@@ -7,7 +7,7 @@ The app runs entirely in your browser. All data lives locally (game JSON files b
 ## Quick start
 
 1. Open the app (see the [homepage](https://jwierzbanowski.github.io/idle-planet-optimizer/)).
-2. Set up your state in the **Profile** modal: [Rooms](profile/rooms.md), [Station](profile/station.md), [Beacon](profile/beacon.md), [Managers](profile/managers.md), [Badges](profile/badges.md), and [Ships](profile/ships.md).
+2. Set up your state in the **Profile** modal: [Rooms](profile/rooms.md), [Station](profile/station.md), [Beacon](profile/beacon.md), [Managers](profile/managers.md), [Badges](profile/badges.md), [Ships](profile/ships.md), and [Modules](profile/modules.md).
 3. Open **Game** and tick the [projects](game.md) you have completed for your current playthrough.
 4. Use **Supply & Demand** to pin resources and set their [current market change](supply-and-demand.md).
 5. Browse the **Ores**, **Alloys**, **Items**, and **Mining** tabs to see production and profit update live.
@@ -18,7 +18,7 @@ The app runs entirely in your browser. All data lives locally (game JSON files b
 
 | Section | What it covers |
 | --- | --- |
-| [Profile](profile/README.md) | The Profile modal — Rooms, Station, Beacon, Managers, Badges, and Ships (each with its own page). |
+| [Profile](profile/README.md) | The Profile modal — Rooms, Station, Beacon, Managers, Badges, Ships, and Modules (each with its own page). |
 | [Game](game.md) | Projects for the current playthrough. |
 | [Reset](reset.md) | Clearing temporary playthrough data. |
 | [Backup](backup.md) | Export/import JSON backups, storage keys, bundled data files. |
@@ -32,7 +32,8 @@ The app runs entirely in your browser. All data lives locally (game JSON files b
 - **Mining tab** — per-planet levels, colonies, probes, rovers, managers, ore targeting, and alchemy.
 - **Ores, Alloys & Items tabs** — resources, smelting, and crafting with profit per second.
 - **Supply & Demand panel** — search and select any ore, alloy, or item, then override its current market change; the values flow into every tab above.
-- **Profile configuration** — rooms, station, beacon, managers, badges, and ships, each on its own page.
+- **Profile configuration** — rooms, station, beacon, managers, badges, ships, and modules, each on its own page.
+- **Modules** — four slots (Drill, Transport, Synth, Remote) for tracking your modules with rarity, level, and a base multiplier preview.
 - **Game configuration** — tick the projects completed in your current playthrough, managers and pinned items too.
 - **Multipliers bar** — live summary of all ten speed, cost, and value multipliers, each with a full breakdown tooltip.
 - **Reset playthrough** — one click clears temporary data (projects, market overrides, mining setup) while keeping profile and managers.

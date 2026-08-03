@@ -29,6 +29,24 @@ export function getShipMult(settings, stat) {
   return mult > 1 ? mult : null
 }
 
+export function getModuleLevelMult(modules, cat, rarity, level) {
+  const table = modules?.multipliers?.[cat]?.[rarity]
+  if (!table || !level || level <= 0) return null
+  const exact = table[level]
+  if (exact != null) return exact
+  const lvls = Object.keys(table)
+    .map(Number)
+    .sort((a, b) => a - b)
+  const below = lvls.filter((l) => l < level)
+  const above = lvls.filter((l) => l > level)
+  const lo = below.length ? below[below.length - 1] : null
+  const hi = above.length ? above[0] : null
+  if (lo != null && hi != null) {
+    return table[lo] + ((table[hi] - table[lo]) * (level - lo)) / (hi - lo)
+  }
+  return null
+}
+
 export function getMarketingMult(settings) {
   return getModifier('rooms', 'marketing', settings)
 }
