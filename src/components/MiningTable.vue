@@ -370,6 +370,7 @@ import {
   getBeaconMult,
   getProjectMultiplier,
   getStationMult,
+  getStationPlanetCostMult,
   getModifier,
   getOreTargetingMult,
   getRoverMult,
@@ -471,6 +472,8 @@ const stnMine = computed(() => getStationMult(settings, ['mining1', 'mining2']))
 const global12 = computed(() => (settings.station?.miningGlobal ? 1.2 : null))
 const miningMult = computed(() => getMiningSpeedMult(settings) || 1)
 const astronomyMod = computed(() => getModifier('rooms', 'astronomy', settings))
+const stnPlanetCost = computed(() => getStationPlanetCostMult(settings))
+const planetCostMult = computed(() => (astronomyMod.value || 1) * (stnPlanetCost.value || 1))
 const managerRoomMult = computed(() => getTotalManagerBuff(settings))
 
 const sessionPanelOpen = ref(true)
@@ -654,15 +657,10 @@ const sortedRows = computed(() => {
       let totalPaybackHours = Infinity
       if (p.distance != null && p.distance > 0 && lvl < 100) {
         const ratio = 1.3
-        const astroMod = astronomyMod.value || 1
+        const astroMod = planetCostMult.value
         const baseCost = p.basePrice / 20
 
         upgradeCost = baseCost * Math.pow(ratio, lvl - 1) * astroMod
-
-        if (lvl % 2 === 1) {
-          const h = Math.floor((lvl + 1) / 2)
-          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
-        }
 
         const nextMiningLevel = DB.value.mining['lvl' + (lvl + 1)] || miningLevel
         const rateNext =
@@ -673,7 +671,7 @@ const sortedRows = computed(() => {
       const paybackProjection = {}
       if (p.distance != null && p.distance > 0) {
         const ratio = 1.3
-        const astroMod = astronomyMod.value || 1
+        const astroMod = planetCostMult.value
         const baseCost = p.basePrice / 20
 
         for (const steps of [1, 5, 10]) {
@@ -681,11 +679,6 @@ const sortedRows = computed(() => {
           let totalCost = 0
           for (let i = 0; i < steps; i++) {
             totalCost += baseCost * Math.pow(ratio, lvl + i - 1) * astroMod
-          }
-          const fromHalf = Math.floor(lvl / 2)
-          const toHalf = Math.floor((lvl + steps) / 2)
-          for (let h = fromHalf + 1; h <= toHalf; h++) {
-            totalCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
           }
           const targetLevel = DB.value.mining['lvl' + (lvl + steps)]
           const rateTarget = targetLevel.rate * miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult * roverMult
@@ -699,17 +692,11 @@ const sortedRows = computed(() => {
         totalInvestment = p.basePrice
         if (lvl > 1) {
           const ratio = 1.3
-          const astroMod = astronomyMod.value || 1
+          const astroMod = planetCostMult.value
           const baseCost = p.basePrice / 20
 
           const mineSum = (Math.pow(ratio, lvl - 1) - 1) / (ratio - 1)
           totalInvestment += baseCost * mineSum * astroMod
-
-          const halfLvl = Math.floor(lvl / 2)
-          if (halfLvl > 0) {
-            const csSum = (Math.pow(ratio, halfLvl) - 1) / (ratio - 1)
-            totalInvestment += 2 * baseCost * csSum * astroMod
-          }
         }
         if (profitPerSec > 0) totalPaybackHours = totalInvestment / (profitPerSec * 3600)
       }
@@ -718,14 +705,11 @@ const sortedRows = computed(() => {
       const sessionTime = remainingTime.value > 0 ? remainingTime.value : effectiveSessionHours.value
       if (effectiveSessionHours.value > 0 && weightedPrice > 0) {
         const ratio = 1.3
-        const astroMod = astronomyMod.value || 1
+        const astroMod = planetCostMult.value
         const baseCost = p.basePrice / 20
         const rateMult = miningMult.value * beaconMult * coloniesMult * probeMult * mgrMult * roverMult
         for (let L = 1; L < 100; L++) {
           let cost = baseCost * Math.pow(ratio, L - 1) * astroMod
-          if (L % 2 === 1) {
-            cost += 2 * baseCost * Math.pow(ratio, (L - 1) / 2) * astroMod
-          }
           const rateL = DB.value.mining['lvl' + L]
           const rateL1 = DB.value.mining['lvl' + (L + 1)]
           if (!rateL || !rateL1) continue
@@ -948,7 +932,7 @@ const bestUpgradeSteps = computed(() => {
       const incProfit = (rateTarget - rateNow) * weightedPrice
       if (incProfit <= 0) continue
 
-      const astroMod = astronomyMod.value || 1
+      const astroMod = planetCostMult.value
       const ratio = 1.3
       const baseCost = p.basePrice / 20
       let upgradeCost = 0
@@ -958,18 +942,9 @@ const bestUpgradeSteps = computed(() => {
         for (let i = 1; i < stepSize; i++) {
           upgradeCost += baseCost * Math.pow(ratio, i - 1) * astroMod
         }
-        for (let L = 1; L < stepSize; L += 2) {
-          const h = Math.floor((L + 1) / 2)
-          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
-        }
       } else {
         for (let i = 0; i < stepSize; i++) {
           upgradeCost += baseCost * Math.pow(ratio, lvl + i - 1) * astroMod
-        }
-        const fromHalf = Math.floor(lvl / 2)
-        const toHalf = Math.floor((lvl + stepSize) / 2)
-        for (let h = fromHalf + 1; h <= toHalf; h++) {
-          upgradeCost += 2 * baseCost * Math.pow(ratio, h - 1) * astroMod
         }
       }
 

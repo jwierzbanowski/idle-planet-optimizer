@@ -180,6 +180,9 @@ import {
   getProjectMultiplier,
   getStationMult,
   getStationValueMult,
+  getStationPlanetCostMult,
+  getStationManagerMult,
+  getStationMarketMult,
   getManagerSecondaryMult,
   getManagerRoomMult,
   getManagerTrainingMult,
@@ -275,9 +278,13 @@ const debugStats = computed(() => {
   const engineering = getModifier('rooms', 'engineering', settings)
   const sales = getModifier('rooms', 'sales', settings)
   const astronomy = getModifier('rooms', 'astronomy', settings)
+  const stnPlanetCost = getStationPlanetCostMult(settings)
+  const planetCostMult = (astronomy || 1) * (stnPlanetCost || 1)
   const classroom = getManagerRoomMult(settings)
   const mgrTraining = getManagerTrainingMult(settings)
+  const stnManager = getStationManagerMult(settings)
   const marketChange = getMarketingMult(settings)
+  const stnMarket = getStationMarketMult(settings)
 
   const furnaceProj = getProjectMultiplier(settings, ['advancedFurnace', 'superiorFurnace'])
   const crafterProj = getProjectMultiplier(settings, ['advancedCrafter', 'superiorCrafter'])
@@ -377,24 +384,32 @@ const debugStats = computed(() => {
 
   const planetCostInfo = infoLines(
     'Planet Upgrade Cost',
-    [['Astronomy room', astronomy]],
-    astronomy
+    [
+      ['Astronomy room', astronomy],
+      ['Planet cost stations', stnPlanetCost],
+    ],
+    planetCostMult
   )
 
-  const mgrBuff = (classroom || 1) * (mgrTraining || 1)
+  const mgrBuff = (classroom || 1) * (mgrTraining || 1) * (stnManager || 1)
   const classroomInfo = infoLines(
     'Manager Effects',
     [
       ['Classroom room', classroom],
       ['Training projects', mgrTraining],
+      ['Manager stations', stnManager],
     ],
     mgrBuff > 1 ? mgrBuff : null
   )
 
+  const marketChangeTotal = (marketChange || 1) * (stnMarket || 1)
   const marketChangeInfo = infoLines(
     'Market Change',
-    [['Marketing room', marketChange]],
-    marketChange
+    [
+      ['Marketing room', marketChange],
+      ['Market stations', stnMarket],
+    ],
+    marketChangeTotal > 1 ? marketChangeTotal : null
   )
 
   return {
@@ -405,9 +420,9 @@ const debugStats = computed(() => {
     craftCost: fmt(dorm),
     alloyVal: alloyV,
     itemVal: itemV,
-    planetUpgradeCost: fmt(astronomy),
+    planetUpgradeCost: fmt(planetCostMult),
     managerMult: mgrBuff > 1 ? fmt(mgrBuff) : '1.00×',
-    marketChange: fmt(marketChange),
+    marketChange: fmt(marketChangeTotal),
     smeltInfo,
     craftInfo,
     smeltCostInfo,
