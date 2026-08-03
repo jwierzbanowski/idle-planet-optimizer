@@ -111,6 +111,41 @@ class="mgr-add" @click="addManager">+ Add</button>
             </template>
           </div>
         </template>
+        <template v-else-if="activeCat === 'badges'">
+          <div class="badge-subcats">
+            <button
+              v-for="cat in badgeCats"
+              :key="cat.key"
+              class="settings-cat"
+              :class="{ active: activeBadge === cat.key }"
+              @click="activeBadge = cat.key"
+            >
+              {{ cat.label }} <span class="count">({{ badgeList[cat.key].length }})</span>
+            </button>
+          </div>
+          <div class="badge-cols">
+            <div class="badge-col">
+              <div v-for="id in badgeSplit.left"
+  :key="id" class="badge-row">
+                <span class="settings-label">{{ badgeName(id) }}</span>
+                <StarControls
+                  :model-value="getStars(id)"
+                  @update:model-value="setOverride(id, 'stars', $event)"
+                />
+              </div>
+            </div>
+            <div class="badge-col">
+              <div v-for="id in badgeSplit.right"
+  :key="id" class="badge-row">
+                <span class="settings-label">{{ badgeName(id) }}</span>
+                <StarControls
+                  :model-value="getStars(id)"
+                  @update:model-value="setOverride(id, 'stars', $event)"
+                />
+              </div>
+            </div>
+          </div>
+        </template>
         <template v-else-if="activeCat === 'beacon'">
           <template v-if="currentConfig.length === 0">
             <div class="settings-empty">No settings yet</div>
@@ -267,10 +302,14 @@ import { useProfile } from '../composables/useProfile'
 import { useGame } from '../composables/useGame'
 import { useModifierKeys } from '../composables/useModifierKeys'
 import { useSettings } from '../composables/useSettings'
+import { useData } from '../composables/useData'
+import { useOverrides } from '../composables/useOverrides'
+import { getEntity } from '../utils/registry'
 import { SETTINGS_CONFIG, STATION_GROUPS } from '../utils/config'
 import { getStationRecommendations } from '../utils/calc'
 import { Star } from '@lucide/vue'
 import ManagerCard from './ManagerCard.vue'
+import StarControls from './StarControls.vue'
 
 defineEmits(['close'])
 
@@ -291,7 +330,34 @@ const categories = [
   { key: 'station', label: 'Station' },
   { key: 'beacon', label: 'Beacon' },
   { key: 'managers', label: 'Managers' },
+  { key: 'badges', label: 'Badges' },
 ]
+
+const { ORDER } = useData()
+const { getStars, setOverride } = useOverrides()
+
+const activeBadge = ref('ores')
+const badgeCats = [
+  { key: 'ores', label: 'Ores' },
+  { key: 'alloys', label: 'Alloys' },
+  { key: 'items', label: 'Items' },
+]
+
+const badgeList = computed(() => ({
+  ores: ORDER.value.ores,
+  alloys: ORDER.value.alloys,
+  items: ORDER.value.items,
+}))
+
+const badgeSplit = computed(() => {
+  const ids = badgeList.value[activeBadge.value]
+  const leftCount = Math.ceil(ids.length / 2)
+  return { left: ids.slice(0, leftCount), right: ids.slice(leftCount) }
+})
+
+function badgeName(id) {
+  return getEntity(id)?.name || id
+}
 
 const managers = computed(() => getManagers())
 
@@ -477,6 +543,50 @@ function switchCat(cat) {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   align-items: start;
+}
+
+.badge-subcats {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 4px;
+  padding: 0 4px;
+}
+.badge-subcats .settings-cat .count {
+  color: #6b7a8f;
+  font-size: 11px;
+  margin-left: 4px;
+  font-weight: 400;
+}
+.badge-subcats .settings-cat.active .count {
+  color: rgba(255, 255, 255, 0.6);
+}
+.badge-cols {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: start;
+}
+.badge-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #0d1520;
+  border-radius: 6px;
+  padding: 8px 12px;
+  border: 1px solid #1a2235;
+}
+.badge-row .settings-label {
+  grid-column: auto;
+}
+.badge-row .star-controls {
+  margin-top: 0;
 }
 
 .mgr-list {
