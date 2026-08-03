@@ -27,6 +27,45 @@ export const SECONDARY_EFFECTS = {
   allSmeltSpeed: [null, null, 1.05, 1.1, 1.2, 1.4, 1.7],
 }
 
+export const SHIPS = [
+  {
+    key: 'daughtership',
+    label: 'Daughtership',
+    bonuses: [{ stat: 'mining', label: 'Mining', mult: 1.5 }],
+  },
+  {
+    key: 'eldership',
+    label: 'Eldership',
+    bonuses: [
+      { stat: 'mining', label: 'Mining', mult: 2.0 },
+      { stat: 'craft', label: 'Craft speed', mult: 1.5 },
+      { stat: 'smelt', label: 'Smelt speed', mult: 1.5 },
+    ],
+  },
+  {
+    key: 'merchantship',
+    label: 'Merchantship',
+    bonuses: [
+      { stat: 'oreValue', label: 'Ore Value', mult: 2.0 },
+      { stat: 'alloyValue', label: 'Alloy Value', mult: 2.0 },
+      { stat: 'itemValue', label: 'Item Value', mult: 2.0 },
+    ],
+  },
+  {
+    key: 'thunderhorse',
+    label: 'Thunderhorse',
+    bonuses: [
+      { stat: 'craft', label: 'Craft speed', mult: 2.0 },
+      { stat: 'smelt', label: 'Smelt speed', mult: 2.0 },
+    ],
+  },
+  {
+    key: 'aurora',
+    label: 'Aurora',
+    bonuses: [{ stat: 'manager', label: 'Manager bonuses', mult: 2.0 }],
+  },
+]
+
 export const SETTINGS_CONFIG = {
   rooms: [
     {

@@ -30,6 +30,7 @@ const settings = reactive({
   rooms: computed(() => profile.rooms || {}),
   station: computed(() => profile.station || {}),
   beacon: computed(() => profile.beacon || {}),
+  ships: computed(() => profile.ships || {}),
   projects: computed(() => game.projects || {}),
   managers: computed(() => game.managers || []),
   pinnedItems: computed(() => game.pinnedItems || []),

@@ -187,6 +187,7 @@ import {
   getManagerRoomMult,
   getManagerTrainingMult,
   getMarketingMult,
+  getShipMult,
 } from './utils/calc'
 import { toggleTip } from './utils/format'
 import { User, Gamepad2, RotateCcw, Download, Upload } from '@lucide/vue'
@@ -318,10 +319,17 @@ const debugStats = computed(() => {
   const craftRate = getCraftSpeedMult(settings)
   const mineRate = getMiningSpeedMult(settings)
 
+  const shipMine = getShipMult(settings, 'mining')
+  const shipSmelt = getShipMult(settings, 'smelt')
+  const shipCraft = getShipMult(settings, 'craft')
+  const shipAlloyValue = getShipMult(settings, 'alloyValue')
+  const shipItemValue = getShipMult(settings, 'itemValue')
+  const shipManager = getShipMult(settings, 'manager')
+
   const salesMod = sales || 1
   const stnVal = stnValue || 1
-  const alloyV = (salesMod * stnVal * (alloyProj || 1)).toFixed(2) + '×'
-  const itemV = (salesMod * stnVal * (itemProj || 1)).toFixed(2) + '×'
+  const alloyV = (salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1)).toFixed(2) + '×'
+  const itemV = (salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1)).toFixed(2) + '×'
 
   const fmt = (v) => (v ? v.toFixed(2) + '×' : '1.00×')
 
@@ -332,6 +340,7 @@ const debugStats = computed(() => {
       ['Furnace projects', furnaceProj],
       ['Smelting stations', stnSmelt],
       ['Manager (allSmeltSpeed)', mgrSmelt],
+      ['Ships', shipSmelt],
     ],
     smeltRate
   )
@@ -343,6 +352,7 @@ const debugStats = computed(() => {
       ['Crafter projects', crafterProj],
       ['Crafting stations', stnCraft],
       ['Manager (allCraftSpeed)', mgrCraft],
+      ['Ships', shipCraft],
     ],
     craftRate
   )
@@ -358,6 +368,7 @@ const debugStats = computed(() => {
       ['Mining projects', miningProj],
       ['Mining stations', stnMine],
       ['Global 1.2×', global12],
+      ['Ships', shipMine],
     ],
     mineRate
   )
@@ -368,8 +379,9 @@ const debugStats = computed(() => {
       ['Sales room', sales],
       ['Station value', stnValue],
       ['Alloy value projects', alloyProj],
+      ['Ships', shipAlloyValue],
     ],
-    salesMod * stnVal * (alloyProj || 1)
+    salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1)
   )
 
   const itemInfo = infoLines(
@@ -378,8 +390,9 @@ const debugStats = computed(() => {
       ['Sales room', sales],
       ['Station value', stnValue],
       ['Item value projects', itemProj],
+      ['Ships', shipItemValue],
     ],
-    salesMod * stnVal * (itemProj || 1)
+    salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1)
   )
 
   const planetCostInfo = infoLines(
@@ -391,13 +404,14 @@ const debugStats = computed(() => {
     planetCostMult
   )
 
-  const mgrBuff = (classroom || 1) * (mgrTraining || 1) * (stnManager || 1)
+  const mgrBuff = (classroom || 1) * (mgrTraining || 1) * (stnManager || 1) * (shipManager || 1)
   const classroomInfo = infoLines(
     'Manager Effects',
     [
       ['Classroom room', classroom],
       ['Training projects', mgrTraining],
       ['Manager stations', stnManager],
+      ['Ships', shipManager],
     ],
     mgrBuff > 1 ? mgrBuff : null
   )

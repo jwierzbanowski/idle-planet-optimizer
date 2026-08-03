@@ -375,6 +375,7 @@ import {
   getOreTargetingMult,
   getRoverMult,
   getTotalManagerBuff,
+  getShipMult,
 } from '../utils/calc'
 import { fmtPrice, fmtDuration, toggleTip } from '../utils/format'
 import { PRIMARY_EFFECTS } from '../utils/config'
@@ -471,6 +472,7 @@ const miningProj = computed(() =>
 const stnMine = computed(() => getStationMult(settings, ['mining1', 'mining2']))
 const global12 = computed(() => (settings.station?.miningGlobal ? 1.2 : null))
 const miningMult = computed(() => getMiningSpeedMult(settings) || 1)
+const shipMine = computed(() => getShipMult(settings, 'mining'))
 const astronomyMod = computed(() => getModifier('rooms', 'astronomy', settings))
 const stnPlanetCost = computed(() => getStationPlanetCostMult(settings))
 const planetCostMult = computed(() => (astronomyMod.value || 1) * (stnPlanetCost.value || 1))
@@ -520,6 +522,7 @@ function buildRateTooltip(row) {
   if (miningProj.value) lines.push('  Mining projects: ' + miningProj.value.toFixed(2) + '×')
   if (stnMine.value) lines.push('  Mining stations: ' + stnMine.value.toFixed(2) + '×')
   if (global12.value) lines.push('  Global 1.2×: 1.20×')
+  if (shipMine.value) lines.push('  Ships: ' + shipMine.value.toFixed(2) + '×')
   const beaconMult = getBeaconMult(row.number, settings)
   lines.push('  Beacon: ' + beaconMult.toFixed(2) + '×')
   lines.push(
@@ -540,6 +543,7 @@ function buildRateTooltip(row) {
     miningProj.value ||
     stnMine.value ||
     global12.value ||
+    shipMine.value ||
     row.probe ||
     row.rover ||
     oreTargetMult
