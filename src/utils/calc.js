@@ -1,4 +1,4 @@
-import { SETTINGS_CONFIG, SECONDARY_EFFECTS, STATION_GROUPS } from './config'
+import { SETTINGS_CONFIG, SECONDARY_EFFECTS, STATION_GROUPS, SHIPS } from './config'
 import { getEntity } from './registry'
 
 function getStars(overrides, id) {
@@ -15,6 +15,18 @@ export function getModifier(cat, key, settings) {
   const capped = item.maxLevel != null ? Math.min(val, item.maxLevel) : val
   if (capped <= 0) return null
   return item.baseEffect + item.perLevel * (capped - 1)
+}
+
+export function getShipMult(settings, stat) {
+  const owned = settings.ships || {}
+  let mult = 1
+  for (const ship of SHIPS) {
+    if (!owned[ship.key]) continue
+    for (const b of ship.bonuses) {
+      if (b.stat === stat && b.mult != null) mult *= b.mult
+    }
+  }
+  return mult > 1 ? mult : null
 }
 
 export function getMarketingMult(settings) {
@@ -166,7 +178,8 @@ export function getTotalManagerBuff(settings) {
   const room = getManagerRoomMult(settings) || 1
   const training = getManagerTrainingMult(settings) || 1
   const station = getStationManagerMult(settings) || 1
-  const total = room * training * station
+  const ships = getShipMult(settings, 'manager') || 1
+  const total = room * training * station * ships
   return total > 1 ? total : null
 }
 
@@ -245,6 +258,8 @@ export function getMiningSpeedMult(settings) {
   const stationMine = getStationMult(settings, ['mining1', 'mining2'])
   if (stationMine) mult *= stationMine
   if (settings.station?.miningGlobal) mult *= 1.2
+  const shipMine = getShipMult(settings, 'mining')
+  if (shipMine) mult *= shipMine
   return mult > 1 ? mult : null
 }
 
@@ -264,6 +279,8 @@ export function getSmeltSpeedMult(settings) {
   if (stationSmelt) mult *= stationSmelt
   const mgrSmelt = getManagerSecondaryMult(settings, 'allSmeltSpeed')
   if (mgrSmelt) mult *= mgrSmelt
+  const shipSmelt = getShipMult(settings, 'smelt')
+  if (shipSmelt) mult *= shipSmelt
   return mult > 1 ? mult : null
 }
 
@@ -283,6 +300,8 @@ export function getCraftSpeedMult(settings) {
   if (stationCraft) mult *= stationCraft
   const mgrCraft = getManagerSecondaryMult(settings, 'allCraftSpeed')
   if (mgrCraft) mult *= mgrCraft
+  const shipCraft = getShipMult(settings, 'craft')
+  if (shipCraft) mult *= shipCraft
   return mult > 1 ? mult : null
 }
 
@@ -303,6 +322,12 @@ export function effectivePrice(id, overrides, settings) {
         : ['advancedItemValue', 'superiorItemValue']
     const valProj = getProjectMultiplier(settings, valProjKeys)
     if (valProj) price *= valProj
+  }
+  const shipValueStat =
+    e.type === 'ore' ? 'oreValue' : e.type === 'alloy' ? 'alloyValue' : e.type === 'item' ? 'itemValue' : null
+  if (shipValueStat) {
+    const shipValue = getShipMult(settings, shipValueStat)
+    if (shipValue) price *= shipValue
   }
   return price
 }

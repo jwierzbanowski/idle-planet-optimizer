@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { SETTINGS_CONFIG } from '../utils/config'
+import { SETTINGS_CONFIG, SHIPS } from '../utils/config'
 import { useOverrides } from './useOverrides'
 import { useGame } from './useGame'
 
@@ -17,6 +17,7 @@ function loadProfile() {
             rooms: old.rooms || {},
             station: old.station || {},
             beacon: old.beacon || {},
+            ships: old.ships || {},
           })
         )
       }
@@ -59,6 +60,7 @@ export function useProfile() {
       rooms: profile.rooms || {},
       station: profile.station || {},
       beacon: profile.beacon || {},
+      ships: profile.ships || {},
       overrides: JSON.parse(JSON.stringify(overrides)),
       managerAssign: JSON.parse(JSON.stringify(managerAssign)),
       projects: game.projects || {},
@@ -112,6 +114,16 @@ export function useProfile() {
           const max = item.maxLevel
           const val = max != null ? Math.min(raw, max) : Math.max(0, raw)
           profile[cat][item.key] = val
+        }
+      }
+    }
+    // Restore ships (owned toggles)
+    if (data.ships && typeof data.ships === 'object') {
+      if (!profile.ships) profile.ships = {}
+      for (const ship of SHIPS) {
+        const raw = data.ships[ship.key]
+        if (typeof raw === 'number') {
+          profile.ships[ship.key] = raw ? 1 : 0
         }
       }
     }

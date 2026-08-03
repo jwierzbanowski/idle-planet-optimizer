@@ -204,6 +204,27 @@ class="mgr-add" @click="addManager">+ Add</button>
             </div>
           </div>
         </template>
+        <template v-else-if="activeCat === 'ships'">
+          <div class="ship-list">
+            <div v-for="ship in ships"
+  :key="ship.key" class="ship-row">
+              <button
+                class="toggle-btn"
+                :class="{ active: getVal(ship.key) }"
+                @click="toggleItem(ship.key)"
+              >
+                <span class="toggle-knob" />
+              </button>
+              <div class="ship-info">
+                <div class="ship-name">{{ ship.label }}</div>
+                <div class="ship-bonus">
+                  <div v-for="(b, i) in shipBonuses(ship)"
+  :key="i">{{ b }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
         <template v-else>
           <template v-if="currentConfig.length === 0">
             <div class="settings-empty">No settings yet</div>
@@ -305,7 +326,7 @@ import { useSettings } from '../composables/useSettings'
 import { useData } from '../composables/useData'
 import { useOverrides } from '../composables/useOverrides'
 import { getEntity } from '../utils/registry'
-import { SETTINGS_CONFIG, STATION_GROUPS } from '../utils/config'
+import { SETTINGS_CONFIG, STATION_GROUPS, SHIPS } from '../utils/config'
 import { getStationRecommendations } from '../utils/calc'
 import { Star } from '@lucide/vue'
 import ManagerCard from './ManagerCard.vue'
@@ -331,6 +352,7 @@ const categories = [
   { key: 'beacon', label: 'Beacon' },
   { key: 'managers', label: 'Managers' },
   { key: 'badges', label: 'Badges' },
+  { key: 'ships', label: 'Ships' },
 ]
 
 const { ORDER } = useData()
@@ -420,6 +442,12 @@ function change(key, delta, event) {
 function toggleItem(key) {
   const current = getRawSetting(activeCat.value, key)
   setSetting(activeCat.value, key, current ? 0 : 1)
+}
+
+const ships = SHIPS
+
+function shipBonuses(ship) {
+  return ship.bonuses.map((b) => b.label + (b.mult != null ? ' ×' + b.mult : ''))
 }
 
 function toggleMiningGlobal() {
@@ -612,5 +640,36 @@ function switchCat(cat) {
 .mgr-add:hover {
   border-color: #4fc3f7;
   background: rgba(79, 195, 247, 0.05);
+}
+
+.ship-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ship-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0d1520;
+  border-radius: 6px;
+  padding: 8px 12px;
+  border: 1px solid #1a2235;
+}
+.ship-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ship-name {
+  color: #e8edf5;
+  font-weight: 600;
+  font-size: 14px;
+}
+.ship-bonus {
+  color: #8fa1b8;
+  font-size: 12px;
 }
 </style>
