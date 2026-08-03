@@ -17,7 +17,7 @@ The table has a filter bar (price groups such as **100M / 10B / 10T / 10q**, or 
 | **Colonies** | Number of colonies (0–100). Each colony adds +30% mining rate. |
 | **Probe** | Checkbox to enable a probe, plus a multiplier field for its speed. |
 | **Rover** | Checkbox to enable a rover (multiplied by the Rover Resupply projects). |
-| **Rate** | Current mining rate (`/s`). The `i` tooltip shows every factor: base level rate, Engineering room, projects, stations, Global 1.2×, beacon, colonies, probe, rover, ore targeting. |
+| **Rate** | Current mining rate (`/s`). The `i` tooltip shows every factor: base level rate, Engineering room, projects, stations, Global 1.2×, ships, beacon, colonies, probe, rover, ore targeting. |
 | **Profit / s** | Rate × weighted ore value (using effective prices). |
 | **Upgrade Payback** | Time for the next level to pay for itself ("Next"), plus total payback for the whole planet ("Total"). The `i` tooltip projects payback for **+1 / +5 / +10** levels and shows total invested. |
 | **Max Lv** | Highest level that pays back within the current session — click it to apply. Shows `—` when there is no profitable upgrade or no session set. |
@@ -56,6 +56,6 @@ The roadmap ranks the top **10 upgrades** by the ratio of upgrade **cost** to th
 
 ## Tips
 
-- Mining rate combines: `baseRate(lvl) × mine-rate multipliers × beacon × (1 + 0.3 × colonies) × probe × rover × manager`.
+- Mining rate combines: `baseRate(lvl) × mine-rate multipliers × beacon × (1 + 0.3 × colonies) × probe × rover × manager`. Ships multiply the mine-rate factor, and managers assigned here are boosted by the Manager multiplier.
 - If a planet has no mining level yet, its rate and profit are zero until you buy and upgrade it.
 - Use the roadmap's **Upgrade** button to apply the best step directly, then re-check paybacks — the roadmap recomputes instantly.

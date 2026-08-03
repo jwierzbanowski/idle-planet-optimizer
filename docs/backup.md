@@ -6,7 +6,7 @@ The **Backup ▾** button in the top bar manages your data as a JSON file. All c
 
 **Export** downloads a JSON file named `profile-YYYY-MM-DD_HH-MM-SS.json` containing your full configuration:
 
-- **Profile:** rooms, station, beacon levels
+- **Profile:** rooms, station, beacon levels, ships
 - **Managers:** stars and skills
 - **Overrides:** market changes, star ratings, mining levels, colonies, probes, rovers, ore targeting, alchemy
 - **Manager assignments:** which manager is assigned to which planet
@@ -30,7 +30,7 @@ State is stored under these browser `localStorage` keys:
 
 | Key | Contents |
 | --- | --- |
-| `ipm_profile` | Rooms, station, beacon levels. |
+| `ipm_profile` | Rooms, station, beacon levels, ships. |
 | `ipm_game` | Projects, managers, pinned items. |
 | `ipm_overrides` | Market, stars, mining levels, colonies, probes, rovers, ore targeting, alchemy. |
 | `ipm_manager_assign` | Manager-to-planet assignments. |

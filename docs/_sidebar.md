@@ -5,6 +5,8 @@
   - [Station](profile/station.md)
   - [Beacon](profile/beacon.md)
   - [Managers](profile/managers.md)
+  - [Badges](profile/badges.md)
+  - [Ships](profile/ships.md)
 - [Game](game.md)
 - [Reset](reset.md)
 - [Backup](backup.md)

@@ -22,5 +22,7 @@ Drop the PNG screenshots used by the docs into this folder using the filenames b
 | `13-mining.png` | Mining tab with a configured planet table (target, mining, colonies, manager, alchemy). | [Mining](../tabs/mining.md) |
 | `14-mining-session.png` | Session panel with a 48h session and 12h elapsed. | [Mining](../tabs/mining.md) |
 | `15-mining-roadmap.png` | Roadmap with the 10 best upgrades. | [Mining](../tabs/mining.md) |
+| `16-profile-badges.png` | Profile modal, Badges tab. | [Badges](../profile/badges.md) |
+| `17-profile-ships.png` | Profile modal, Ships tab. | [Ships](../profile/ships.md) |
 
 Recommended capture size: desktop browser, dark UI, ~1400px wide or the default window width, PNG format.
