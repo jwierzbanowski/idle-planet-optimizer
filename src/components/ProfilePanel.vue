@@ -124,25 +124,13 @@ class="mgr-add" @click="addManager">+ Add</button>
             </button>
           </div>
           <div class="badge-cols">
-            <div class="badge-col">
-              <div v-for="id in badgeSplit.left"
+            <div v-for="id in badgeList[activeBadge]"
   :key="id" class="badge-row">
-                <span class="settings-label">{{ badgeName(id) }}</span>
-                <StarControls
-                  :model-value="getStars(id)"
-                  @update:model-value="setOverride(id, 'stars', $event)"
-                />
-              </div>
-            </div>
-            <div class="badge-col">
-              <div v-for="id in badgeSplit.right"
-  :key="id" class="badge-row">
-                <span class="settings-label">{{ badgeName(id) }}</span>
-                <StarControls
-                  :model-value="getStars(id)"
-                  @update:model-value="setOverride(id, 'stars', $event)"
-                />
-              </div>
+              <span class="settings-label">{{ badgeName(id) }}</span>
+              <StarControls
+                :model-value="getStars(id)"
+                @update:model-value="setOverride(id, 'stars', $event)"
+              />
             </div>
           </div>
         </template>
@@ -371,12 +359,6 @@ const badgeList = computed(() => ({
   items: ORDER.value.items,
 }))
 
-const badgeSplit = computed(() => {
-  const ids = badgeList.value[activeBadge.value]
-  const leftCount = Math.ceil(ids.length / 2)
-  return { left: ids.slice(0, leftCount), right: ids.slice(leftCount) }
-})
-
 function badgeName(id) {
   return getEntity(id)?.name || id
 }
@@ -590,21 +572,16 @@ function switchCat(cat) {
 }
 .badge-cols {
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  align-items: start;
-}
-.badge-col {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  columns: 4;
+  column-gap: 8px;
 }
 .badge-row {
+  break-inside: avoid;
+  margin-bottom: 8px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   background: #0d1520;
   border-radius: 6px;
   padding: 8px 12px;
@@ -612,6 +589,9 @@ function switchCat(cat) {
 }
 .badge-row .settings-label {
   grid-column: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .badge-row .star-controls {
   margin-top: 0;
@@ -644,14 +624,16 @@ function switchCat(cat) {
 
 .ship-list {
   grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 8px;
+  align-items: start;
 }
 .ship-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 25%;
   background: #0d1520;
   border-radius: 6px;
   padding: 8px 12px;
