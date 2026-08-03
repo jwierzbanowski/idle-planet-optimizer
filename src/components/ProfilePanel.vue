@@ -51,11 +51,11 @@ class="mgr-add" @click="addManager">+ Add</button>
                 <div class="star-controls">
                   <button
                     class="star-btn"
-                    title="Ctrl: ×10, Shift: ×5"
+                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
                     :disabled="getVal(item.key) <= 0"
                     @click="change(item.key, -1, $event)"
                   >
-                    −
+                    {{ minusLabel }}
                   </button>
                   <span class="star-count"
                     >{{ getVal(item.key)
@@ -63,15 +63,15 @@ class="mgr-add" @click="addManager">+ Add</button>
                   >
                   <button
                     class="star-btn"
-                    title="Ctrl: ×10, Shift: ×5"
+                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
                     :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
                     @click="change(item.key, 1, $event)"
                   >
-                    +
+                    {{ plusLabel }}
                   </button>
                 </div>
                 <span class="settings-effect"
- style="color: #4caf50">
+  style="color: #4caf50">
                   {{
                     item.perLevel != null
                       ? getVal(item.key) > 0
@@ -109,11 +109,11 @@ class="mgr-add" @click="addManager">+ Add</button>
                 <div class="star-controls">
                   <button
                     class="star-btn"
-                    title="Ctrl: ×10, Shift: ×5"
+                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
                     :disabled="getVal(item.key) <= 0"
                     @click="change(item.key, -1, $event)"
                   >
-                    −
+                    {{ minusLabel }}
                   </button>
                   <span class="star-count"
                     >{{ getVal(item.key)
@@ -121,11 +121,11 @@ class="mgr-add" @click="addManager">+ Add</button>
                   >
                   <button
                     class="star-btn"
-                    title="Ctrl: ×10, Shift: ×5"
+                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
                     :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
                     @click="change(item.key, 1, $event)"
                   >
-                    +
+                    {{ plusLabel }}
                   </button>
                 </div>
                 <span
@@ -162,29 +162,29 @@ class="mgr-add" @click="addManager">+ Add</button>
               <span v-if="item.desc"
  class="settings-desc">{{ item.desc }}</span>
             </div>
-            <template v-if="isNumeric(item)">
-              <div class="star-controls">
-                <button
-                  class="star-btn"
-                  title="Ctrl: ×10, Shift: ×5"
-                  :disabled="getVal(item.key) <= 0"
-                  @click="change(item.key, -1, $event)"
-                >
-                  −
-                </button>
-                <span class="star-count"
-                  >{{ getVal(item.key)
-                  }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span
-                >
-                <button
-                  class="star-btn"
-                  title="Ctrl: ×10, Shift: ×5"
-                  :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-                  @click="change(item.key, 1, $event)"
-                >
-                  +
-                </button>
-              </div>
+              <template v-if="isNumeric(item)">
+                <div class="star-controls">
+                  <button
+                    class="star-btn"
+                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
+                    :disabled="getVal(item.key) <= 0"
+                    @click="change(item.key, -1, $event)"
+                  >
+                    {{ minusLabel }}
+                  </button>
+                  <span class="star-count"
+                    >{{ getVal(item.key)
+                    }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span
+                  >
+                  <button
+                    class="star-btn"
+                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
+                    :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
+                    @click="change(item.key, 1, $event)"
+                  >
+                    {{ plusLabel }}
+                  </button>
+                </div>
               <span
                 v-if="item.baseEffect != null"
                 class="settings-effect"
@@ -247,6 +247,7 @@ v-if="getVal(item.key) && item.baseEffect != null" class="settings-effect"
 import { ref, computed } from 'vue'
 import { useProfile } from '../composables/useProfile'
 import { useGame } from '../composables/useGame'
+import { useModifierKeys } from '../composables/useModifierKeys'
 import { SETTINGS_CONFIG } from '../utils/config'
 import ManagerCard from './ManagerCard.vue'
 
@@ -271,6 +272,11 @@ const categories = [
 ]
 
 const managers = computed(() => getManagers())
+
+const { multiplier } = useModifierKeys()
+
+const plusLabel = computed(() => (multiplier.value === 1 ? '+' : '+' + multiplier.value))
+const minusLabel = computed(() => (multiplier.value === 1 ? '−' : '−' + multiplier.value))
 
 const currentConfig = computed(() => SETTINGS_CONFIG[activeCat.value] || [])
 
@@ -309,10 +315,12 @@ function getVal(key) {
 }
 
 function change(key, delta, event) {
-  if (event?.ctrlKey) delta *= 10
-  if (event?.shiftKey) delta *= 5
+  let m = 1
+  if (event?.ctrlKey) m = 5
+  if (event?.shiftKey) m = 10
+  if (event?.ctrlKey && event?.shiftKey) m = 50
   const current = getRawSetting(activeCat.value, key)
-  setSetting(activeCat.value, key, current + delta)
+  setSetting(activeCat.value, key, current + delta * m)
 }
 
 function toggleItem(key) {
