@@ -4,7 +4,17 @@
     <div class="profile-modal">
       <div class="profile-header">
         <h2 class="profile-title">Profile</h2>
-        <span class="profile-desc">Rooms, station, beacon &amp; managers</span>
+        <label class="global-mine-toggle">
+          <span class="profile-desc">Global Mine Speed ×1.2</span>
+          <button
+            class="toggle-btn"
+            :class="{ active: getRawSetting('station', 'miningGlobal') }"
+            title="Global mine speed ×1.2"
+            @click="toggleMiningGlobal()"
+          >
+            <span class="toggle-knob" />
+          </button>
+        </label>
         <button
 class="profile-close" @click="$emit('close')">&times;</button>
       </div>
@@ -36,61 +46,69 @@ class="mgr-add" @click="addManager">+ Add</button>
         </div>
         <template v-else-if="activeCat === 'station'">
           <div v-for="group in stationGroups"
-:key="group.name" class="station-group">
-            <div class="project-group-title">
-              {{ group.name }}
-            </div>
-            <div v-for="item in group.items"
- :key="item.key" class="settings-row">
-              <span class="settings-label">{{ item.label }}</span>
-              <div class="settings-info">
-                <span v-if="item.desc"
- class="settings-desc">{{ item.desc }}</span>
-              </div>
-              <template v-if="isNumeric(item)">
-                <div class="star-controls">
-                  <button
-                    class="star-btn"
-                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
-                    :disabled="getVal(item.key) <= 0"
-                    @click="change(item.key, -1, $event)"
-                  >
-                    {{ minusLabel }}
-                  </button>
-                  <span class="star-count"
-                    >{{ getVal(item.key)
-                    }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span
-                  >
-                  <button
-                    class="star-btn"
-                    title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
-                    :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-                    @click="change(item.key, 1, $event)"
-                  >
-                    {{ plusLabel }}
-                  </button>
+ :key="group.name" class="station-group">
+            <template v-for="row in group.rows"
+  :key="row.item ? row.item.key : row.type + row.label">
+              <div v-if="row.type === 'title'"
+  class="project-group-title">{{ row.label }}</div>
+              <div v-else-if="row.type === 'subtitle'"
+  class="station-subtitle">{{ row.label }}</div>
+              <div v-else
+  class="settings-row" :class="{ 'prev-best-row': recFor(row.item.key) }">
+                <span class="settings-label">{{ row.item.label }}</span>
+                <div class="settings-info">
+                  <span v-if="row.item.desc"
+  class="settings-desc">{{ row.item.desc }}</span>
                 </div>
-                <span class="settings-effect"
+                <span v-if="recFor(row.item.key)"
+  class="prev-best-label"><Star :size="11" fill="currentColor" />Recommended</span>
+                <template v-if="isNumeric(row.item)">
+                  <div class="star-controls">
+                    <button
+                      class="star-btn"
+                      title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
+                      :disabled="getVal(row.item.key) <= 0"
+                      @click="change(row.item.key, -1, $event)"
+                    >
+                      {{ minusLabel }}
+                    </button>
+                    <span class="star-count"
+                      >{{ getVal(row.item.key)
+                      }}{{ row.item.maxLevel != null ? '/' + row.item.maxLevel : '' }}</span
+                    >
+                    <button
+                      class="star-btn"
+                      title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
+                      :disabled="row.item.maxLevel != null && getVal(row.item.key) >= row.item.maxLevel"
+                      @click="change(row.item.key, 1, $event)"
+                    >
+                      {{ plusLabel }}
+                    </button>
+                  </div>
+                  <span class="settings-effect"
   style="color: #4caf50">
-                  {{
-                    item.perLevel != null
-                      ? getVal(item.key) > 0
-                        ? (1 + item.perLevel * getVal(item.key)).toFixed(2) + '×'
-                        : '0×'
-                      : ''
-                  }}
-                </span>
-              </template>
-              <template v-else>
-                <button
-                  class="toggle-btn"
-                  :class="{ active: getVal(item.key) }"
-                  @click="toggleItem(item.key)"
-                >
-                  <span class="toggle-knob" />
-                </button>
-              </template>
-            </div>
+                    <template v-if="row.item.perLevel != null">
+                      <template v-if="getVal(row.item.key) > 0">
+                        <template v-if="row.item.kind === 'reduce'"
+                          >-{{ (row.item.perLevel * getVal(row.item.key)).toFixed(1) }}%</template
+                        >
+                        <template v-else>{{ (1 + row.item.perLevel * getVal(row.item.key)).toFixed(2) }}×</template>
+                      </template>
+                      <template v-else>{{ row.item.kind === 'reduce' ? '-0.0%' : '0×' }}</template>
+                    </template>
+                  </span>
+                </template>
+                <template v-else>
+                  <button
+                    class="toggle-btn"
+                    :class="{ active: getVal(row.item.key) }"
+                    @click="toggleItem(row.item.key)"
+                  >
+                    <span class="toggle-knob" />
+                  </button>
+                </template>
+              </div>
+            </template>
           </div>
         </template>
         <template v-else-if="activeCat === 'beacon'">
@@ -248,12 +266,16 @@ import { ref, computed } from 'vue'
 import { useProfile } from '../composables/useProfile'
 import { useGame } from '../composables/useGame'
 import { useModifierKeys } from '../composables/useModifierKeys'
-import { SETTINGS_CONFIG } from '../utils/config'
+import { useSettings } from '../composables/useSettings'
+import { SETTINGS_CONFIG, STATION_GROUPS } from '../utils/config'
+import { getStationRecommendations } from '../utils/calc'
+import { Star } from '@lucide/vue'
 import ManagerCard from './ManagerCard.vue'
 
 defineEmits(['close'])
 
 const { getRawSetting, setSetting } = useProfile()
+const { settings } = useSettings()
 const {
   getManagers,
   addManager,
@@ -283,28 +305,34 @@ const currentConfig = computed(() => SETTINGS_CONFIG[activeCat.value] || [])
 const stationGroups = computed(() => {
   const all = SETTINGS_CONFIG.station
   if (!all) return []
-  const groups = [
-    { name: 'Mining', keys: ['mining1', 'mining2', 'miningGlobal'] },
-    { name: 'Crafting', keys: ['crafting1', 'crafting2', 'crafting3', 'crafting4', 'crafting5'] },
-    { name: 'Smelting', keys: ['smelting1', 'smelting2', 'smelting3', 'smelting4', 'smelting5'] },
-    {
-      name: 'Alloy & Item',
-      keys: [
-        'alloyItem1',
-        'alloyItem2',
-        'alloyItem3',
-        'alloyItem4',
-        'alloyItem5',
-        'alloyItem6',
-        'alloyItem7',
-      ],
-    },
-  ]
-  return groups.map((g) => ({
-    name: g.name,
-    items: g.keys.map((k) => all.find((i) => i.key === k)).filter(Boolean),
-  }))
+  return STATION_GROUPS.map((g) => {
+    const rows = []
+    rows.push({ type: 'title', label: g.name })
+    const subs = Array.isArray(g.subsections) && g.subsections.length
+      ? g.subsections.map((s) => ({ name: s.name, keys: s.keys }))
+      : Array.isArray(g.keys) && g.keys.length
+        ? [{ name: null, keys: g.keys }]
+        : []
+    for (const s of subs) {
+      if (s.name) rows.push({ type: 'subtitle', label: s.name })
+      for (const k of s.keys) {
+        const item = all.find((i) => i.key === k)
+        if (item) rows.push({ type: 'row', item })
+      }
+    }
+    return { name: g.name, rows }
+  })
 })
+
+const stationRecByKey = computed(() => {
+  const map = {}
+  for (const r of getStationRecommendations(settings)) map[r.key] = r
+  return map
+})
+
+function recFor(key) {
+  return stationRecByKey.value[key] || null
+}
 
 function isNumeric(item) {
   return item.maxLevel != null || item.perLevel != null
@@ -326,6 +354,11 @@ function change(key, delta, event) {
 function toggleItem(key) {
   const current = getRawSetting(activeCat.value, key)
   setSetting(activeCat.value, key, current ? 0 : 1)
+}
+
+function toggleMiningGlobal() {
+  const current = getRawSetting('station', 'miningGlobal')
+  setSetting('station', 'miningGlobal', current ? 0 : 1)
 }
 
 function switchCat(cat) {
@@ -354,7 +387,7 @@ function switchCat(cat) {
 }
 .profile-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   padding: 20px 20px 0;
   position: relative;
@@ -368,6 +401,13 @@ function switchCat(cat) {
 .profile-desc {
   color: #6b7a8f;
   font-size: 13px;
+}
+.global-mine-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+  cursor: pointer;
 }
 .profile-close {
   margin-left: auto;
@@ -389,6 +429,44 @@ function switchCat(cat) {
   border-radius: 8px;
   padding: 8px;
   border: 1px solid #1a2235;
+}
+.station-group .settings-row {
+  position: relative;
+}
+.station-subtitle {
+  font-size: 10px;
+  color: #55637a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 4px 2px;
+}
+.station-subtitle:not(:first-child) {
+  margin-top: 2px;
+  border-top: 1px solid #16202e;
+}
+.station-group .prev-best-row {
+  background: rgba(30, 136, 229, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(79, 195, 247, 0.45);
+}
+.prev-best-label {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  display: inline-flex;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #64b5f6;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  background: rgba(30, 136, 229, 0.15);
+  border-radius: 3px;
+  padding: 2px 8px;
+  line-height: 1;
+}
+.prev-best-label svg {
+  flex-shrink: 0;
+  display: block;
 }
 .station-group .project-group-title {
   padding: 0 4px;

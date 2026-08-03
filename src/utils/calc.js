@@ -1,4 +1,4 @@
-import { SETTINGS_CONFIG, SECONDARY_EFFECTS } from './config'
+import { SETTINGS_CONFIG, SECONDARY_EFFECTS, STATION_GROUPS } from './config'
 import { getEntity } from './registry'
 
 function getStars(overrides, id) {
@@ -59,13 +59,16 @@ export function getProjectMultiplier(settings, keys) {
 
 export function getStationMult(settings, keys) {
   let total = 0
+  let reduce = false
   for (const key of keys) {
     const item = SETTINGS_CONFIG.station.find((i) => i.key === key)
     if (!item || item.perLevel == null) continue
     const val = settings.station?.[key] ?? 0
     const capped = Math.min(val, item.maxLevel)
     total += item.perLevel * capped
+    if (item.kind === 'reduce') reduce = true
   }
+  if (reduce) return total > 0 ? Math.max(0, 1 - total / 100) : null
   return total > 0 ? 1 + total : null
 }
 
@@ -82,6 +85,73 @@ export function getStationValueMult(settings) {
   return getStationMult(settings, STATION_VALUE_KEYS)
 }
 
+const STATION_MARKET_KEYS = ['market1', 'market2', 'market3', 'market4', 'market5', 'market6', 'market7']
+
+export function getStationMarketMult(settings) {
+  return getStationMult(settings, STATION_MARKET_KEYS)
+}
+
+const STATION_MANAGER_KEYS = [
+  'manager1',
+  'manager2',
+  'manager3',
+  'manager4',
+  'manager5',
+  'manager6',
+  'manager7',
+  'manager8',
+]
+
+export function getStationManagerMult(settings) {
+  return getStationMult(settings, STATION_MANAGER_KEYS)
+}
+
+const STATION_PLANET_COST_KEYS = ['planetCost1', 'planetCost2', 'planetCost3', 'planetCost4', 'planetCost5']
+
+export function getStationPlanetCostMult(settings) {
+  return getStationMult(settings, STATION_PLANET_COST_KEYS)
+}
+
+export function getStationRecommendations(settings) {
+  const stationSettings = settings.station || {}
+  const result = []
+  for (const group of STATION_GROUPS || []) {
+    const subs = Array.isArray(group.subsections) && group.subsections.length
+      ? group.subsections.map((s) => ({ name: s.name, keys: s.keys }))
+      : Array.isArray(group.keys) && group.keys.length
+        ? [{ name: group.name, keys: group.keys }]
+        : []
+    for (const sub of subs) {
+      let best = null
+      for (const key of sub.keys) {
+        const item = SETTINGS_CONFIG.station.find((i) => i.key === key)
+        if (!item || item.perLevel == null || !item.costs) continue
+        const level = stationSettings[key] ?? 0
+        const capped = item.maxLevel != null ? Math.min(level, item.maxLevel) : level
+        if (capped >= item.costs.length) continue
+        const nextLevel = capped + 1
+        const cost = item.costs[nextLevel - 1] ?? item.costs[item.costs.length - 1]
+        const gainPerCell = item.perLevel / cost
+        if (!best || gainPerCell > best.gainPerCell) {
+          best = {
+            section: subs.length > 1 ? `${group.name} · ${sub.name}` : group.name,
+            key,
+            label: item.label,
+            nextLevel,
+            maxLevel: item.costs.length,
+            cost,
+            perLevel: item.perLevel,
+            gainPerCell,
+            kind: item.kind || 'boost',
+          }
+        }
+      }
+      if (best) result.push(best)
+    }
+  }
+  return result.sort((a, b) => b.gainPerCell - a.gainPerCell)
+}
+
 export function getManagerRoomMult(settings) {
   return getModifier('rooms', 'classroom', settings)
 }
@@ -95,7 +165,8 @@ export function getManagerTrainingMult(settings) {
 export function getTotalManagerBuff(settings) {
   const room = getManagerRoomMult(settings) || 1
   const training = getManagerTrainingMult(settings) || 1
-  const total = room * training
+  const station = getStationManagerMult(settings) || 1
+  const total = room * training * station
   return total > 1 ? total : null
 }
 
@@ -219,6 +290,8 @@ export function effectivePrice(id, overrides, settings) {
   const e = getEntity(id)
   if (!e) return 0
   let price = e.basePrice * (1 + 0.2 * getStars(overrides, id)) * effectiveMarketVal(getMarket(overrides, id), settings)
+  const marketMult = getStationMarketMult(settings)
+  if (marketMult) price *= marketMult
   if (e.type === 'alloy' || e.type === 'item') {
     const salesMod = getModifier('rooms', 'sales', settings)
     if (salesMod) price *= salesMod
