@@ -1,5 +1,11 @@
 import { reactive } from 'vue'
-import { SETTINGS_CONFIG, SHIPS } from '../utils/config'
+import {
+  SETTINGS_CONFIG,
+  SHIPS,
+  MODULE_CATEGORY_KEYS,
+  MAX_MODULE_LEVEL,
+  MAX_MODULE_SUBSTATS,
+} from '../utils/config'
 import { useOverrides } from './useOverrides'
 import { useGame } from './useGame'
 
@@ -38,6 +44,49 @@ function saveProfile(s) {
 
 const profile = reactive(loadProfile())
 
+function emptySubstats() {
+  return Array.from({ length: MAX_MODULE_SUBSTATS }, () => ({ key: '', rarity: '' }))
+}
+
+function defaultModuleSlot() {
+  return { special: true, module: null, rarity: null, level: 0, substats: emptySubstats() }
+}
+
+function normalizeSubstats(substats) {
+  const out = emptySubstats()
+  if (Array.isArray(substats)) {
+    for (let i = 0; i < MAX_MODULE_SUBSTATS; i++) {
+      const raw = substats[i]
+      if (typeof raw === 'string') {
+        out[i] = { key: raw, rarity: '' }
+      } else if (raw && typeof raw === 'object') {
+        out[i] = {
+          key: typeof raw.key === 'string' ? raw.key : '',
+          rarity: typeof raw.rarity === 'string' ? raw.rarity : '',
+        }
+      }
+    }
+  }
+  return out
+}
+
+function ensureModuleSlots() {
+  if (!profile.modules) profile.modules = {}
+  for (const cat of MODULE_CATEGORY_KEYS) {
+    const slot = profile.modules[cat]
+    if (!slot || typeof slot !== 'object') {
+      profile.modules[cat] = defaultModuleSlot()
+    } else if (!Array.isArray(slot.substats)) {
+      slot.substats = emptySubstats()
+    } else if (
+      slot.substats.some((s) => !s || typeof s !== 'object' || typeof s.key !== 'string')
+    ) {
+      slot.substats = normalizeSubstats(slot.substats)
+    }
+  }
+  return profile.modules
+}
+
 export function useProfile() {
   function getRawSetting(cat, key) {
     return profile[cat]?.[key] ?? 0
@@ -53,6 +102,39 @@ export function useProfile() {
     saveProfile(profile)
   }
 
+  function getModuleSlots() {
+    return ensureModuleSlots()
+  }
+
+  function setModuleSlot(cat, field, value) {
+    const slots = ensureModuleSlots()
+    if (!slots[cat]) slots[cat] = defaultModuleSlot()
+    if (field === 'level') {
+      value = Math.max(0, Math.min(MAX_MODULE_LEVEL, Number(value) || 0))
+    }
+    if (field === 'special') {
+      value = Boolean(value)
+    }
+    slots[cat][field] = value
+    saveProfile(profile)
+  }
+
+  function clearModuleSlot(cat) {
+    const slots = ensureModuleSlots()
+    slots[cat] = defaultModuleSlot()
+    saveProfile(profile)
+  }
+
+  function setModuleSubstat(cat, index, key, rarity) {
+    const slots = ensureModuleSlots()
+    if (!slots[cat]) slots[cat] = defaultModuleSlot()
+    if (!Array.isArray(slots[cat].substats)) slots[cat].substats = emptySubstats()
+    if (index >= 0 && index < MAX_MODULE_SUBSTATS) {
+      slots[cat].substats[index] = { key: key || '', rarity: rarity || '' }
+      saveProfile(profile)
+    }
+  }
+
   function exportProfile() {
     const { overrides, managerAssign } = useOverrides()
     const { game } = useGame()
@@ -61,6 +143,7 @@ export function useProfile() {
       station: profile.station || {},
       beacon: profile.beacon || {},
       ships: profile.ships || {},
+      modules: JSON.parse(JSON.stringify(ensureModuleSlots())),
       overrides: JSON.parse(JSON.stringify(overrides)),
       managerAssign: JSON.parse(JSON.stringify(managerAssign)),
       projects: game.projects || {},
@@ -127,6 +210,23 @@ export function useProfile() {
         }
       }
     }
+    // Restore module slots
+    if (data.modules && typeof data.modules === 'object') {
+      const slots = ensureModuleSlots()
+      for (const cat of MODULE_CATEGORY_KEYS) {
+        const raw = data.modules[cat]
+        if (!raw || typeof raw !== 'object') continue
+        const slot = defaultModuleSlot()
+        if (typeof raw.special === 'boolean') slot.special = raw.special
+        if (typeof raw.module === 'string') slot.module = raw.module
+        if (typeof raw.rarity === 'string') slot.rarity = raw.rarity
+        if (typeof raw.level === 'number') {
+          slot.level = Math.max(0, Math.min(MAX_MODULE_LEVEL, raw.level))
+        }
+        slot.substats = normalizeSubstats(raw.substats)
+        slots[cat] = slot
+      }
+    }
     saveProfile(profile)
 
     // Restore overrides (new format — full override objects)
@@ -174,5 +274,15 @@ export function useProfile() {
     saveGame(game)
   }
 
-  return { profile, getRawSetting, setSetting, exportProfile, importProfile }
+  return {
+    profile,
+    getRawSetting,
+    setSetting,
+    getModuleSlots,
+    setModuleSlot,
+    clearModuleSlot,
+    setModuleSubstat,
+    exportProfile,
+    importProfile,
+  }
 }

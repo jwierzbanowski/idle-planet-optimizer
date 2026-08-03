@@ -1,12 +1,13 @@
-import { DB, ORDER, getEntity } from '../utils/registry'
+import { DB, ORDER, MODULES, getEntity } from '../utils/registry'
 
 export async function loadData() {
-  const [ores, alloys, items, mining, planets] = await Promise.all([
+  const [ores, alloys, items, mining, planets, modules] = await Promise.all([
     fetch('data/ores.json').then((r) => r.json()),
     fetch('data/alloys.json').then((r) => r.json()),
     fetch('data/items.json').then((r) => r.json()),
     fetch('data/mining.json').then((r) => r.json()),
     fetch('data/planets.json').then((r) => r.json()),
+    fetch('data/modules.json').then((r) => r.json()),
   ])
 
   const order = { ores: [], alloys: [], items: [], mining: [], planets: [] }
@@ -34,6 +35,7 @@ export async function loadData() {
   }
 
   ORDER.value = order
+  MODULES.value = modules
 
   return {
     oresCount: ores.length,
@@ -45,5 +47,5 @@ export async function loadData() {
 }
 
 export function useData() {
-  return { DB, ORDER, getEntity }
+  return { DB, ORDER, MODULES, getEntity }
 }

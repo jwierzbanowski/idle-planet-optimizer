@@ -745,3 +745,19 @@ export const STATION_GROUPS = [
 ]
 
 export const MARKET_VALS = [0.33, 0.5, 1, 2, 3, 4, 5]
+
+export const MAX_MODULE_LEVEL = 300
+
+export const MAX_MODULE_SUBSTATS = 6
+
+export const MODULE_CATEGORY_KEYS = ['drill', 'transport', 'synth', 'remote']
+
+export const SPECIAL_RARITIES = [
+  'epic',
+  'epic+',
+  'legendary',
+  'legendary+',
+  'mythic',
+  'mythic+',
+  'ancestral',
+]

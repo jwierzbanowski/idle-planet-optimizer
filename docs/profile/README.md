@@ -1,12 +1,12 @@
 # Profile
 
-The **Profile** modal holds your persistent game configuration: rooms, station levels, beacons, managers, badges, and ships. It is opened with the **Profile** button (user icon) in the top bar.
+The **Profile** modal holds your persistent game configuration: rooms, station levels, beacons, managers, badges, ships, and modules. It is opened with the **Profile** button (user icon) in the top bar.
 
 The Profile is the same across all playthroughs — it represents your upgrades, not the progress of a single run. The per-run state (projects, market, mining levels, badge star overrides) lives in the [Game](../game.md) modal and the temporary [overrides](../reset.md).
 
 ## Tabs
 
-The modal has six tabs, each documented on its own page:
+The modal has seven tabs, each documented on its own page:
 
 | Tab | Contents | Page |
 | --- | --- | --- |
@@ -16,6 +16,7 @@ The modal has six tabs, each documented on its own page:
 | **Managers** | Manager cards with stars and skills. | [Managers](managers.md) |
 | **Badges** | Star ratings for every ore, alloy, and item. | [Badges](badges.md) |
 | **Ships** | Owned ships and their bonuses. | [Ships](ships.md) |
+| **Modules** | Four module slots (one per category) with module, rarity, and level. | [Modules](modules.md) |
 
 ## Common controls
 
