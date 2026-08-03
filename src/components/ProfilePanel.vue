@@ -51,8 +51,9 @@ class="mgr-add" @click="addManager">+ Add</button>
                 <div class="star-controls">
                   <button
                     class="star-btn"
+                    title="Ctrl: ×10, Shift: ×5"
                     :disabled="getVal(item.key) <= 0"
-                    @click="change(item.key, -1)"
+                    @click="change(item.key, -1, $event)"
                   >
                     −
                   </button>
@@ -62,14 +63,15 @@ class="mgr-add" @click="addManager">+ Add</button>
                   >
                   <button
                     class="star-btn"
+                    title="Ctrl: ×10, Shift: ×5"
                     :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-                    @click="change(item.key, 1)"
+                    @click="change(item.key, 1, $event)"
                   >
                     +
                   </button>
                 </div>
                 <span class="settings-effect"
-style="color: #4caf50">
+ style="color: #4caf50">
                   {{
                     item.perLevel != null
                       ? getVal(item.key) > 0
@@ -91,6 +93,64 @@ style="color: #4caf50">
             </div>
           </div>
         </template>
+        <template v-else-if="activeCat === 'beacon'">
+          <template v-if="currentConfig.length === 0">
+            <div class="settings-empty">No settings yet</div>
+          </template>
+          <div v-else class="beacon-grid">
+            <div v-for="item in currentConfig"
+ :key="item.key" class="settings-row">
+              <span class="settings-label">{{ item.label }}</span>
+              <div class="settings-info">
+                <span v-if="item.desc"
+ class="settings-desc">{{ item.desc }}</span>
+              </div>
+              <template v-if="isNumeric(item)">
+                <div class="star-controls">
+                  <button
+                    class="star-btn"
+                    title="Ctrl: ×10, Shift: ×5"
+                    :disabled="getVal(item.key) <= 0"
+                    @click="change(item.key, -1, $event)"
+                  >
+                    −
+                  </button>
+                  <span class="star-count"
+                    >{{ getVal(item.key)
+                    }}{{ item.maxLevel != null ? '/' + item.maxLevel : '' }}</span
+                  >
+                  <button
+                    class="star-btn"
+                    title="Ctrl: ×10, Shift: ×5"
+                    :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
+                    @click="change(item.key, 1, $event)"
+                  >
+                    +
+                  </button>
+                </div>
+                <span
+                  v-if="item.baseEffect != null"
+                  class="settings-effect"
+                  :style="{ color: item.baseEffect < 1 ? '#4caf50' : undefined }"
+                >
+                  <template v-if="getVal(item.key) > 0">
+                    <template v-if="item.baseEffect >= 1">
+                      {{ (item.baseEffect + item.perLevel * (getVal(item.key) - 1)).toFixed(2) }}×
+                    </template>
+                    <template v-else>
+                      -{{
+                        Math.round(
+                          (1 - (item.baseEffect + item.perLevel * (getVal(item.key) - 1))) * 100
+                        )
+                      }}%
+                    </template>
+                  </template>
+                  <template v-else>—</template>
+                </span>
+              </template>
+            </div>
+          </div>
+        </template>
         <template v-else>
           <template v-if="currentConfig.length === 0">
             <div class="settings-empty">No settings yet</div>
@@ -106,8 +166,9 @@ style="color: #4caf50">
               <div class="star-controls">
                 <button
                   class="star-btn"
+                  title="Ctrl: ×10, Shift: ×5"
                   :disabled="getVal(item.key) <= 0"
-                  @click="change(item.key, -1)"
+                  @click="change(item.key, -1, $event)"
                 >
                   −
                 </button>
@@ -117,8 +178,9 @@ style="color: #4caf50">
                 >
                 <button
                   class="star-btn"
+                  title="Ctrl: ×10, Shift: ×5"
                   :disabled="item.maxLevel != null && getVal(item.key) >= item.maxLevel"
-                  @click="change(item.key, 1)"
+                  @click="change(item.key, 1, $event)"
                 >
                   +
                 </button>
@@ -133,6 +195,7 @@ style="color: #4caf50">
                     {{ (item.baseEffect + item.perLevel * (getVal(item.key) - 1)).toFixed(2) }}×
                   </template>
                   <template v-else>
+
                     -{{
                       Math.round(
                         (1 - (item.baseEffect + item.perLevel * (getVal(item.key) - 1))) * 100
@@ -245,7 +308,9 @@ function getVal(key) {
   return getRawSetting(activeCat.value, key)
 }
 
-function change(key, delta) {
+function change(key, delta, event) {
+  if (event?.ctrlKey) delta *= 10
+  if (event?.shiftKey) delta *= 5
   const current = getRawSetting(activeCat.value, key)
   setSetting(activeCat.value, key, current + delta)
 }
@@ -319,6 +384,13 @@ function switchCat(cat) {
 }
 .station-group .project-group-title {
   padding: 0 4px;
+}
+.beacon-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  align-items: start;
 }
 
 .mgr-list {
