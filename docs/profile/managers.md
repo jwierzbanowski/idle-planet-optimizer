@@ -12,7 +12,7 @@ The **Managers** tab lets you define the managers you own. Managers provide glob
 
 ## Stars
 
-- Set a manager's stars (1–6) by clicking the star icons. Hovering shows the value before clicking.
+- Set a manager's stars (1–7) by clicking the star icons. Hovering shows the value before clicking.
 - Stars determine the strength of both skills. The **secondary skill** is locked until the manager has **3 stars**.
 
 ## Primary skills
@@ -29,7 +29,7 @@ Managers with the **Mine Rate** primary skill are listed in the **Manager** drop
 
 ## Secondary skills (unlocked at 3 stars)
 
-| Skill | Effect (3★ → 6★) |
+| Skill | Effect (3★ → 7★) |
 | --- | --- |
 | **All Mine Rate** | 1.05 → 1.5× all planets |
 | **All Ship Speed** | 1.1 → 2.0× |

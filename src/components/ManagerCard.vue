@@ -6,7 +6,7 @@ class="mgr-remove" @click="$emit('remove')">&times;</button>
       <span></span>
       <div class="mgr-stars-content">
         <svg
-          v-for="i in 6"
+          v-for="i in 7"
           :key="i"
           viewBox="0 0 20 20"
           width="14"
