@@ -53,9 +53,22 @@ The multiplier preview is informational only — it is **not** yet wired into th
 
 ## Substats
 
-Once a module is selected, the slot shows a **Substats** section with up to **6** slots. Press **+ Add substat** to open a dialog listing the available substats from the category pool (Drill, Transport, Synth, and Remote each have their own substat list — e.g. Mining Colony Bonus, Ship Speed, Smelt Speed per Beam, Asteroid Frequency).
+Once a module is selected, the slot shows a **Substats** section with a fixed list of **6** slots. Clicking an unlocked slot opens the dialog listing the available substats from the category pool (Drill, Transport, Synth, and Remote each have their own substat list — e.g. Mining Colony Bonus, Ship Speed, Smelt Speed per Beam, Asteroid Frequency).
 
-- Each **rarity variant** of a substat is its own entry in the dialog — e.g. for an Epic module, Mining Colony Bonus appears three times (Common, Rare, Epic), each with its value. Clicking an entry adds that substat **at the chosen rarity**; a **×** button removes it again.
+The first two slots are always available. Each additional slot unlocks when the module reaches a minimum **level** and **rarity**:
+
+| Slot | Requirement |
+| --- | --- |
+| 1–2 | always available |
+| 3 | level **41+** and **Rare or higher** |
+| 4 | level **101+** and **Legendary or higher** |
+| 5 | level **141+** and **Mythic or higher** |
+| 6 | level **161+** and **Mythic+ or higher** |
+
+Locked slots are greyed out and show the requirement (e.g. `Locked · Lv 41 · Rare+`); they become clickable once the level/rarity is met. A locked slot keeps any substat already stored on it — raise the level again to edit or remove it.
+
+- Clicking an unlocked slot opens the dialog; picking an entry sets (or replaces) the substat **at that slot**; a **×** button removes it again.
+- Each **rarity variant** of a substat is its own entry in the dialog — e.g. for an Epic module, Mining Colony Bonus appears three times (Common, Rare, Epic), each with its value.
 - **Filter bubbles** at the top of the dialog show one rarity at a time — click a bubble to show only that rarity, click it again to show all.
 - A **variant already on the list is not offered again** — if e.g. Mining Colony Bonus @ Epic is already selected, the dialog hides that exact variant (Common/Rare variants of the same substat remain available). Substats only apply to the enabled **Drill** and **Synth** slots — the **Transport** and **Remote** cards are disabled entirely (see [Slots](#slots)), so no substats can be added there.
 - Only substats that exist **at or below the module's rarity** are shown — e.g. an Epic module won't list substats that only roll at Legendary+, and no variant above the module's rarity is offered.
