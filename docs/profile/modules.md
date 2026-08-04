@@ -15,6 +15,8 @@ Each slot corresponds to one category:
 | **Synth** | Market Crawler, Burst Injector, Ore Classifier, Incubation Suite |
 | **Remote** | Scan Harmonizer, Belt Sonar, Remote Scanner, Probe Dock |
 
+> **Not available for calculation:** the **Transport** and **Remote** slots are currently **disabled** — the whole card is greyed out and crossed out, and none of its controls can be used. Their effects are not yet implemented in the calculator, so they are disabled so you don't plan around them. Saved profiles that already reference a Transport/Remote module keep displaying it, but the card can't be edited.
+
 ## Special (S) toggle
 
 Every slot has a **Special (S)** checkbox, which is **enabled by default**:
@@ -22,7 +24,7 @@ Every slot has a **Special (S)** checkbox, which is **enabled by default**:
 - **Special (S)** — the module is one of the unique modules from the table above. The rarity list is limited to **Epic and above** (Epic, Epic+, Legendary, Legendary+, Mythic, Mythic+, Ancestral), and the slot shows the unique effect text for the selected rarity tier. The values that change with the rarity tier (numbers, percents, multipliers) are highlighted in **green**.
 - **Regular** — a generic module without a unique effect. The full rarity scale is available (Common, Rare, Rare+, Epic, Epic+, Legendary, Legendary+, Mythic, Mythic+, Ancestral), and it can be upgraded from Rare.
 
-When you select a new module, the rarity is set automatically — **Epic** for Special modules, **Common** for Regular ones — and the level starts at **1**.
+When you select a new module, the rarity is set automatically — **Epic** for Special modules, **Common** for Regular ones — and the level starts at **1**. (This only applies to the enabled **Drill** and **Synth** slots — see the note above.)
 
 Rarities are color-coded: **Common** gray, **Rare** blue, **Epic** purple, **Legendary** orange, **Mythic** red, **Ancestral** green (a `+` variant uses the color of its base rarity). The rarity picker shows the selected rarity in its color.
 
@@ -55,7 +57,7 @@ Once a module is selected, the slot shows a **Substats** section with up to **6*
 
 - Each **rarity variant** of a substat is its own entry in the dialog — e.g. for an Epic module, Mining Colony Bonus appears three times (Common, Rare, Epic), each with its value. Clicking an entry adds that substat **at the chosen rarity**; a **×** button removes it again.
 - **Filter bubbles** at the top of the dialog show one rarity at a time — click a bubble to show only that rarity, click it again to show all.
-- A **variant already on the list is not offered again** — if e.g. Mining Colony Bonus @ Epic is already selected, the dialog hides that exact variant (Common/Rare variants of the same substat remain available).
+- A **variant already on the list is not offered again** — if e.g. Mining Colony Bonus @ Epic is already selected, the dialog hides that exact variant (Common/Rare variants of the same substat remain available). Substats only apply to the enabled **Drill** and **Synth** slots — the **Transport** and **Remote** cards are disabled entirely (see [Slots](#slots)), so no substats can be added there.
 - Only substats that exist **at or below the module's rarity** are shown — e.g. an Epic module won't list substats that only roll at Legendary+, and no variant above the module's rarity is offered.
 - Variant values are formatted as:
   - multipliers are shown as `1.07×`,

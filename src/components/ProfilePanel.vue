@@ -214,12 +214,21 @@ class="mgr-add" @click="addManager">+ Add</button>
           </div>
         </template>
         <template v-else-if="activeCat === 'modules'">
-          <div v-for="cat in moduleCats" :key="cat.key" class="module-slot-card">
+          <div
+            v-for="cat in moduleCats"
+            :key="cat.key"
+            class="module-slot-card"
+            :class="{ 'module-slot-card-disabled': moduleCategoryDisabled(cat.key) }"
+          >
             <div class="module-slot-title">{{ cat.label }}</div>
+            <div v-if="moduleCategoryDisabled(cat.key)" class="module-slot-disabled-note">
+              Not available for calculation
+            </div>
             <label class="module-special-toggle">
               <input
                 type="checkbox"
                 :checked="moduleSlot(cat.key).special"
+                :disabled="moduleCategoryDisabled(cat.key)"
                 @change="setModuleField(cat.key, 'special', $event.target.checked)"
               />
               <span>Special (S)</span>
@@ -228,6 +237,7 @@ class="mgr-add" @click="addManager">+ Add</button>
               v-if="moduleSlot(cat.key).special"
               class="module-select"
               :value="moduleSlot(cat.key).module"
+              :disabled="moduleCategoryDisabled(cat.key)"
               @change="setModuleField(cat.key, 'module', $event.target.value)"
             >
               <option value="" disabled>— choose module —</option>
@@ -239,6 +249,7 @@ class="mgr-add" @click="addManager">+ Add</button>
             <select
               class="module-select"
               :value="moduleSlot(cat.key).rarity"
+              :disabled="moduleCategoryDisabled(cat.key)"
               :style="rarityStyle(moduleSlot(cat.key).rarity)"
               @change="setModuleField(cat.key, 'rarity', $event.target.value)"
             >
@@ -256,7 +267,7 @@ class="mgr-add" @click="addManager">+ Add</button>
               <button
                 class="star-btn"
                 title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
-                :disabled="moduleSlot(cat.key).level <= 0"
+                :disabled="moduleCategoryDisabled(cat.key) || moduleSlot(cat.key).level <= 0"
                 @click="changeModuleLevel(cat.key, -1, $event)"
               >
                 {{ minusLabel }}
@@ -265,7 +276,7 @@ class="mgr-add" @click="addManager">+ Add</button>
               <button
                 class="star-btn"
                 title="Ctrl: +5, Shift: +10, Ctrl+Shift: +50"
-                :disabled="moduleSlot(cat.key).level >= MAX_MODULE_LEVEL"
+                :disabled="moduleLevelDisabled(cat.key, 1)"
                 @click="changeModuleLevel(cat.key, 1, $event)"
               >
                 {{ plusLabel }}
@@ -298,6 +309,7 @@ class="mgr-add" @click="addManager">+ Add</button>
                 <button
                   class="module-substat-remove"
                   title="Remove substat"
+                  :disabled="moduleCategoryDisabled(cat.key)"
                   @click="setModuleSubstat(cat.key, entry.index, '', '')"
                 >
                   &times;
@@ -306,12 +318,19 @@ class="mgr-add" @click="addManager">+ Add</button>
               <button
                 v-if="canAddSubstat(cat.key)"
                 class="module-substat-add"
+                :disabled="moduleCategoryDisabled(cat.key)"
                 @click="openSubstatDialog(cat.key)"
               >
                 + Add substat
               </button>
             </div>
-            <button class="module-clear" @click="clearModuleSlot(cat.key)">Clear slot</button>
+            <button
+              class="module-clear"
+              :disabled="moduleCategoryDisabled(cat.key)"
+              @click="clearModuleSlot(cat.key)"
+            >
+              Clear slot
+            </button>
           </div>
         </template>
         <template v-else>
@@ -457,6 +476,7 @@ import {
   MAX_MODULE_SUBSTATS,
   MODULE_CATEGORY_KEYS,
   SPECIAL_RARITIES,
+  DISABLED_MODULE_CATEGORIES,
 } from '../utils/config'
 import { getStationRecommendations, getModuleLevelMult } from '../utils/calc'
 import { Star } from '@lucide/vue'
@@ -596,6 +616,16 @@ const moduleCats = computed(() => {
 
 function modulesFor(catKey) {
   return (MODULES.value?.modules || []).filter((m) => m.category === catKey)
+}
+
+function moduleCategoryDisabled(catKey) {
+  return DISABLED_MODULE_CATEGORIES.includes(catKey)
+}
+
+function moduleLevelDisabled(catKey, dir) {
+  if (moduleCategoryDisabled(catKey)) return true
+  const level = moduleSlot(catKey).level
+  return dir < 0 ? level <= 0 : level >= MAX_MODULE_LEVEL
 }
 
 function raritiesFor(slot) {
@@ -1113,6 +1143,29 @@ function switchCat(cat) {
   background: #0d1520;
   color: #c8d0dc;
 }
+.module-slot-card-disabled {
+  opacity: 0.55;
+  border-color: #141c2a;
+  background: #0b1119;
+}
+.module-slot-card-disabled .module-slot-title,
+.module-slot-card-disabled .module-special-toggle span,
+.module-slot-card-disabled .module-select,
+.module-slot-card-disabled .module-regular,
+.module-slot-card-disabled .star-count,
+.module-slot-card-disabled .module-mult,
+.module-slot-card-disabled .module-effect-text,
+.module-slot-card-disabled .module-substats-title,
+.module-slot-card-disabled .module-substats-empty,
+.module-slot-card-disabled .module-substat-label,
+.module-slot-card-disabled .module-substat-value {
+  text-decoration: line-through;
+}
+.module-slot-disabled-note {
+  color: #6b7a8f;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
 .module-regular {
   width: 100%;
   background: #121824;
@@ -1339,5 +1392,20 @@ function switchCat(cat) {
 .module-clear:hover {
   border-color: #ef5350;
   background: rgba(239, 83, 80, 0.1);
+}
+.module-slot-card-disabled button {
+  cursor: not-allowed;
+  opacity: 0.45;
+  border-color: #2a3a4a;
+  color: #6b7a8f;
+  background: transparent;
+  text-decoration: line-through;
+}
+.module-slot-card-disabled button:hover,
+.module-slot-card-disabled button:active {
+  border-color: #2a3a4a;
+  color: #6b7a8f;
+  background: transparent;
+  text-decoration: line-through;
 }
 </style>

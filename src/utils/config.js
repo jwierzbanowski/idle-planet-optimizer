@@ -761,3 +761,5 @@ export const SPECIAL_RARITIES = [
   'mythic+',
   'ancestral',
 ]
+
+export const DISABLED_MODULE_CATEGORIES = ['transport', 'remote']
