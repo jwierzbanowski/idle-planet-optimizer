@@ -750,6 +750,15 @@ export const MAX_MODULE_LEVEL = 300
 
 export const MAX_MODULE_SUBSTATS = 6
 
+// Substat slot unlocks (index 2..5 = 3rd..6th slot):
+// each entry requires a minimum module level and a minimum rarity tier.
+export const SUBSTAT_SLOT_THRESHOLDS = [
+  { minLevel: 41, minRarity: 'rare', label: 'Rare+' },
+  { minLevel: 101, minRarity: 'legendary', label: 'Legendary' },
+  { minLevel: 141, minRarity: 'mythic', label: 'Mythic' },
+  { minLevel: 161, minRarity: 'mythic+', label: 'Mythic+' },
+]
+
 export const MODULE_CATEGORY_KEYS = ['drill', 'transport', 'synth', 'remote']
 
 export const SPECIAL_RARITIES = [

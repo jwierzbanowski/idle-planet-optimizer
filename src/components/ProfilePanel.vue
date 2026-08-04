@@ -294,35 +294,49 @@ class="mgr-add" @click="addManager">+ Add</button>
             </div>
             <div v-if="moduleSlot(cat.key).module" class="module-substats">
               <div class="module-substats-title">Substats</div>
-              <div v-if="selectedSubstats(cat.key).length === 0" class="module-substats-empty">
-                No substats selected
-              </div>
               <div
-                v-for="entry in selectedSubstats(cat.key)"
-                :key="entry.index"
+                v-for="slotIndex in MAX_MODULE_SUBSTATS"
+                :key="slotIndex - 1"
                 class="module-substat-row"
+                :class="{
+                  'module-substat-row-empty': !substatSlotEntry(cat.key, slotIndex - 1),
+                  'module-substat-row-locked': !substatSlotUnlocked(cat.key, slotIndex - 1),
+                }"
               >
-                <span class="module-substat-label" :title="entry.label">{{ entry.label }}</span>
-                <span class="module-substat-value" :style="{ color: entry.color }">{{
-                  entry.value
-                }}</span>
                 <button
+                  class="module-substat-main"
+                  :disabled="
+                    moduleCategoryDisabled(cat.key) || !substatSlotUnlocked(cat.key, slotIndex - 1)
+                  "
+                  :title="substatSlotTitle(cat.key, slotIndex - 1)"
+                  @click="openSubstatDialog(cat.key, slotIndex - 1)"
+                >
+                  <template v-if="substatSlotEntry(cat.key, slotIndex - 1)">
+                    <span class="module-substat-label">{{
+                      substatSlotEntry(cat.key, slotIndex - 1).label
+                    }}</span>
+                    <span
+                      class="module-substat-value"
+                      :style="{ color: substatSlotEntry(cat.key, slotIndex - 1).color }"
+                      >{{ substatSlotEntry(cat.key, slotIndex - 1).value }}</span
+                    >
+                  </template>
+                  <span v-else class="module-substat-placeholder">{{
+                    substatSlotHint(cat.key, slotIndex - 1)
+                  }}</span>
+                </button>
+                <button
+                  v-if="substatSlotEntry(cat.key, slotIndex - 1)"
                   class="module-substat-remove"
                   title="Remove substat"
-                  :disabled="moduleCategoryDisabled(cat.key)"
-                  @click="setModuleSubstat(cat.key, entry.index, '', '')"
+                  :disabled="
+                    moduleCategoryDisabled(cat.key) || !substatSlotUnlocked(cat.key, slotIndex - 1)
+                  "
+                  @click="setModuleSubstat(cat.key, slotIndex - 1, '', '')"
                 >
                   &times;
                 </button>
               </div>
-              <button
-                v-if="canAddSubstat(cat.key)"
-                class="module-substat-add"
-                :disabled="moduleCategoryDisabled(cat.key)"
-                @click="openSubstatDialog(cat.key)"
-              >
-                + Add substat
-              </button>
             </div>
             <button
               class="module-clear"
@@ -425,7 +439,9 @@ v-if="getVal(item.key) && item.baseEffect != null" class="settings-effect"
     <div v-if="substatDialog.open" class="substat-dialog-overlay" @click.self="closeSubstatDialog">
       <div class="substat-dialog">
         <div class="substat-dialog-header">
-          <span class="substat-dialog-title">Add substat — {{ substatDialogCat }}</span>
+          <span class="substat-dialog-title">
+            Add substat #{{ substatDialogSlotNumber }} — {{ substatDialogCat }}
+          </span>
           <button class="substat-dialog-close" @click="closeSubstatDialog">&times;</button>
         </div>
         <div v-if="substatDialogRarities.length" class="substat-dialog-filters">
@@ -474,6 +490,7 @@ import {
   SHIPS,
   MAX_MODULE_LEVEL,
   MAX_MODULE_SUBSTATS,
+  SUBSTAT_SLOT_THRESHOLDS,
   MODULE_CATEGORY_KEYS,
   SPECIAL_RARITIES,
   DISABLED_MODULE_CATEGORIES,
@@ -768,45 +785,57 @@ function rarityLabel(rarityKey) {
   return r?.label || rarityKey
 }
 
-function selectedSubstats(catKey) {
+function substatSlotEntry(catKey, index) {
   const slot = moduleSlot(catKey)
-  return (slot.substats || [])
-    .map((entry, index) => {
-      if (!entry || !entry.key) return null
-      const stat = (MODULES.value?.substats?.[catKey] || []).find((s) => s.key === entry.key)
-      if (!stat) return null
-      const rarity = entry.rarity || (slot.rarity ? baseRarity(slot.rarity) : null)
-      const statValue = rarity ? (stat.values[rarity] ?? null) : null
-      return {
-        index,
-        key: entry.key,
-        label: stat.label,
-        color: entry.rarity ? rarityColor(entry.rarity) : '',
-        value: formatSubstatValue(statValue),
-      }
-    })
-    .filter(Boolean)
-}
-
-function canAddSubstat(catKey) {
-  const slot = moduleSlot(catKey)
-  const filled = (slot.substats || []).filter((s) => s?.key).length
-  if (filled >= MAX_MODULE_SUBSTATS) return false
-  const cap = slot.rarity ? rarityIndex(slot.rarity) : BASE_RARITIES.length - 1
-  const selected = selectedSubstatPairs(catKey)
-  for (const stat of substatOptions(catKey)) {
-    const min = Math.min(substatMinIndex(stat), cap)
-    for (let i = min; i <= cap; i++) {
-      const rarity = BASE_RARITIES[i]
-      if (stat.values[rarity] == null) continue
-      if (!selected.has(stat.key + '|' + rarity)) return true
-    }
+  const entry = slot.substats?.[index]
+  if (!entry || !entry.key) return null
+  const stat = (MODULES.value?.substats?.[catKey] || []).find((s) => s.key === entry.key)
+  if (!stat) return null
+  const rarity = entry.rarity || (slot.rarity ? baseRarity(slot.rarity) : null)
+  const statValue = rarity ? (stat.values[rarity] ?? null) : null
+  return {
+    index,
+    key: entry.key,
+    label: stat.label,
+    color: entry.rarity ? rarityColor(entry.rarity) : '',
+    value: formatSubstatValue(statValue),
   }
-  return false
 }
 
-const substatDialog = ref({ open: false, cat: null })
+function rarityRank(rarityKey) {
+  const rarities = MODULES.value?.rarities || []
+  const idx = rarities.findIndex((r) => r.key === rarityKey)
+  return idx >= 0 ? idx : -1
+}
+
+function substatSlotRequirement(index) {
+  return SUBSTAT_SLOT_THRESHOLDS[index - 2] || null
+}
+
+function substatSlotUnlocked(catKey, index) {
+  const t = substatSlotRequirement(index)
+  if (!t) return true
+  const slot = moduleSlot(catKey)
+  if (!slot.rarity || slot.level < t.minLevel) return false
+  return rarityRank(slot.rarity) >= rarityRank(t.minRarity)
+}
+
+function substatSlotTitle(catKey, index) {
+  const t = substatSlotRequirement(index)
+  if (!t || substatSlotUnlocked(catKey, index)) return ''
+  return 'Requires level ' + t.minLevel + ' and ' + t.label + ' rarity'
+}
+
+function substatSlotHint(catKey, index) {
+  const t = substatSlotRequirement(index)
+  if (!t || substatSlotUnlocked(catKey, index)) return '+ Add substat'
+  return 'Locked · Lv ' + t.minLevel + ' · ' + t.label
+}
+
+const substatDialog = ref({ open: false, cat: null, index: 0 })
 const substatDialogFilter = ref([])
+
+const substatDialogSlotNumber = computed(() => substatDialog.value.index + 1)
 
 const substatDialogCat = computed(() => {
   const cat = moduleCats.value.find((c) => c.key === substatDialog.value.cat)
@@ -862,24 +891,20 @@ function toggleSubstatFilter(rarity) {
   substatDialogFilter.value = substatFilterActive(rarity) ? [] : [rarity]
 }
 
-function openSubstatDialog(catKey) {
-  substatDialog.value = { open: true, cat: catKey }
+function openSubstatDialog(catKey, index) {
+  substatDialog.value = { open: true, cat: catKey, index }
   const slot = moduleSlot(catKey)
   substatDialogFilter.value = slot?.rarity ? [baseRarity(slot.rarity)] : []
 }
 
 function closeSubstatDialog() {
-  substatDialog.value = { open: false, cat: null }
+  substatDialog.value = { open: false, cat: null, index: 0 }
   substatDialogFilter.value = []
 }
 
 function chooseSubstat(statKey, rarity) {
   const catKey = substatDialog.value.cat
-  if (catKey) {
-    const slot = moduleSlot(catKey)
-    const index = (slot.substats || []).findIndex((s) => !s?.key)
-    if (index >= 0) setModuleSubstat(catKey, index, statKey, rarity)
-  }
+  if (catKey) setModuleSubstat(catKey, substatDialog.value.index, statKey, rarity)
   closeSubstatDialog()
 }
 
@@ -1156,9 +1181,9 @@ function switchCat(cat) {
 .module-slot-card-disabled .module-mult,
 .module-slot-card-disabled .module-effect-text,
 .module-slot-card-disabled .module-substats-title,
-.module-slot-card-disabled .module-substats-empty,
 .module-slot-card-disabled .module-substat-label,
-.module-slot-card-disabled .module-substat-value {
+.module-slot-card-disabled .module-substat-value,
+.module-slot-card-disabled .module-substat-placeholder {
   text-decoration: line-through;
 }
 .module-slot-disabled-note {
@@ -1205,19 +1230,44 @@ function switchCat(cat) {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.module-substats-empty {
-  color: #6b7a8f;
-  font-size: 12px;
-}
 .module-substat-row {
   position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 32px 10px 12px;
+  padding: 0;
   border: 1px solid #1a2235;
   border-radius: 6px;
   background: #0d1520;
+}
+.module-substat-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 32px 10px 12px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.module-substat-main:disabled {
+  cursor: not-allowed;
+}
+.module-substat-row-empty:not(.module-substat-row-locked) {
+  border-style: dashed;
+  border-color: #2a3a4a;
+}
+.module-substat-row-empty:not(.module-substat-row-locked):hover {
+  border-color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.05);
+}
+.module-substat-row-locked {
+  border-color: #141c2a;
+  opacity: 0.55;
 }
 .module-substat-label {
   flex: 1;
@@ -1233,6 +1283,14 @@ function switchCat(cat) {
   text-align: right;
   white-space: nowrap;
   flex-shrink: 0;
+}
+.module-substat-placeholder {
+  flex: 1;
+  color: #4fc3f7;
+  font-size: 12px;
+}
+.module-substat-row-locked .module-substat-placeholder {
+  color: #6b7a8f;
 }
 .module-substat-remove {
   position: absolute;
@@ -1252,20 +1310,6 @@ function switchCat(cat) {
 .module-substat-remove:hover {
   border-color: #ef5350;
   color: #ef5350;
-}
-.module-substat-add {
-  padding: 6px 8px;
-  border: 1px dashed #2a3a4a;
-  border-radius: 4px;
-  background: transparent;
-  color: #4fc3f7;
-  font-size: 12px;
-  cursor: pointer;
-  text-align: center;
-}
-.module-substat-add:hover {
-  border-color: #4fc3f7;
-  background: rgba(79, 195, 247, 0.05);
 }
 .substat-dialog-overlay {
   position: fixed;
