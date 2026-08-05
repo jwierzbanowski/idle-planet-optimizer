@@ -35,6 +35,8 @@ function saveGame(s) {
 
 const raw = loadGame()
 if (!Array.isArray(raw.managers)) raw.managers = []
+if (!raw.milestoneProjects) raw.milestoneProjects = {}
+if (!raw.debrisOwned) raw.debrisOwned = {}
 // Migrate old format (with 'skill' and 'value') to new format
 let migrated = false
 for (let i = 0; i < raw.managers.length; i++) {
@@ -121,7 +123,26 @@ export function useGame() {
   function resetGame() {
     game.projects = {}
     game.pinnedItems = []
+    game.milestoneProjects = {}
+    game.debrisOwned = {}
     _managerVersion.value++
+    saveGame(game)
+  }
+
+  function toggleMilestoneProject(key, gameProjectKey) {
+    if (!game.milestoneProjects) game.milestoneProjects = {}
+    const current = !!game.milestoneProjects[key]
+    game.milestoneProjects[key] = !current
+    if (gameProjectKey) {
+      if (!game.projects) game.projects = {}
+      game.projects[gameProjectKey] = !current
+    }
+    saveGame(game)
+  }
+
+  function setDebrisOwned(id, value) {
+    if (!game.debrisOwned) game.debrisOwned = {}
+    game.debrisOwned[id] = value
     saveGame(game)
   }
 
@@ -139,5 +160,7 @@ export function useGame() {
     setPinnedItems,
     resetGame,
     saveGame,
+    toggleMilestoneProject,
+    setDebrisOwned,
   }
 }

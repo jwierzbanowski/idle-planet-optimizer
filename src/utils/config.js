@@ -140,6 +140,14 @@ export const SETTINGS_CONFIG = {
       perLevel: 0.1,
       maxLevel: 60,
     },
+    {
+      key: 'laboratory',
+      label: 'Laboratory',
+      desc: 'Project Research Costs',
+      baseEffect: 0.95,
+      perLevel: -0.045,
+      maxLevel: 11,
+    },
   ],
   projects: [
     { key: 'managerTraining', label: 'Manager Training', desc: 'Manager effects ×1.1', baseEffect: 1.1 },

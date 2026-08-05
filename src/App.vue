@@ -140,6 +140,9 @@ class="loading">
       <div v-show="activeTab === 'mining'" class="tab-content">
         <MiningTable />
       </div>
+      <div v-show="activeTab === 'milestones'" class="tab-content">
+        <Milestones />
+      </div>
     </template>
 
     <ProfilePanel v-if="showProfile"
@@ -167,6 +170,7 @@ import GamePanel from './components/GamePanel.vue'
 import OresTable from './components/OresTable.vue'
 import CraftableTable from './components/CraftableTable.vue'
 import MiningTable from './components/MiningTable.vue'
+import Milestones from './components/Milestones.vue'
 import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
 import { useProfile } from './composables/useProfile'
@@ -211,7 +215,7 @@ const showProfile = ref(false)
 const showGame = ref(false)
 const showGameBadge = ref(false)
 const backupOpen = ref(false)
-const counts = reactive({ ores: 0, alloys: 0, items: 0, mining: 0 })
+const counts = reactive({ ores: 0, alloys: 0, items: 0, mining: 0, milestones: 0 })
 const loading = ref(true)
 const loadError = ref('')
 
@@ -244,6 +248,7 @@ const tabs = computed(() => [
   { key: 'alloys', label: 'Alloys', count: counts.alloys },
   { key: 'items', label: 'Items', count: counts.items },
   { key: 'mining', label: 'Mining', count: counts.mining },
+  { key: 'milestones', label: 'Milestones', count: counts.milestones },
 ])
 
 // ===== DATA LOADING =====

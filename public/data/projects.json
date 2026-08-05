@@ -1,0 +1,649 @@
+{
+  "milestones": {
+    "1B": [
+      {
+        "key": "management",
+        "name": "Management",
+        "category": "basic",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "ore", "id": "copper", "qty": 400 },
+          { "type": "ore", "id": "iron", "qty": 50 }
+        ],
+        "requires": []
+      },
+      {
+        "key": "asteroidMiner",
+        "name": "Asteroid Miner",
+        "category": "basic",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "ore", "id": "copper", "qty": 400 },
+          { "type": "ore", "id": "iron", "qty": 100 }
+        ],
+        "requires": []
+      },
+      {
+        "key": "telescope1",
+        "name": "Telescope 1",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "ore", "id": "iron", "qty": 1500 },
+          { "type": "alloy", "id": "copper_bar", "qty": 5 }
+        ],
+        "requires": ["management"]
+      },
+      {
+        "key": "telescope2",
+        "name": "Telescope 2",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "lead_bar", "qty": 10 },
+          { "type": "ore", "id": "silica", "qty": 500 }
+        ],
+        "requires": ["telescope1"]
+      },
+      {
+        "key": "telescope3",
+        "name": "Telescope 3",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "iron_nail", "qty": 10 },
+          { "type": "alloy", "id": "silicon_bar", "qty": 15 }
+        ],
+        "requires": ["telescope2"]
+      },
+      {
+        "key": "telescope4",
+        "name": "Telescope 4",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "hammer", "qty": 5 },
+          { "type": "alloy", "id": "aluminium_bar", "qty": 20 }
+        ],
+        "requires": ["telescope3"]
+      },
+      {
+        "key": "telescope5",
+        "name": "Telescope 5",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "circuit", "qty": 3 },
+          { "type": "alloy", "id": "gold_bar", "qty": 10 }
+        ],
+        "requires": ["telescope4"]
+      },
+      {
+        "key": "telescope6",
+        "name": "Telescope 6",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "laser", "qty": 3 },
+          { "type": "alloy", "id": "bronze_bar", "qty": 25 }
+        ],
+        "requires": ["telescope5"]
+      },
+      {
+        "key": "beacon",
+        "name": "Beacon",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "iron_bar", "qty": 15 }
+        ],
+        "requires": ["telescope1"]
+      },
+      {
+        "key": "resourceDetails",
+        "name": "Resource Details",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "battery", "qty": 3 }
+        ],
+        "requires": ["telescope2"]
+      },
+      {
+        "key": "cargoLogistics",
+        "name": "Cargo Logistics",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "aluminium_bar", "qty": 10 },
+          { "type": "item", "id": "circuit", "qty": 3 }
+        ],
+        "requires": ["telescope4"]
+      },
+      {
+        "key": "asteroidRefinedDrilling",
+        "name": "Asteroid Refined Drilling",
+        "category": "asteroids",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "silicon_bar", "qty": 40 },
+          { "type": "alloy", "id": "lead_bar", "qty": 80 }
+        ],
+        "requires": ["telescope3"]
+      },
+      {
+        "key": "asteroidHarvester",
+        "name": "Asteroid Harvester",
+        "category": "asteroids",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "iron_bar", "qty": 400 },
+          { "type": "item", "id": "circuit", "qty": 5 }
+        ],
+        "requires": ["asteroidRefinedDrilling"]
+      },
+      {
+        "key": "marketInsight",
+        "name": "Market Insight",
+        "category": "rovers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "silver_bar", "qty": 20 },
+          { "type": "item", "id": "hammer", "qty": 10 }
+        ],
+        "requires": ["telescope4"]
+      },
+      {
+        "key": "rover",
+        "name": "Rover",
+        "category": "planets",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "copper_wire", "qty": 10 }
+        ],
+        "requires": ["asteroidMiner"]
+      },
+      {
+        "key": "advancedMining",
+        "name": "Advanced Mining",
+        "category": "planets",
+        "gameProjectKey": "advancedMining",
+        "cost": [
+          { "type": "item", "id": "battery", "qty": 5 },
+          { "type": "alloy", "id": "aluminium_bar", "qty": 20 }
+        ],
+        "requires": ["rover"]
+      },
+      {
+        "key": "advancedThrusters",
+        "name": "Advanced Thrusters",
+        "category": "planets",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "glass", "qty": 2 },
+          { "type": "alloy", "id": "gold_bar", "qty": 10 }
+        ],
+        "requires": ["advancedMining"]
+      },
+      {
+        "key": "advancedCargoHandling",
+        "name": "Advanced Cargo Handling",
+        "category": "planets",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "hammer", "qty": 5 },
+          { "type": "alloy", "id": "silver_bar", "qty": 25 }
+        ],
+        "requires": ["advancedMining"]
+      },
+      {
+        "key": "smelter",
+        "name": "Smelter",
+        "category": "production",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "ore", "id": "copper", "qty": 600 },
+          { "type": "ore", "id": "iron", "qty": 250 }
+        ],
+        "requires": ["asteroidMiner"]
+      },
+      {
+        "key": "crafter",
+        "name": "Crafter",
+        "category": "production",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "ore", "id": "lead", "qty": 5000 },
+          { "type": "alloy", "id": "iron_bar", "qty": 5 }
+        ],
+        "requires": ["smelter"]
+      },
+      {
+        "key": "advancedCrafter",
+        "name": "Advanced Crafter",
+        "category": "production",
+        "gameProjectKey": "advancedCrafter",
+        "cost": [
+          { "type": "item", "id": "lens", "qty": 5 },
+          { "type": "alloy", "id": "gold_bar", "qty": 50 }
+        ],
+        "requires": ["crafter"]
+      },
+      {
+        "key": "advancedItemValue",
+        "name": "Advanced Item Value",
+        "category": "production",
+        "gameProjectKey": "advancedItemValue",
+        "cost": [
+          { "type": "item", "id": "lens", "qty": 1 },
+          { "type": "alloy", "id": "silver_bar", "qty": 5 }
+        ],
+        "requires": ["advancedCrafter"]
+      },
+      {
+        "key": "advancedFurnace",
+        "name": "Advanced Furnace",
+        "category": "production",
+        "gameProjectKey": "advancedFurnace",
+        "cost": [
+          { "type": "item", "id": "glass", "qty": 3 },
+          { "type": "alloy", "id": "aluminium_bar", "qty": 10 }
+        ],
+        "requires": ["smelter"]
+      },
+      {
+        "key": "advancedAlloyValue",
+        "name": "Advanced Alloy Value",
+        "category": "production",
+        "gameProjectKey": "advancedAlloyValue",
+        "cost": [
+          { "type": "item", "id": "circuit", "qty": 3 },
+          { "type": "alloy", "id": "silver_bar", "qty": 10 }
+        ],
+        "requires": ["advancedFurnace"]
+      }
+    ],
+    "1T": [
+      {
+        "key": "alchemy",
+        "name": "Alchemy",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "gold_bar", "qty": 50 },
+          { "type": "item", "id": "lens", "qty": 6 }
+        ],
+        "requires": ["telescope4"]
+      },
+      {
+        "key": "oreTargeting",
+        "name": "Ore Targeting",
+        "category": "ore_logistics",
+        "gameProjectKey": "oreTargeting",
+        "cost": [
+          { "type": "item", "id": "hammer", "qty": 100 },
+          { "type": "item", "id": "battery", "qty": 50 }
+        ],
+        "requires": ["cargoLogistics"]
+      },
+      {
+        "key": "roverAdvancedLogistics",
+        "name": "Rover Advanced Logistics",
+        "category": "rovers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "bronze_bar", "qty": 20 },
+          { "type": "item", "id": "battery", "qty": 20 },
+          { "type": "item", "id": "lens", "qty": 10 }
+        ],
+        "requires": ["telescope5"]
+      },
+      {
+        "key": "roverScanningModule",
+        "name": "Rover Scanning Module",
+        "category": "rovers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "aluminium_bar", "qty": 100 },
+          { "type": "item", "id": "basic_computer", "qty": 1 }
+        ],
+        "requires": ["roverAdvancedLogistics"]
+      },
+      {
+        "key": "smeltingEfficiency",
+        "name": "Smelting Efficiency",
+        "category": "production",
+        "gameProjectKey": "smeltingEfficiency",
+        "cost": [
+          { "type": "alloy", "id": "bronze_bar", "qty": 200 }
+        ],
+        "requires": ["advancedFurnace"]
+      },
+      {
+        "key": "superiorAlloyValue",
+        "name": "Superior Alloy Value",
+        "category": "production",
+        "gameProjectKey": "superiorAlloyValue",
+        "cost": [
+          { "type": "diamond", "id": "diamond", "qty": 250000 },
+          { "type": "item", "id": "laser", "qty": 30 }
+        ],
+        "requires": ["advancedAlloyValue"]
+      },
+      {
+        "key": "telescope7",
+        "name": "Telescope 7",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "solar_panel", "qty": 3 },
+          { "type": "alloy", "id": "platinum_bar", "qty": 20 }
+        ],
+        "requires": ["telescope6"]
+      },
+      {
+        "key": "telescope8",
+        "name": "Telescope 8",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "laser_torch", "qty": 3 },
+          { "type": "alloy", "id": "titanium_bar", "qty": 10 }
+        ],
+        "requires": ["telescope7"]
+      },
+      {
+        "key": "telescope9",
+        "name": "Telescope 9",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "advanced_battery", "qty": 3 },
+          { "type": "alloy", "id": "iridium_bar", "qty": 10 }
+        ],
+        "requires": ["telescope8"]
+      },
+      {
+        "key": "telescope10",
+        "name": "Telescope 10",
+        "category": "telescopes",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "thermal_scanner", "qty": 3 },
+          { "type": "alloy", "id": "palladium_bar", "qty": 10 }
+        ],
+        "requires": ["telescope9"]
+      },
+      {
+        "key": "bottleneckOptimizations",
+        "name": "Bottleneck Optimizations",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "titanium_bar", "qty": 5 },
+          { "type": "alloy", "id": "platinum_bar", "qty": 25 },
+          { "type": "alloy", "id": "steel_bar", "qty": 50 }
+        ],
+        "requires": ["resourceDetails"]
+      },
+      {
+        "key": "roverResupply",
+        "name": "Rover Resupply",
+        "category": "rovers",
+        "gameProjectKey": "rover1",
+        "cost": [
+          { "type": "alloy", "id": "platinum_bar", "qty": 6 },
+          { "type": "item", "id": "laser_torch", "qty": 1 },
+          { "type": "item", "id": "solar_panel", "qty": 1 }
+        ],
+        "requires": ["roverAdvancedLogistics"]
+      },
+      {
+        "key": "managerTraining",
+        "name": "Manager Training",
+        "category": "managers",
+        "gameProjectKey": "managerTraining",
+        "cost": [
+          { "type": "item", "id": "laser_torch", "qty": 1 },
+          { "type": "alloy", "id": "steel_bar", "qty": 50 }
+        ],
+        "requires": ["telescope6"]
+      },
+      {
+        "key": "contractManager",
+        "name": "Contract Manager",
+        "category": "managers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "titanium_bar", "qty": 25 },
+          { "type": "item", "id": "circuit", "qty": 20 },
+          { "type": "item", "id": "basic_computer", "qty": 20 }
+        ],
+        "requires": ["managerTraining"]
+      },
+      {
+        "key": "advancedContractManager",
+        "name": "Advanced Contract Manager",
+        "category": "managers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "advanced_computer", "qty": 10 },
+          { "type": "item", "id": "thermal_scanner", "qty": 10 }
+        ],
+        "requires": ["contractManager"]
+      },
+      {
+        "key": "advancedManagerTraining",
+        "name": "Advanced Manager Training",
+        "category": "managers",
+        "gameProjectKey": "advancedManagerTraining",
+        "cost": [
+          { "type": "item", "id": "advanced_computer", "qty": 2 },
+          { "type": "item", "id": "advanced_battery", "qty": 10 }
+        ],
+        "requires": ["managerTraining"]
+      },
+      {
+        "key": "superiorMining",
+        "name": "Superior Mining",
+        "category": "planets",
+        "gameProjectKey": "superiorMining",
+        "cost": [
+          { "type": "item", "id": "laser_torch", "qty": 10 },
+          { "type": "alloy", "id": "platinum_bar", "qty": 25 }
+        ],
+        "requires": ["advancedMining"]
+      },
+      {
+        "key": "superiorThrusters",
+        "name": "Superior Thrusters",
+        "category": "planets",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "advanced_battery", "qty": 4 }
+        ],
+        "requires": ["superiorMining"]
+      },
+      {
+        "key": "superiorCargoHandling",
+        "name": "Superior Cargo Handling",
+        "category": "planets",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "titanium_bar", "qty": 50 }
+        ],
+        "requires": ["superiorMining"]
+      },
+      {
+        "key": "craftingEfficiency",
+        "name": "Crafting Efficiency",
+        "category": "production",
+        "gameProjectKey": "craftingEfficiency",
+        "cost": [
+          { "type": "item", "id": "solar_panel", "qty": 30 }
+        ],
+        "requires": ["advancedCrafter"]
+      },
+      {
+        "key": "superiorCrafting",
+        "name": "Superior Crafting",
+        "category": "production",
+        "gameProjectKey": "superiorCrafter",
+        "cost": [
+          { "type": "item", "id": "thermal_scanner", "qty": 2 },
+          { "type": "item", "id": "advanced_battery", "qty": 10 },
+          { "type": "item", "id": "laser_torch", "qty": 20 }
+        ],
+        "requires": ["advancedCrafter"]
+      },
+      {
+        "key": "craftingSpecialist",
+        "name": "Crafting Specialist",
+        "category": "production",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "advanced_battery", "qty": 3 },
+          { "type": "item", "id": "advanced_computer", "qty": 2 }
+        ],
+        "requires": ["advancedItemValue"]
+      },
+      {
+        "key": "superiorItemValue",
+        "name": "Superior Item Value",
+        "category": "production",
+        "gameProjectKey": "superiorItemValue",
+        "cost": [
+          { "type": "alloy", "id": "palladium_bar", "qty": 200 },
+          { "type": "item", "id": "laser_torch", "qty": 25 }
+        ],
+        "requires": ["advancedItemValue"]
+      },
+      {
+        "key": "superiorFurnace",
+        "name": "Superior Furnace",
+        "category": "production",
+        "gameProjectKey": "superiorFurnace",
+        "cost": [
+          { "type": "alloy", "id": "iridium_bar", "qty": 5 },
+          { "type": "alloy", "id": "titanium_bar", "qty": 20 },
+          { "type": "alloy", "id": "platinum_bar", "qty": 50 }
+        ],
+        "requires": ["advancedFurnace"]
+      },
+      {
+        "key": "smeltingSpecialist",
+        "name": "Smelting Specialist",
+        "category": "production",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "basic_computer", "qty": 5 },
+          { "type": "item", "id": "advanced_battery", "qty": 2 }
+        ],
+        "requires": ["advancedAlloyValue"]
+      },
+      {
+        "key": "preferredVendor",
+        "name": "Preferred Vendor",
+        "category": "production",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "iron_nail", "qty": 200 },
+          { "type": "item", "id": "hammer", "qty": 75 },
+          { "type": "item", "id": "circuit", "qty": 40 }
+        ],
+        "requires": ["superiorFurnace"]
+      }
+    ],
+    "1q": [
+      {
+        "key": "insideTrader",
+        "name": "Inside Trader",
+        "category": "rovers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "steel_bar", "qty": 25 },
+          { "type": "item", "id": "lens", "qty": 10 }
+        ],
+        "requires": ["marketInsight"]
+      },
+      {
+        "key": "advancedOreTargeting",
+        "name": "Advanced Ore Targeting",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "item", "id": "basic_computer", "qty": 100 },
+          { "type": "item", "id": "thermal_scanner", "qty": 15 }
+        ],
+        "requires": ["oreTargeting"]
+      },
+      {
+        "key": "advancedAlchemy",
+        "name": "Advanced Alchemy",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "ore", "id": "silver", "qty": 50000 },
+          { "type": "ore", "id": "titanium", "qty": 25000 },
+          { "type": "item", "id": "basic_computer", "qty": 6 }
+        ],
+        "requires": ["alchemy"]
+      },
+      {
+        "key": "marketManipulation",
+        "name": "Market Manipulation",
+        "category": "rovers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "diamond", "id": "diamond", "qty": 30000 },
+          { "type": "alloy", "id": "gold_bar", "qty": 15000 },
+          { "type": "item", "id": "basic_computer", "qty": 10 }
+        ],
+        "requires": ["insideTrader"]
+      },
+      {
+        "key": "superiorAlchemy",
+        "name": "Superior Alchemy",
+        "category": "ore_logistics",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "palladium_bar", "qty": 400 },
+          { "type": "alloy", "id": "osmium_bar", "qty": 200 },
+          { "type": "item", "id": "advanced_computer", "qty": 5 }
+        ],
+        "requires": ["advancedAlchemy"]
+      },
+      {
+        "key": "superiorManagerTraining",
+        "name": "Superior Manager Training",
+        "category": "managers",
+        "gameProjectKey": "superiorManagerTraining",
+        "cost": [
+          { "type": "alloy", "id": "rhodium_bar", "qty": 200 }
+        ],
+        "requires": ["advancedManagerTraining"]
+      },
+      {
+        "key": "leader",
+        "name": "Leader",
+        "category": "managers",
+        "gameProjectKey": null,
+        "cost": [
+          { "type": "alloy", "id": "rhodium_bar", "qty": 60 },
+          { "type": "item", "id": "navigation_module", "qty": 5 }
+        ],
+        "requires": ["advancedManagerTraining"]
+      }
+    ]
+  },
+  "categories": {
+    "basic": "Basic",
+    "telescopes": "Telescopes",
+    "ore_logistics": "Ore & Logistics",
+    "asteroids": "Asteroids & Debris",
+    "managers": "Managers",
+    "rovers": "Rovers & Markets",
+    "planets": "Planets",
+    "production": "Production"
+  }
+}
