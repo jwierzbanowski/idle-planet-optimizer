@@ -51,6 +51,8 @@ The value comes from the module level table bundled in `public/data/modules.json
 
 The multiplier preview is informational only — it is **not** yet wired into the [Multipliers bar](../multipliers.md).
 
+> Substats, on the other hand, **are** wired into the calculator — see [Substat effects](#substat-effects) below.
+
 ## Substats
 
 Once a module is selected, the slot shows a **Substats** section with a fixed list of **6** slots. Clicking an unlocked slot opens the dialog listing the available substats from the category pool (Drill, Transport, Synth, and Remote each have their own substat list — e.g. Mining Colony Bonus, Ship Speed, Smelt Speed per Beam, Asteroid Frequency).
@@ -77,3 +79,33 @@ Locked slots are greyed out and show the requirement (e.g. `Locked · Lv 41 · R
   - per-unit bonuses are shown as in the sheet (e.g. `0.002, Max 1.45x`),
   - reductions are shown as percentages (e.g. `-2.5%`),
   - if the substat has no value at that rarity, it shows **—**.
+
+## Substat effects
+
+The substats you pick on the enabled **Drill** and **Synth** slots feed into the calculator and change the numbers shown across the app (ore yields, smelt/craft times, alloy/item prices, the [Multipliers bar](../multipliers.md), etc.).
+
+### How values are read
+
+Each substat variant has a numeric value for its rarity. Two shapes are supported:
+
+- **Pure multipliers** (e.g. `1.5`, `2`) — used directly.
+- **Capped formulas** written as `0.002, Max 3.35x` or `0.16, max x5 (25)` — the calculator takes the **`Max` cap** as a fixed multiplier (an optimistic approximation, since the per-unit ramp depends on live game state the optimizer doesn't model).
+
+Substats whose value is a string **without** a `Max` cap (e.g. some `Colonization Cost per …` rolls) are displayed but **not** applied — the optimizer has no way to model them.
+
+### What feeds into what
+
+Substats are grouped by key and applied to the matching calculator chain. Substats you've selected whose key is **not** in the lists below are shown on the card but have no effect on results.
+
+| Category | Substat keys applied | Affects |
+| --- | --- | --- |
+| **Drill** | `mining_colony_bonus`, `mining_beacon_bonus`, `mining_probe_bonus`, `planet_boost_bonus`, `mining_per_asteroids_mined`, `mining_for_each_own_asteroid_mined`, `mining_on_planet_with_10_colonies` | Mining speed → ore yields and the [Ores](../tabs/ores.md) / [Mining](../tabs/mining.md) tabs |
+| **Synth** | `smelt_speed_bonus`, `smelt_speed_per_planet_with_colony`, `smelt_speed_per_colony_level`, `smelt_speed_per_beam`, `smelt_speed_of_alloy_for_active_recipie`, `smelt_speed_per_planet_with_10_colonies`, `smelt_speed_per_telescope_with_20_colonies` | Smelt speed → smelt times and the [Alloys](../tabs/alloys.md) tab |
+| **Synth** | `craft_speed_bonus`, `craft_speed_per_planet_with_colony`, `craft_speed_per_colony_level`, `craft_speed_per_beam`, `craft_speed_of_item_for_active_recipie`, `craft_speed_per_planet_with_10_colonies`, `craft_speed_per_telescope_with_20_colonies` | Craft speed → craft times and the [Items](../tabs/items.md) tab |
+| **Synth** | `resource_value` (applies to ores, alloys, and items), `market_bonus`, `market_bonus_per_planet_with_colony`, `market_bonus_per_beam` | Effective price of all ores, alloys, and items |
+| **Synth** | `alloy_value` | Effective price of alloys only |
+| **Synth** | `item_value` | Effective price of items only |
+
+### How they combine
+
+All contributing substats from a category are **multiplied together**, and the product is then multiplied into the relevant aggregate (mining speed, smelt speed, craft speed, or effective price) — the same pattern used for rooms, station, projects, ships, and managers. A category with no contributing substats changes nothing.

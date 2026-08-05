@@ -188,6 +188,10 @@ import {
   getManagerTrainingMult,
   getMarketingMult,
   getShipMult,
+  getModuleSubstatMult,
+  SYNTH_VALUE_STATS,
+  SYNTH_ALLOY_VALUE_STATS,
+  SYNTH_ITEM_VALUE_STATS,
 } from './utils/calc'
 import { toggleTip } from './utils/format'
 import { User, Gamepad2, RotateCcw, Download, Upload } from '@lucide/vue'
@@ -330,8 +334,11 @@ const debugStats = computed(() => {
 
   const salesMod = sales || 1
   const stnVal = stnValue || 1
-  const alloyV = (salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1)).toFixed(2) + '×'
-  const itemV = (salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1)).toFixed(2) + '×'
+  const synthValSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_VALUE_STATS) || 1
+  const synthAlloySub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_ALLOY_VALUE_STATS) || 1
+  const synthItemSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_ITEM_VALUE_STATS) || 1
+  const alloyV = (salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1) * synthValSub * synthAlloySub).toFixed(2) + '×'
+  const itemV = (salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1) * synthValSub * synthItemSub).toFixed(2) + '×'
 
   const fmt = (v) => (v ? v.toFixed(2) + '×' : '1.00×')
 
@@ -382,8 +389,10 @@ const debugStats = computed(() => {
       ['Station value', stnValue],
       ['Alloy value projects', alloyProj],
       ['Ships', shipAlloyValue],
+      ['Synth substats (resource/market)', synthValSub !== 1 ? synthValSub : null],
+      ['Synth substats (alloy)', synthAlloySub !== 1 ? synthAlloySub : null],
     ],
-    salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1)
+    salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1) * synthValSub * synthAlloySub
   )
 
   const itemInfo = infoLines(
@@ -393,8 +402,10 @@ const debugStats = computed(() => {
       ['Station value', stnValue],
       ['Item value projects', itemProj],
       ['Ships', shipItemValue],
+      ['Synth substats (resource/market)', synthValSub !== 1 ? synthValSub : null],
+      ['Synth substats (item)', synthItemSub !== 1 ? synthItemSub : null],
     ],
-    salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1)
+    salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1) * synthValSub * synthItemSub
   )
 
   const planetCostInfo = infoLines(

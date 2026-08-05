@@ -33,7 +33,7 @@ The app runs entirely in your browser. All data lives locally (game JSON files b
 - **Ores, Alloys & Items tabs** — resources, smelting, and crafting with profit per second.
 - **Supply & Demand panel** — search and select any ore, alloy, or item, then override its current market change; the values flow into every tab above.
 - **Profile configuration** — rooms, station, beacon, managers, badges, ships, and modules, each on its own page.
-- **Modules** — four slots (Drill, Transport, Synth, Remote) for tracking your modules with rarity, level, and a base multiplier preview.
+- **Modules** — four slots (Drill, Transport, Synth, Remote) for tracking your modules with rarity, level, a base multiplier preview, and **substats** that feed into the calculator (mining speed, smelt/craft speed, and effective price on the enabled Drill and Synth slots).
 - **Game configuration** — tick the projects completed in your current playthrough, managers and pinned items too.
 - **Multipliers bar** — live summary of all ten speed, cost, and value multipliers, each with a full breakdown tooltip.
 - **Reset playthrough** — one click clears temporary data (projects, market overrides, mining setup) while keeping profile and managers.

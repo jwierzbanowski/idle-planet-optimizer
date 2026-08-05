@@ -1,5 +1,6 @@
 import { SETTINGS_CONFIG, SECONDARY_EFFECTS, STATION_GROUPS, SHIPS } from './config'
 import { getEntity } from './registry'
+import { DISABLED_MODULE_CATEGORIES } from './config'
 
 function getStars(overrides, id) {
   return overrides[id]?.stars ?? 0
@@ -47,14 +48,114 @@ export function getModuleLevelMult(modules, cat, rarity, level) {
   return null
 }
 
+// --- Module substats wiring -------------------------------------------------
+
+// Resolve a substat catalog value to a usable numeric multiplier.
+// - number  -> returned as-is
+// - string  -> looks for a `Max <n>[x]` token (case-insensitive) and uses that
+//              number as a fixed multiplier (per product decision); without a
+//              `Max` cap, returns null (cannot be modelled by the optimizer)
+export function resolveSubstatValue(value) {
+  if (typeof value === 'number') return value
+  if (typeof value !== 'string') return null
+  const m = value.match(/max\s*(?:x\s*)?(\d+(?:\.\d+)?)/i)
+  return m ? parseFloat(m[1]) : null
+}
+
+// Module substat keys that the optimizer feeds into the relevant calc chain.
+const DRILL_MINING_STATS = [
+  'mining_colony_bonus',
+  'mining_beacon_bonus',
+  'mining_probe_bonus',
+  'planet_boost_bonus',
+  'mining_per_asteroids_mined',
+  'mining_for_each_own_asteroid_mined',
+  'mining_on_planet_with_10_colonies',
+]
+
+const SYNTH_SMELT_STATS = [
+  'smelt_speed_bonus',
+  'smelt_speed_per_planet_with_colony',
+  'smelt_speed_per_colony_level',
+  'smelt_speed_per_beam',
+  'smelt_speed_of_alloy_for_active_recipie',
+  'smelt_speed_per_planet_with_10_colonies',
+  'smelt_speed_per_telescope_with_20_colonies',
+]
+
+const SYNTH_CRAFT_STATS = [
+  'craft_speed_bonus',
+  'craft_speed_per_planet_with_colony',
+  'craft_speed_per_colony_level',
+  'craft_speed_per_beam',
+  'craft_speed_of_item_for_active_recipie',
+  'craft_speed_per_planet_with_10_colonies',
+  'craft_speed_per_telescope_with_20_colonies',
+]
+
+const SYNTH_VALUE_STATS = [
+  'resource_value',
+  'market_bonus',
+  'market_bonus_per_planet_with_colony',
+  'market_bonus_per_beam',
+]
+
+export { SYNTH_VALUE_STATS }
+
+const SYNTH_ALLOY_VALUE_STATS = ['alloy_value']
+
+export { SYNTH_ALLOY_VALUE_STATS }
+
+const SYNTH_ITEM_VALUE_STATS = ['item_value']
+
+export { SYNTH_ITEM_VALUE_STATS }
+
+// Returns the combined multiplier for the substats of one module category that
+// match `statKeys`, or null when none contribute. Mirrors the established
+// `let mult = 1; ... return mult > 1 ? mult : null` pattern in this file.
+export function getModuleSubstatMult(modules, profileModules, cat, statKeys) {
+  if (!cat || !modules?.substats || !profileModules) return null
+  if (DISABLED_MODULE_CATEGORIES.includes(cat)) return null
+  const slot = profileModules[cat]
+  if (!slot || !Array.isArray(slot.substats)) return null
+  const catalog = modules.substats[cat]
+  if (!Array.isArray(catalog)) return null
+  const allow = statKeys ? new Set(statKeys) : null
+  let mult = 1
+  let any = false
+  for (const s of slot.substats) {
+    if (!s || !s.key) continue
+    if (allow && !allow.has(s.key)) continue
+    const def = catalog.find((d) => d.key === s.key)
+    if (!def || !def.values) continue
+    const rarity = s.rarity || slot.rarity
+    if (!rarity) continue
+    const raw = def.values[rarity]
+    if (raw == null) continue
+    const val = resolveSubstatValue(raw)
+    if (val == null || val === 0) continue
+    mult *= val
+    any = true
+  }
+  return any && mult > 1 ? mult : null
+}
+
+function moduleSubstatMultHelper(settings, cat, stats) {
+  return getModuleSubstatMult(settings.modulesData, settings.modules, cat, stats)
+}
+
 export function getMarketingMult(settings) {
   return getModifier('rooms', 'marketing', settings)
 }
 
 export function effectiveMarketVal(market, settings) {
   if (market <= 1) return market
-  const mult = getMarketingMult(settings)
-  return mult != null ? market * mult : market
+  let val = market
+  const marketing = getMarketingMult(settings)
+  if (marketing) val *= marketing
+  const stnMarket = getStationMarketMult(settings)
+  if (stnMarket) val *= stnMarket
+  return val
 }
 
 function getProjectModifier(settings, key) {
@@ -278,6 +379,8 @@ export function getMiningSpeedMult(settings) {
   if (settings.station?.miningGlobal) mult *= 1.2
   const shipMine = getShipMult(settings, 'mining')
   if (shipMine) mult *= shipMine
+  const drillSub = moduleSubstatMultHelper(settings, 'drill', DRILL_MINING_STATS)
+  if (drillSub) mult *= drillSub
   return mult > 1 ? mult : null
 }
 
@@ -299,6 +402,8 @@ export function getSmeltSpeedMult(settings) {
   if (mgrSmelt) mult *= mgrSmelt
   const shipSmelt = getShipMult(settings, 'smelt')
   if (shipSmelt) mult *= shipSmelt
+  const synthSmeltSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_SMELT_STATS)
+  if (synthSmeltSub) mult *= synthSmeltSub
   return mult > 1 ? mult : null
 }
 
@@ -320,6 +425,8 @@ export function getCraftSpeedMult(settings) {
   if (mgrCraft) mult *= mgrCraft
   const shipCraft = getShipMult(settings, 'craft')
   if (shipCraft) mult *= shipCraft
+  const synthCraftSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_CRAFT_STATS)
+  if (synthCraftSub) mult *= synthCraftSub
   return mult > 1 ? mult : null
 }
 
@@ -327,8 +434,6 @@ export function effectivePrice(id, overrides, settings) {
   const e = getEntity(id)
   if (!e) return 0
   let price = e.basePrice * (1 + 0.2 * getStars(overrides, id)) * effectiveMarketVal(getMarket(overrides, id), settings)
-  const marketMult = getStationMarketMult(settings)
-  if (marketMult) price *= marketMult
   if (e.type === 'alloy' || e.type === 'item') {
     const salesMod = getModifier('rooms', 'sales', settings)
     if (salesMod) price *= salesMod
@@ -340,6 +445,15 @@ export function effectivePrice(id, overrides, settings) {
         : ['advancedItemValue', 'superiorItemValue']
     const valProj = getProjectMultiplier(settings, valProjKeys)
     if (valProj) price *= valProj
+  }
+  const synthValueSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_VALUE_STATS)
+  if (synthValueSub) price *= synthValueSub
+  if (e.type === 'alloy') {
+    const alloySub = moduleSubstatMultHelper(settings, 'synth', SYNTH_ALLOY_VALUE_STATS)
+    if (alloySub) price *= alloySub
+  } else if (e.type === 'item') {
+    const itemSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_ITEM_VALUE_STATS)
+    if (itemSub) price *= itemSub
   }
   const shipValueStat =
     e.type === 'ore' ? 'oreValue' : e.type === 'alloy' ? 'alloyValue' : e.type === 'item' ? 'itemValue' : null

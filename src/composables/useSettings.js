@@ -1,6 +1,7 @@
 import { reactive, computed } from 'vue'
 import { useProfile } from './useProfile'
 import { useGame } from './useGame'
+import { MODULES } from '../utils/registry'
 
 // Clean up old single-key format after both composables have migrated
 if (
@@ -34,6 +35,8 @@ const settings = reactive({
   projects: computed(() => game.projects || {}),
   managers: computed(() => game.managers || []),
   pinnedItems: computed(() => game.pinnedItems || []),
+  modules: computed(() => profile.modules || {}),
+  modulesData: computed(() => MODULES.value),
 })
 
 export function useSettings() {
