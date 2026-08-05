@@ -147,6 +147,8 @@ export function useProfile() {
       overrides: JSON.parse(JSON.stringify(overrides)),
       managerAssign: JSON.parse(JSON.stringify(managerAssign)),
       projects: game.projects || {},
+      milestoneProjects: game.milestoneProjects || {},
+      debrisOwned: game.debrisOwned || {},
       managers: game.managers || [],
       pinnedItems: game.pinnedItems || [],
     }
@@ -263,6 +265,12 @@ export function useProfile() {
     const { game, saveGame, managerVersion } = useGame()
     if (data.projects && typeof data.projects === 'object') {
       game.projects = data.projects
+    }
+    if (data.milestoneProjects && typeof data.milestoneProjects === 'object') {
+      game.milestoneProjects = data.milestoneProjects
+    }
+    if (data.debrisOwned && typeof data.debrisOwned === 'object') {
+      game.debrisOwned = data.debrisOwned
     }
     if (Array.isArray(data.managers)) {
       game.managers = data.managers

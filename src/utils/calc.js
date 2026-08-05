@@ -2,6 +2,109 @@ import { SETTINGS_CONFIG, SECONDARY_EFFECTS, STATION_GROUPS, SHIPS } from './con
 import { getEntity } from './registry'
 import { DISABLED_MODULE_CATEGORIES } from './config'
 
+export function getProjectCostLabMod(settings) {
+  return getModifier('rooms', 'laboratory', settings)
+}
+
+export function expandProjectCosts(projectCosts, settings) {
+  const labMod = getProjectCostLabMod(settings) || 1
+  const alloys = {}
+  const items = {}
+
+  function expand(id, qty) {
+    const entity = getEntity(id)
+    if (!entity) return
+    if (entity.type === 'ore') return
+    if (entity.type === 'alloy') {
+      const total = (alloys[id] || 0) + qty
+      if (total > 0) alloys[id] = total
+      const ingMod = getIngredientMod('alloy', settings) || 1
+      if (entity.ingredients) {
+        for (const ing of entity.ingredients) {
+          expand(ing.id, Math.floor(ing.qty * ingMod) * qty)
+        }
+      }
+    } else if (entity.type === 'item') {
+      const total = (items[id] || 0) + qty
+      if (total > 0) items[id] = total
+      const ingMod = getIngredientMod('item', settings) || 1
+      if (entity.ingredients) {
+        for (const ing of entity.ingredients) {
+          expand(ing.id, Math.floor(ing.qty * ingMod) * qty)
+        }
+      }
+    }
+  }
+
+  for (const cost of projectCosts) {
+    if (cost.type === 'diamond') continue
+    const effectiveQty = Math.ceil(cost.qty * labMod)
+    if (effectiveQty <= 0) continue
+    if (cost.type === 'ore') continue
+    expand(cost.id, effectiveQty)
+  }
+
+  return { alloys, items }
+}
+
+export function getDebrisSources(projectCosts, settings) {
+  const labMod = getProjectCostLabMod(settings) || 1
+  const alloys = {}
+  const items = {}
+
+  function expand(id, qty, projKey, projName, via) {
+    const entity = getEntity(id)
+    if (!entity) return
+    if (entity.type === 'ore') return
+    if (entity.type === 'alloy') {
+      if (!alloys[id]) alloys[id] = { qty: 0, sources: [] }
+      const existing = alloys[id].sources.find(
+        (s) => s.projectKey === projKey && s.via.join(',') === via.join(',')
+      )
+      if (existing) {
+        existing.qty += qty
+      } else {
+        alloys[id].sources.push({ projectKey: projKey, projectName: projName, qty, via: [...via] })
+      }
+      alloys[id].qty += qty
+      const ingMod = getIngredientMod('alloy', settings) || 1
+      if (entity.ingredients) {
+        for (const ing of entity.ingredients) {
+          expand(ing.id, Math.floor(ing.qty * ingMod) * qty, projKey, projName, [entity.name])
+        }
+      }
+    } else if (entity.type === 'item') {
+      if (!items[id]) items[id] = { qty: 0, sources: [] }
+      const existing = items[id].sources.find(
+        (s) => s.projectKey === projKey && s.via.join(',') === via.join(',')
+      )
+      if (existing) {
+        existing.qty += qty
+      } else {
+        items[id].sources.push({ projectKey: projKey, projectName: projName, qty, via: [...via] })
+      }
+      items[id].qty += qty
+      const childVia = [entity.name]
+      const ingMod = getIngredientMod('item', settings) || 1
+      if (entity.ingredients) {
+        for (const ing of entity.ingredients) {
+          expand(ing.id, Math.floor(ing.qty * ingMod) * qty, projKey, projName, childVia)
+        }
+      }
+    }
+  }
+
+  for (const cost of projectCosts) {
+    if (cost.type === 'diamond') continue
+    const effectiveQty = Math.ceil(cost.qty * labMod)
+    if (effectiveQty <= 0) continue
+    if (cost.type === 'ore') continue
+    expand(cost.id, effectiveQty, cost.projectKey, cost.projectName, [])
+  }
+
+  return { alloys, items }
+}
+
 function getStars(overrides, id) {
   return overrides[id]?.stars ?? 0
 }
