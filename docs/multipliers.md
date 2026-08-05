@@ -53,5 +53,5 @@ Factors: **Marketing room**, **Market stations** 1–7.
 
 ## Related pages
 
-- Where the underlying levels are set: [Rooms](profile/rooms.md), [Station](profile/station.md), [Beacon](profile/beacon.md), [Managers](profile/managers.md), [Badges](profile/badges.md), [Ships](profile/ships.md), [Game projects](game.md).
+- Where the underlying levels are set: [Rooms](profile/rooms.md), [Station](profile/station.md), [Beacon](profile/beacon.md), [Managers](profile/managers.md), [Badges](profile/badges.md), [Ships](profile/ships.md), [Modules](profile/modules.md), [Game projects](game.md).
 - Where the resulting values are used: [Ores](tabs/ores.md), [Alloys](tabs/alloys.md), [Items](tabs/items.md), [Mining](tabs/mining.md).
