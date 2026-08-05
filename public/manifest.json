@@ -1,0 +1,19 @@
+{
+  "name": "Idle Planet Optimizer",
+  "short_name": "IP Optimizer",
+  "description": "Calculator for Idle Planet Miner — crafting, smelting, and mining rates",
+  "start_url": "/idle-planet-optimizer/",
+  "scope": "/idle-planet-optimizer/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0e17",
+  "theme_color": "#0a0e17",
+  "icons": [
+    {
+      "src": "/idle-planet-optimizer/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

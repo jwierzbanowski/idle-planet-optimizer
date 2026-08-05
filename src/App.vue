@@ -25,7 +25,7 @@ type="file" accept=".json" hidden @change="handleImport"
 />
       </div>
     </div>
-    <div class="subtitle">Idle Planet Miner — optimal crafting &amp; smelting</div>
+      <div class="subtitle">Idle Planet Miner — smelting, crafting &amp; mining rate calculator with full profile configuration</div>
 
     <div v-if="loadError" class="error-banner">{{ loadError }}</div>
 
@@ -160,7 +160,7 @@ class="loading">
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, nextTick } from 'vue'
 import MarketPanel from './components/MarketPanel.vue'
 import ProfilePanel from './components/ProfilePanel.vue'
 import GamePanel from './components/GamePanel.vue'
@@ -250,11 +250,13 @@ loadData()
     counts.items = c.itemsCount
     counts.mining = c.miningCount
     loading.value = false
+    nextTick(() => document.getElementById('app').setAttribute('data-ready', ''))
   })
   .catch((e) => {
     console.error('Failed to load data:', e)
     loadError.value = 'Failed to load game data. Check browser console for details.'
     loading.value = false
+    nextTick(() => document.getElementById('app').setAttribute('data-ready', ''))
   })
 
 // ===== DEBUG STATS =====

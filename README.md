@@ -3,7 +3,9 @@
 [![Deploy to GitHub Pages](https://github.com/jwierzbanowski/idle-planet-optimizer/actions/workflows/deploy.yml/badge.svg)](https://github.com/jwierzbanowski/idle-planet-optimizer/actions/workflows/deploy.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-A browser-based calculator for **Idle Planet Miner**. Reads game data from JSON files and computes crafting, smelting, and mining rates with full configurability.
+A free browser-based calculator for **[Idle Planet Miner](https://play.google.com/store/apps/details?id=com.treedog.idleplanetminer)**. Computes optimal **smelting rates**, **crafting times**, and **mining output** across all ores, alloys, and items. Full profile configuration — rooms, managers, station, ships, beacons, badges, and market overrides.
+
+**Live at [jwierzbanowski.github.io/idle-planet-optimizer](https://jwierzbanowski.github.io/idle-planet-optimizer/)**
 
 ## Features
 
