@@ -143,6 +143,9 @@ class="loading">
       <div v-show="activeTab === 'milestones'" class="tab-content">
         <Milestones />
       </div>
+      <div v-show="activeTab === 'credits'" class="tab-content">
+        <Credits />
+      </div>
     </template>
 
     <ProfilePanel v-if="showProfile"
@@ -171,6 +174,7 @@ import OresTable from './components/OresTable.vue'
 import CraftableTable from './components/CraftableTable.vue'
 import MiningTable from './components/MiningTable.vue'
 import Milestones from './components/Milestones.vue'
+import Credits from './components/Credits.vue'
 import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
 import { useProfile } from './composables/useProfile'
@@ -193,6 +197,9 @@ import {
   getMarketingMult,
   getShipMult,
   getModuleSubstatMult,
+  SYNTH_CRAFT_STATS,
+  SYNTH_SMELT_STATS,
+  DRILL_MINING_STATS,
   SYNTH_VALUE_STATS,
   SYNTH_ALLOY_VALUE_STATS,
   SYNTH_ITEM_VALUE_STATS,
@@ -215,7 +222,7 @@ const showProfile = ref(false)
 const showGame = ref(false)
 const showGameBadge = ref(false)
 const backupOpen = ref(false)
-const counts = reactive({ ores: 0, alloys: 0, items: 0, mining: 0, milestones: 0 })
+const counts = reactive({ ores: 0, alloys: 0, items: 0, mining: 0, milestones: 0, credits: 0 })
 const loading = ref(true)
 const loadError = ref('')
 
@@ -249,6 +256,7 @@ const tabs = computed(() => [
   { key: 'items', label: 'Items', count: counts.items },
   { key: 'mining', label: 'Mining', count: counts.mining },
   { key: 'milestones', label: 'Milestones', count: counts.milestones },
+  { key: 'credits', label: 'Credits', count: counts.credits },
 ])
 
 // ===== DATA LOADING =====
@@ -258,6 +266,7 @@ loadData()
     counts.alloys = c.alloysCount
     counts.items = c.itemsCount
     counts.mining = c.miningCount
+    counts.credits = 29
     loading.value = false
     nextTick(() => document.getElementById('app').setAttribute('data-ready', ''))
   })
@@ -342,6 +351,9 @@ const debugStats = computed(() => {
   const synthValSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_VALUE_STATS) || 1
   const synthAlloySub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_ALLOY_VALUE_STATS) || 1
   const synthItemSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_ITEM_VALUE_STATS) || 1
+  const synthCraftSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_CRAFT_STATS) || 1
+  const synthSmeltSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_SMELT_STATS) || 1
+  const drillMineSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'drill', DRILL_MINING_STATS) || 1
   const alloyV = (salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1) * synthValSub * synthAlloySub).toFixed(2) + '×'
   const itemV = (salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1) * synthValSub * synthItemSub).toFixed(2) + '×'
 
@@ -355,6 +367,7 @@ const debugStats = computed(() => {
       ['Smelting stations', stnSmelt],
       ['Manager (allSmeltSpeed)', mgrSmelt],
       ['Ships', shipSmelt],
+      ['Synth substats (smelt)', synthSmeltSub !== 1 ? synthSmeltSub : null],
     ],
     smeltRate
   )
@@ -367,6 +380,7 @@ const debugStats = computed(() => {
       ['Crafting stations', stnCraft],
       ['Manager (allCraftSpeed)', mgrCraft],
       ['Ships', shipCraft],
+      ['Synth substats (craft)', synthCraftSub !== 1 ? synthCraftSub : null],
     ],
     craftRate
   )
@@ -383,6 +397,7 @@ const debugStats = computed(() => {
       ['Mining stations', stnMine],
       ['Global 1.2×', global12],
       ['Ships', shipMine],
+      ['Drill substats (mine)', drillMineSub !== 1 ? drillMineSub : null],
     ],
     mineRate
   )

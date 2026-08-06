@@ -166,7 +166,7 @@ export function resolveSubstatValue(value) {
 }
 
 // Module substat keys that the optimizer feeds into the relevant calc chain.
-const DRILL_MINING_STATS = [
+export const DRILL_MINING_STATS = [
   'mining_colony_bonus',
   'mining_beacon_bonus',
   'mining_probe_bonus',
@@ -176,7 +176,7 @@ const DRILL_MINING_STATS = [
   'mining_on_planet_with_10_colonies',
 ]
 
-const SYNTH_SMELT_STATS = [
+export const SYNTH_SMELT_STATS = [
   'smelt_speed_bonus',
   'smelt_speed_per_planet_with_colony',
   'smelt_speed_per_colony_level',
@@ -186,7 +186,7 @@ const SYNTH_SMELT_STATS = [
   'smelt_speed_per_telescope_with_20_colonies',
 ]
 
-const SYNTH_CRAFT_STATS = [
+export const SYNTH_CRAFT_STATS = [
   'craft_speed_bonus',
   'craft_speed_per_planet_with_colony',
   'craft_speed_per_colony_level',
@@ -212,6 +212,10 @@ export { SYNTH_ALLOY_VALUE_STATS }
 const SYNTH_ITEM_VALUE_STATS = ['item_value']
 
 export { SYNTH_ITEM_VALUE_STATS }
+
+const SYNTH_CREDITS_STATS = ['credit_multi_per_colonies_10_in_galaxy']
+
+export { SYNTH_CREDITS_STATS }
 
 // Returns the combined multiplier for the substats of one module category that
 // match `statKeys`, or null when none contribute. Mirrors the established
@@ -344,6 +348,23 @@ const STATION_PLANET_COST_KEYS = ['planetCost1', 'planetCost2', 'planetCost3', '
 
 export function getStationPlanetCostMult(settings) {
   return getStationMult(settings, STATION_PLANET_COST_KEYS)
+}
+
+const STATION_CREDITS_KEYS = ['credits1', 'credits2', 'credits3']
+
+export function getStationCreditsMult(settings) {
+  return getStationMult(settings, STATION_CREDITS_KEYS)
+}
+
+export function getCreditsMult(settings) {
+  let mult = 1
+  const lounge = getModifier('rooms', 'lounge', settings)
+  if (lounge) mult *= lounge
+  const station = getStationCreditsMult(settings)
+  if (station) mult *= station
+  const synthSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_CREDITS_STATS)
+  if (synthSub) mult *= synthSub
+  return mult > 1 ? mult : null
 }
 
 export function getStationRecommendations(settings) {
