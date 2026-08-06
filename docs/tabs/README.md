@@ -1,6 +1,6 @@
 # Tabs
 
-The four main tables of the app live in tabs below the Multipliers bar: **Ores**, **Alloys**, **Items**, and **Mining**. Each tab shows its entry count next to its name.
+The main tables of the app live in tabs below the Multipliers bar: **Ores**, **Alloys**, **Items**, **Mining**, **Milestones**, and **Credits**. Each tab shows its entry count next to its name.
 
 ![The tab bar with the Ores, Alloys, Items, and Mining tabs and the group filters](../screenshots/09-tabs-panel.png)
 
@@ -46,7 +46,7 @@ Hold a modifier key while clicking a **± stepper** (star ratings, mining levels
 
 You can also type directly into most number inputs.
 
-## The four tabs
+## The tabs
 
 | Tab | Page |
 | --- | --- |
@@ -54,3 +54,4 @@ You can also type directly into most number inputs.
 | Alloys — smelted bars and alloys | [Alloys](alloys.md) |
 | Items — crafted items | [Items](items.md) |
 | Mining — planets, session planning, and the roadmap | [Mining](mining.md) |
+| Credits — milestone rewards tracker per run | [Credits](credits.md) |

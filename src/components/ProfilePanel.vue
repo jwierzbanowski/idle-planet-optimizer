@@ -672,6 +672,16 @@ function setModuleField(catKey, field, value) {
   if (!hadModule && current.module && current.level === 0) {
     setModuleSlot(catKey, 'level', 1)
   }
+  if (field === 'rarity' && current.rarity) {
+    const cap = rarityIndex(current.rarity)
+    const substats = current.substats || []
+    for (let i = 0; i < substats.length; i++) {
+      const entry = substats[i]
+      if (entry && entry.key && entry.rarity && rarityIndex(entry.rarity) > cap) {
+        setModuleSubstat(catKey, i, '', '')
+      }
+    }
+  }
 }
 
 function changeModuleLevel(catKey, delta, event) {

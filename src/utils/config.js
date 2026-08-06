@@ -148,6 +148,14 @@ export const SETTINGS_CONFIG = {
       perLevel: -0.045,
       maxLevel: 11,
     },
+    {
+      key: 'lounge',
+      label: 'Lounge',
+      desc: 'Credits Earned',
+      baseEffect: 1.15,
+      perLevel: 0.05,
+      maxLevel: 60,
+    },
   ],
   projects: [
     { key: 'managerTraining', label: 'Manager Training', desc: 'Manager effects ×1.1', baseEffect: 1.1 },
@@ -716,6 +724,30 @@ export const SETTINGS_CONFIG = {
       maxLevel: 4,
       costs: [230, 241, 253, 266],
     },
+    {
+      key: 'credits1',
+      label: 'Credits 1',
+      desc: 'Credits earned',
+      perLevel: 0.05,
+      maxLevel: 5,
+      costs: [5, 8, 12, 20, 32],
+    },
+    {
+      key: 'credits2',
+      label: 'Credits 2',
+      desc: 'Credits earned',
+      perLevel: 0.05,
+      maxLevel: 10,
+      costs: [6, 8, 11, 16, 23, 32, 45, 63, 88, 123],
+    },
+    {
+      key: 'credits3',
+      label: 'Credits 3',
+      desc: 'Credits earned',
+      perLevel: 0.05,
+      maxLevel: 15,
+      costs: [10, 11, 13, 15, 17, 20, 23, 26, 30, 35, 40, 46, 53, 61, 70],
+    },
   ],
   managers: [],
 }
@@ -750,6 +782,7 @@ export const STATION_GROUPS = [
     name: 'Manager',
     keys: ['manager1', 'manager2', 'manager3', 'manager4', 'manager5', 'manager6', 'manager7', 'manager8'],
   },
+  { name: 'Credits', keys: ['credits1', 'credits2', 'credits3'] },
 ]
 
 export const MARKET_VALS = [0.33, 0.5, 1, 2, 3, 4, 5]
