@@ -104,7 +104,10 @@ class="content-row">
         </div>
       </div>
     </div>
-      <MarketPanel />
+      <div class="panel-col">
+        <ModuleModifiersPanel />
+        <MarketPanel />
+      </div>
     </div>
 
     <div class="header-row">
@@ -168,6 +171,7 @@ class="loading">
 <script setup>
 import { ref, computed, reactive, nextTick } from 'vue'
 import MarketPanel from './components/MarketPanel.vue'
+import ModuleModifiersPanel from './components/ModuleModifiersPanel.vue'
 import ProfilePanel from './components/ProfilePanel.vue'
 import GamePanel from './components/GamePanel.vue'
 import OresTable from './components/OresTable.vue'
@@ -638,6 +642,13 @@ h1 {
   gap: 12px;
   margin-bottom: 12px;
   align-items: flex-start;
+}
+.panel-col {
+  flex: 3;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .stats-bar {
   flex: 7;

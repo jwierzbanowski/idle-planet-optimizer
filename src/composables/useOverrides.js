@@ -24,8 +24,21 @@ function saveManagers(m) {
   localStorage.setItem('ipm_manager_assign', JSON.stringify(m))
 }
 
+function loadModulePerX() {
+  try {
+    return JSON.parse(localStorage.getItem('ipm_module_perx')) || {}
+  } catch {
+    return {}
+  }
+}
+
+function saveModulePerX(o) {
+  localStorage.setItem('ipm_module_perx', JSON.stringify(o))
+}
+
 const overrides = reactive(loadOverrides())
 const managerAssign = reactive(loadManagers())
+const modulePerX = reactive(loadModulePerX())
 
 export function useOverrides() {
   function getStars(id) {
@@ -75,6 +88,23 @@ export function useOverrides() {
     return false
   }
 
+  function getPerX(depKey) {
+    return modulePerX[depKey] ?? 0
+  }
+
+  function setPerX(depKey, value) {
+    if (value > 0) {
+      modulePerX[depKey] = value
+    } else {
+      delete modulePerX[depKey]
+    }
+    saveModulePerX(modulePerX)
+  }
+
+  function getFullPerX() {
+    return modulePerX
+  }
+
   function setOverride(id, field, value) {
     if (!overrides[id])
       overrides[id] = {
@@ -104,11 +134,16 @@ export function useOverrides() {
       delete managerAssign[key]
     }
     saveManagers(managerAssign)
+    for (const key of Object.keys(modulePerX)) {
+      delete modulePerX[key]
+    }
+    saveModulePerX(modulePerX)
   }
 
   return {
     overrides,
     managerAssign,
+    modulePerX,
     getStars,
     getMarket,
     getMiningLevel,
@@ -121,5 +156,8 @@ export function useOverrides() {
     isManagerAssigned,
     setOverride,
     resetTemporary,
+    getPerX,
+    setPerX,
+    getFullPerX,
   }
 }

@@ -136,7 +136,7 @@ export function useProfile() {
   }
 
   function exportProfile() {
-    const { overrides, managerAssign } = useOverrides()
+    const { overrides, managerAssign, modulePerX } = useOverrides()
     const { game } = useGame()
     const data = {
       rooms: profile.rooms || {},
@@ -146,6 +146,7 @@ export function useProfile() {
       modules: JSON.parse(JSON.stringify(ensureModuleSlots())),
       overrides: JSON.parse(JSON.stringify(overrides)),
       managerAssign: JSON.parse(JSON.stringify(managerAssign)),
+      modulePerX: JSON.parse(JSON.stringify(modulePerX)),
       projects: game.projects || {},
       milestoneProjects: game.milestoneProjects || {},
       debrisOwned: game.debrisOwned || {},
@@ -232,7 +233,7 @@ export function useProfile() {
     saveProfile(profile)
 
     // Restore overrides (new format — full override objects)
-    const { setOverride, setManager } = useOverrides()
+    const { setOverride, setManager, setPerX } = useOverrides()
     if (data.overrides && typeof data.overrides === 'object') {
       for (const [id, vals] of Object.entries(data.overrides)) {
         if (vals && typeof vals === 'object') {
@@ -257,6 +258,15 @@ export function useProfile() {
       for (const [id, idx] of Object.entries(data.managerAssign)) {
         if (typeof idx === 'number') {
           setManager(id, idx)
+        }
+      }
+    }
+
+    // Restore module per-X values
+    if (data.modulePerX && typeof data.modulePerX === 'object') {
+      for (const [dep, val] of Object.entries(data.modulePerX)) {
+        if (typeof val === 'number') {
+          setPerX(dep, val)
         }
       }
     }
