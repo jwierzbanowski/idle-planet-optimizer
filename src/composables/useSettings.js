@@ -2,6 +2,7 @@ import { reactive, computed } from 'vue'
 import { useProfile } from './useProfile'
 import { useGame } from './useGame'
 import { MODULES } from '../utils/registry'
+import { useOverrides } from './useOverrides'
 
 // Clean up old single-key format after both composables have migrated
 if (
@@ -13,6 +14,7 @@ if (
 }
 
 const { profile } = useProfile()
+const { getFullPerX } = useOverrides()
 const {
   game,
   managerVersion,
@@ -37,6 +39,7 @@ const settings = reactive({
   pinnedItems: computed(() => game.pinnedItems || []),
   modules: computed(() => profile.modules || {}),
   modulesData: computed(() => MODULES.value),
+  modulePerX: computed(() => getFullPerX()),
 })
 
 export function useSettings() {

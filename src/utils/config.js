@@ -813,3 +813,53 @@ export const SPECIAL_RARITIES = [
 ]
 
 export const DISABLED_MODULE_CATEGORIES = ['transport', 'remote']
+
+// Module substats that depend on a variable count (X).
+// Grouped by the shared X value — multiple substats share one X counter.
+// Keys: only drill + synth substats wired into the optimizer's calc chains.
+export const PER_X_DEPS = {
+  asteroids: {
+    label: 'Asteroids Mined',
+    keys: ['mining_per_asteroids_mined'],
+  },
+  ownAsteroids: {
+    label: 'Own Asteroids Mined',
+    keys: ['mining_for_each_own_asteroid_mined'],
+  },
+  beams: {
+    label: 'Beams',
+    keys: ['smelt_speed_per_beam', 'craft_speed_per_beam', 'market_bonus_per_beam'],
+  },
+  activeRecipes: {
+    label: 'Active Recipes (same type)',
+    keys: ['smelt_speed_of_alloy_for_active_recipie', 'craft_speed_of_item_for_active_recipie'],
+  },
+  planetsColony: {
+    label: 'Planets with Colony',
+    keys: ['smelt_speed_per_planet_with_colony', 'craft_speed_per_planet_with_colony', 'market_bonus_per_planet_with_colony'],
+  },
+  colonyLevels: {
+    label: 'Total Colony Levels',
+    keys: ['smelt_speed_per_colony_level', 'craft_speed_per_colony_level'],
+  },
+  planets10: {
+    label: 'Planets with ≥10 Colonies',
+    keys: ['smelt_speed_per_planet_with_10_colonies', 'craft_speed_per_planet_with_10_colonies'],
+  },
+  telescopes20: {
+    label: 'Telescopes with ≥20 Colonies',
+    keys: ['smelt_speed_per_telescope_with_20_colonies', 'craft_speed_per_telescope_with_20_colonies'],
+  },
+  coloniesGalaxy: {
+    label: 'Colonies in Galaxy (/10)',
+    keys: ['credit_multi_per_colonies_10_in_galaxy'],
+  },
+}
+
+// Reverse lookup: substat key -> dep key (for O(1) lookup)
+export const PER_X_BY_SUBSTAT = {}
+for (const [dep, def] of Object.entries(PER_X_DEPS)) {
+  for (const k of def.keys) {
+    PER_X_BY_SUBSTAT[k] = dep
+  }
+}

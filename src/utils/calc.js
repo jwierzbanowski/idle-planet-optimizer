@@ -1,6 +1,6 @@
 import { SETTINGS_CONFIG, SECONDARY_EFFECTS, STATION_GROUPS, SHIPS } from './config'
 import { getEntity } from './registry'
-import { DISABLED_MODULE_CATEGORIES } from './config'
+import { DISABLED_MODULE_CATEGORIES, PER_X_BY_SUBSTAT } from './config'
 
 export function getProjectCostLabMod(settings) {
   return getModifier('rooms', 'laboratory', settings)
@@ -165,6 +165,28 @@ export function resolveSubstatValue(value) {
   return m ? parseFloat(m[1]) : null
 }
 
+// From a per-X substat value string like "0.3, max 3.5x (9)" extract
+// { perUnit, max, maxX }. For maxX, uses the explicit count in parens
+// when present, otherwise computes it from max / perUnit.
+// Returns null when parsing fails.
+export function parsePerXString(value) {
+  if (typeof value !== 'string') return null
+  const clean = value.replace(/\s*\([^)]*\)/, '').trim()
+  const perMatch = clean.match(/^([+-]?\d+\.?\d*)%?\b/i)
+  if (!perMatch) return null
+  const perUnit = parseFloat(perMatch[1])
+  const maxMatch = clean.match(/max\s*(?:x\s*)?(\d+\.?\d*)/i)
+  if (!maxMatch) return null
+  const max = parseFloat(maxMatch[1])
+  const isPercent = /%/.test(clean)
+  const effectivePer = isPercent ? perUnit / 100 : perUnit
+  const parenMatch = value.match(/\((\d+)\)/)
+  const maxX = parenMatch
+    ? parseInt(parenMatch[1], 10)
+    : Math.ceil((max - 1) / effectivePer)
+  return { perUnit: effectivePer, max, maxX }
+}
+
 // Module substat keys that the optimizer feeds into the relevant calc chain.
 export const DRILL_MINING_STATS = [
   'mining_colony_bonus',
@@ -220,7 +242,7 @@ export { SYNTH_CREDITS_STATS }
 // Returns the combined multiplier for the substats of one module category that
 // match `statKeys`, or null when none contribute. Mirrors the established
 // `let mult = 1; ... return mult > 1 ? mult : null` pattern in this file.
-export function getModuleSubstatMult(modules, profileModules, cat, statKeys) {
+export function getModuleSubstatMult(modules, profileModules, cat, statKeys, perX) {
   if (!cat || !modules?.substats || !profileModules) return null
   if (DISABLED_MODULE_CATEGORIES.includes(cat)) return null
   const slot = profileModules[cat]
@@ -228,6 +250,7 @@ export function getModuleSubstatMult(modules, profileModules, cat, statKeys) {
   const catalog = modules.substats[cat]
   if (!Array.isArray(catalog)) return null
   const allow = statKeys ? new Set(statKeys) : null
+  const perXMap = perX || {}
   let mult = 1
   let any = false
   for (const s of slot.substats) {
@@ -239,7 +262,17 @@ export function getModuleSubstatMult(modules, profileModules, cat, statKeys) {
     if (!rarity) continue
     const raw = def.values[rarity]
     if (raw == null) continue
-    const val = resolveSubstatValue(raw)
+    const depKey = PER_X_BY_SUBSTAT[s.key]
+    let val
+    if (depKey) {
+      const x = perXMap[depKey] || 0
+      if (x <= 0) continue
+      const parsed = parsePerXString(raw)
+      if (!parsed) continue
+      val = Math.min(1 + x * parsed.perUnit, parsed.max)
+    } else {
+      val = resolveSubstatValue(raw)
+    }
     if (val == null || val === 0) continue
     mult *= val
     any = true
@@ -248,7 +281,7 @@ export function getModuleSubstatMult(modules, profileModules, cat, statKeys) {
 }
 
 function moduleSubstatMultHelper(settings, cat, stats) {
-  return getModuleSubstatMult(settings.modulesData, settings.modules, cat, stats)
+  return getModuleSubstatMult(settings.modulesData, settings.modules, cat, stats, settings.modulePerX)
 }
 
 export function getMarketingMult(settings) {
