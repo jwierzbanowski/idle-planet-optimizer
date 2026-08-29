@@ -1,3 +1,7 @@
+# Project data / reference sheets (not source)
+*.xls
+*.xlsx
+
 # Logs
 logs
 *.log
