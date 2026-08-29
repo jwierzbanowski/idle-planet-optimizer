@@ -24,12 +24,13 @@ The app runs entirely in your browser. All data lives locally (game JSON files b
 | [Backup](backup.md) | Export/import JSON backups, storage keys, bundled data files. |
 | [Multipliers](multipliers.md) | The ten multiplier values and the factors behind each. |
 | [Supply & Demand](supply-and-demand.md) | Overriding the current market change of resources. |
-| [Tabs](tabs/README.md) | Introduction to the tabs — construction and shared concepts — plus dedicated pages for [Ores](tabs/ores.md), [Alloys](tabs/alloys.md), [Items](tabs/items.md), [Mining](tabs/mining.md), and [Credits](tabs/credits.md). |
+| [Tabs](tabs/README.md) | Introduction to the tabs — construction and shared concepts — plus dedicated pages for [Ores](tabs/ores.md), [Alloys](tabs/alloys.md), [Items](tabs/items.md), [Mining](tabs/mining.md), [Milestones](tabs/milestones.md), and [Credits](tabs/credits.md). |
 
 ## Features
 
 - **Roadmap** — a session-based, ordered list of the most profitable mining upgrades.
 - **Mining tab** — per-planet levels, colonies, probes, rovers, managers, ore targeting, and alchemy.
+- **Milestones tab** — projects grouped per galaxy-value tier with a debris planner that tallies the alloys and items still needed (and what you already own).
 - **Ores, Alloys & Items tabs** — resources, smelting, and crafting with profit per second.
 - **Credits tab** — milestone reward tracker per galaxy run with a goal calculator.
 - **Supply & Demand panel** — search and select any ore, alloy, or item, then override its current market change; the values flow into every tab above.

@@ -15,7 +15,7 @@ Each slot corresponds to one category:
 | **Synth** | Market Crawler, Burst Injector, Ore Classifier, Incubation Suite |
 | **Remote** | Scan Harmonizer, Belt Sonar, Remote Scanner, Probe Dock |
 
-> **Not available for calculation:** the **Transport** and **Remote** slots are currently **disabled** — the whole card is greyed out and crossed out, and none of its controls can be used. Their effects are not yet implemented in the calculator, so they are disabled so you don't plan around them. Saved profiles that already reference a Transport/Remote module keep displaying it, but the card can't be edited.
+> **Not available for calculation:** the **Transport** slot is currently **fully disabled** — the whole card is greyed out and crossed out, and none of its controls can be used, because its effects are not yet implemented in the calculator. The **Remote** slot *is* selectable (module, rarity, level), but its **substats are disabled** and Remote effects are not wired into the calculator, so nothing on the Remote card changes the numbers. Saved profiles that already reference a Transport/Remote module keep displaying it.
 
 ## Special (S) toggle
 
@@ -72,7 +72,7 @@ Locked slots are greyed out and show the requirement (e.g. `Locked · Lv 41 · R
 - Clicking an unlocked slot opens the dialog; picking an entry sets (or replaces) the substat **at that slot**; a **×** button removes it again.
 - Each **rarity variant** of a substat is its own entry in the dialog — e.g. for an Epic module, Mining Colony Bonus appears three times (Common, Rare, Epic), each with its value.
 - **Filter bubbles** at the top of the dialog show one rarity at a time — click a bubble to show only that rarity, click it again to show all.
-- A **variant already on the list is not offered again** — if e.g. Mining Colony Bonus @ Epic is already selected, the dialog hides that exact variant (Common/Rare variants of the same substat remain available). Substats only apply to the enabled **Drill** and **Synth** slots — the **Transport** and **Remote** cards are disabled entirely (see [Slots](#slots)), so no substats can be added there.
+- A **variant already on the list is not offered again** — if e.g. Mining Colony Bonus @ Epic is already selected, the dialog hides that exact variant (Common/Rare variants of the same substat remain available). Substats only apply to the enabled **Drill** and **Synth** slots. The **Transport** card is disabled entirely, and the **Remote** card's substats are disabled (see [Slots](#slots)), so no substats can be added there.
 - Only substats that exist **at or below the module's rarity** are shown — e.g. an Epic module won't list substats that only roll at Legendary+, and no variant above the module's rarity is offered.
 - Variant values are formatted as:
   - multipliers are shown as `1.07×`,
@@ -109,3 +109,38 @@ Substats are grouped by key and applied to the matching calculator chain. Substa
 ### How they combine
 
 All contributing substats from a category are **multiplied together**, and the product is then multiplied into the relevant aggregate (mining speed, smelt speed, craft speed, or effective price) — the same pattern used for rooms, station, projects, ships, and managers. A category with no contributing substats changes nothing.
+
+## Modules Modifiers panel
+
+Some substats don't have a fixed multiplier — their effect **scales with a count you provide** (e.g. *Mining bonus per asteroid mined*, *Smelt speed per beam*, *per colony level*). For those, the app shows a **Modules Modifiers** panel in the right-hand column (next to [Supply & Demand](../supply-and-demand.md)), above the tabs.
+
+![Modules Modifiers panel](../screenshots/19-modules-modifiers.png)
+
+The panel only appears once you have selected a *per-X* substat on a **Drill** or **Synth** slot (per-X substats on the disabled **Remote** slot never show up — see [Slots](#slots)). For each active per-X dependency it draws one row:
+
+- A small **− / +** stepper when the maximum count is low, or a **slider** when the maximum is high.
+- You set the count **X** (e.g. how many asteroids you've mined, how many beams you have).
+
+That count is fed into the substat's effect as:
+
+```
+multiplier = min(1 + X × perUnit, max)
+```
+
+where `perUnit` and `max` come from the substat's value string (e.g. `0.3, max 3.5x (9)` → `perUnit = 0.3`, `max = 3.5`). With **X = 0** the substat is skipped and contributes nothing. This is the third substat value shape, alongside the flat multipliers and the `Max`-capped formulas described in [How values are read](#how-values-are-read).
+
+### Per-X dependencies
+
+Several substats can share one counter (the same **X** drives all of them). The panel shows one row per active dependency:
+
+| Counter (label) | Substat keys | Category |
+| --- | --- | --- |
+| **Asteroids Mined** | `mining_per_asteroids_mined` | Drill |
+| **Own Asteroids Mined** | `mining_for_each_own_asteroid_mined` | Drill |
+| **Beams** | `smelt_speed_per_beam`, `craft_speed_per_beam`, `market_bonus_per_beam` | Synth |
+| **Active Recipes (same type)** | `smelt_speed_of_alloy_for_active_recipie`, `craft_speed_of_item_for_active_recipie` | Synth |
+| **Planets with Colony** | `smelt_speed_per_planet_with_colony`, `craft_speed_per_planet_with_colony`, `market_bonus_per_planet_with_colony` | Synth |
+| **Total Colony Levels** | `smelt_speed_per_colony_level`, `craft_speed_per_colony_level` | Synth |
+| **Planets with ≥10 Colonies** | `smelt_speed_per_planet_with_10_colonies`, `craft_speed_per_planet_with_10_colonies` | Synth |
+| **Telescopes with ≥20 Colonies** | `smelt_speed_per_telescope_with_20_colonies`, `craft_speed_per_telescope_with_20_colonies` | Synth |
+| **Colonies in Galaxy (/10)** | `credit_multi_per_colonies_10_in_galaxy` | Remote *(inert — Remote substats are disabled, so this row never appears)* |

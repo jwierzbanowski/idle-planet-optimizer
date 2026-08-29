@@ -2,6 +2,8 @@
 
 The **Credits** tab shows the milestone reward values for each galaxy run. Use it to plan how far you need to push your galaxy to reach a specific credit goal.
 
+![Credits tab](../screenshots/21-credits.png)
+
 ## Columns
 
 | Column | Meaning |
