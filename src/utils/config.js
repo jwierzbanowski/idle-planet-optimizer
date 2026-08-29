@@ -911,6 +911,8 @@ export const SPECIAL_RARITIES = [
 
 export const DISABLED_MODULE_CATEGORIES = ['transport']
 
+export const SUBSTAT_DISABLED_CATEGORIES = ['remote']
+
 // Module substats that depend on a variable count (X).
 // Grouped by the shared X value — multiple substats share one X counter.
 // Keys: only drill + synth substats wired into the optimizer's calc chains.
