@@ -357,7 +357,8 @@ style="font-weight: 600">
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ChevronDown, ChevronRight } from '@lucide/vue'
+import ChevronDown from '@lucide/vue/dist/esm/icons/chevron-down.mjs'
+import ChevronRight from '@lucide/vue/dist/esm/icons/chevron-right.mjs'
 import { useData } from '../composables/useData'
 import { useModifierKeys } from '../composables/useModifierKeys'
 import { useOverrides } from '../composables/useOverrides'

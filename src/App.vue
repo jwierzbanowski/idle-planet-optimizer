@@ -131,22 +131,22 @@ class="loading">
     </div>
 
     <template v-else>
-      <div v-show="activeTab === 'ores'" class="tab-content">
+      <div v-if="activeTab === 'ores'" class="tab-content">
         <OresTable />
       </div>
-      <div v-show="activeTab === 'alloys'" class="tab-content">
+      <div v-if="activeTab === 'alloys'" class="tab-content">
         <CraftableTable type="alloy" />
       </div>
-      <div v-show="activeTab === 'items'" class="tab-content">
+      <div v-if="activeTab === 'items'" class="tab-content">
         <CraftableTable type="item" />
       </div>
-      <div v-show="activeTab === 'mining'" class="tab-content">
+      <div v-if="activeTab === 'mining'" class="tab-content">
         <MiningTable />
       </div>
-      <div v-show="activeTab === 'milestones'" class="tab-content">
+      <div v-if="activeTab === 'milestones'" class="tab-content">
         <Milestones />
       </div>
-      <div v-show="activeTab === 'credits'" class="tab-content">
+      <div v-if="activeTab === 'credits'" class="tab-content">
         <Credits />
       </div>
     </template>
@@ -169,16 +169,16 @@ class="loading">
 </template>
 
 <script setup>
-import { ref, computed, reactive, nextTick } from 'vue'
+import { ref, computed, reactive, nextTick, defineAsyncComponent } from 'vue'
 import MarketPanel from './components/MarketPanel.vue'
 import ModuleModifiersPanel from './components/ModuleModifiersPanel.vue'
-import ProfilePanel from './components/ProfilePanel.vue'
-import GamePanel from './components/GamePanel.vue'
 import OresTable from './components/OresTable.vue'
-import CraftableTable from './components/CraftableTable.vue'
-import MiningTable from './components/MiningTable.vue'
-import Milestones from './components/Milestones.vue'
-import Credits from './components/Credits.vue'
+const CraftableTable = defineAsyncComponent(() => import('./components/CraftableTable.vue'))
+const MiningTable = defineAsyncComponent(() => import('./components/MiningTable.vue'))
+const Milestones = defineAsyncComponent(() => import('./components/Milestones.vue'))
+const Credits = defineAsyncComponent(() => import('./components/Credits.vue'))
+const ProfilePanel = defineAsyncComponent(() => import('./components/ProfilePanel.vue'))
+const GamePanel = defineAsyncComponent(() => import('./components/GamePanel.vue'))
 import { useOverrides } from './composables/useOverrides'
 import { useSettings } from './composables/useSettings'
 import { useProfile } from './composables/useProfile'
@@ -209,7 +209,11 @@ import {
   SYNTH_ITEM_VALUE_STATS,
 } from './utils/calc'
 import { toggleTip } from './utils/format'
-import { User, Gamepad2, RotateCcw, Download, Upload } from '@lucide/vue'
+import User from '@lucide/vue/dist/esm/icons/user.mjs'
+import Gamepad2 from '@lucide/vue/dist/esm/icons/gamepad-2.mjs'
+import RotateCcw from '@lucide/vue/dist/esm/icons/rotate-ccw.mjs'
+import Download from '@lucide/vue/dist/esm/icons/download.mjs'
+import Upload from '@lucide/vue/dist/esm/icons/upload.mjs'
 import { useAnalytics } from './composables/useAnalytics'
 
 const { resetTemporary } = useOverrides()

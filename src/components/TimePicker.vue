@@ -55,7 +55,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Clock } from '@lucide/vue'
+import Clock from '@lucide/vue/dist/esm/icons/clock.mjs'
 
 const props = defineProps({
   modelValue: { type: Number, default: 0 },

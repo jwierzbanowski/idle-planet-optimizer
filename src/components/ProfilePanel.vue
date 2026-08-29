@@ -505,7 +505,7 @@ import {
   SUBSTAT_DISABLED_CATEGORIES,
 } from '../utils/config'
 import { getStationRecommendations, getModuleLevelMult } from '../utils/calc'
-import { Star } from '@lucide/vue'
+import Star from '@lucide/vue/dist/esm/icons/star.mjs'
 import ManagerCard from './ManagerCard.vue'
 import StarControls from './StarControls.vue'
 
