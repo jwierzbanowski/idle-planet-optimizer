@@ -148,6 +148,8 @@ export function getModuleLevelMult(modules, cat, rarity, level) {
   if (lo != null && hi != null) {
     return table[lo] + ((table[hi] - table[lo]) * (level - lo)) / (hi - lo)
   }
+  if (lo != null) return table[lo]
+  if (hi != null) return table[hi]
   return null
 }
 
@@ -284,6 +286,13 @@ function moduleSubstatMultHelper(settings, cat, stats) {
   return getModuleSubstatMult(settings.modulesData, settings.modules, cat, stats, settings.modulePerX)
 }
 
+function moduleLevelMultHelper(settings, cat) {
+  const slot = settings.modules && settings.modules[cat]
+  if (!slot || !slot.rarity || !slot.level) return null
+  const m = getModuleLevelMult(settings.modulesData, cat, slot.rarity, slot.level)
+  return m != null && m > 1 ? m : null
+}
+
 export function getMarketingMult(settings) {
   return getModifier('rooms', 'marketing', settings)
 }
@@ -383,7 +392,21 @@ export function getStationPlanetCostMult(settings) {
   return getStationMult(settings, STATION_PLANET_COST_KEYS)
 }
 
-const STATION_CREDITS_KEYS = ['credits1', 'credits2', 'credits3']
+const STATION_CREDITS_KEYS = [
+  'credits1',
+  'credits2',
+  'credits3',
+  'credits4',
+  'credits5',
+  'credits6',
+  'credits7',
+  'credits8',
+  'credits9',
+  'credits10',
+  'credits11',
+  'credits12',
+  'credits13',
+]
 
 export function getStationCreditsMult(settings) {
   return getStationMult(settings, STATION_CREDITS_KEYS)
@@ -538,6 +561,8 @@ export function getMiningSpeedMult(settings) {
   if (shipMine) mult *= shipMine
   const drillSub = moduleSubstatMultHelper(settings, 'drill', DRILL_MINING_STATS)
   if (drillSub) mult *= drillSub
+  const drillLvl = moduleLevelMultHelper(settings, 'drill')
+  if (drillLvl) mult *= drillLvl
   return mult > 1 ? mult : null
 }
 
@@ -561,6 +586,8 @@ export function getSmeltSpeedMult(settings) {
   if (shipSmelt) mult *= shipSmelt
   const synthSmeltSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_SMELT_STATS)
   if (synthSmeltSub) mult *= synthSmeltSub
+  const synthLvl = moduleLevelMultHelper(settings, 'synth')
+  if (synthLvl) mult *= synthLvl
   return mult > 1 ? mult : null
 }
 
@@ -584,6 +611,8 @@ export function getCraftSpeedMult(settings) {
   if (shipCraft) mult *= shipCraft
   const synthCraftSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_CRAFT_STATS)
   if (synthCraftSub) mult *= synthCraftSub
+  const synthLvl = moduleLevelMultHelper(settings, 'synth')
+  if (synthLvl) mult *= synthLvl
   return mult > 1 ? mult : null
 }
 
