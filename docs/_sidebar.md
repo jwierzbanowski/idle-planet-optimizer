@@ -19,4 +19,5 @@
   - [Alloys](tabs/alloys.md)
   - [Items](tabs/items.md)
   - [Mining](tabs/mining.md)
+  - [Milestones](tabs/milestones.md)
   - [Credits](tabs/credits.md)

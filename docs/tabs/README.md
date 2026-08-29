@@ -54,4 +54,5 @@ You can also type directly into most number inputs.
 | Alloys — smelted bars and alloys | [Alloys](alloys.md) |
 | Items — crafted items | [Items](items.md) |
 | Mining — planets, session planning, and the roadmap | [Mining](mining.md) |
+| Milestones — projects per tier and the debris planner | [Milestones](milestones.md) |
 | Credits — milestone rewards tracker per run | [Credits](credits.md) |
