@@ -13,15 +13,15 @@
         </div>
         <div class="breakdown-row">
           <span class="breakdown-label">Lounge ({{ fmtMult(loungeRaw) }})</span>
-          <span class="breakdown-val credits">{{ fmt(loungeCredits) }}</span>
+          <span class="breakdown-val credits">+{{ fmt(loungeCredits) }}</span>
         </div>
         <div class="breakdown-row">
           <span class="breakdown-label">Space Station ({{ fmtMult(statRaw) }})</span>
-          <span class="breakdown-val credits">{{ fmt(statCredits) }}</span>
+          <span class="breakdown-val credits">+{{ fmt(statCredits) }}</span>
         </div>
         <div class="breakdown-row">
           <span class="breakdown-label">Module Bonus ({{ fmtMult(modRaw) }})</span>
-          <span class="breakdown-val credits">{{ fmt(modCredits) }}</span>
+          <span class="breakdown-val credits">+{{ fmt(modCredits) }}</span>
         </div>
       </div>
       <div class="breakdown-total">
@@ -54,17 +54,28 @@ const modRaw = computed(() => {
 
 const loungeCredits = computed(() => {
   if (!props.milestone) return 0
-  return Math.round(props.milestone.credits * loungeRaw.value)
+  return Math.round(props.milestone.credits * (loungeRaw.value - 1))
+})
+const afterLounge = computed(() => {
+  if (!props.milestone) return 0
+  return props.milestone.credits * loungeRaw.value
 })
 const statCredits = computed(() => {
   if (!props.milestone) return 0
-  return Math.round(loungeCredits.value * statRaw.value)
+  return Math.round(afterLounge.value * (statRaw.value - 1))
+})
+const afterStat = computed(() => {
+  if (!props.milestone) return 0
+  return afterLounge.value * statRaw.value
 })
 const modCredits = computed(() => {
   if (!props.milestone) return 0
-  return Math.round(statCredits.value * modRaw.value)
+  return Math.round(afterStat.value * (modRaw.value - 1))
 })
-const totalCredits = computed(() => modCredits.value)
+const totalCredits = computed(() => {
+  if (!props.milestone) return 0
+  return Math.round(afterStat.value * modRaw.value)
+})
 
 function fmtMult(v) {
   return '×' + v.toFixed(2)
