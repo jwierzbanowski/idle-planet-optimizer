@@ -38,7 +38,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useSettings } from '../composables/useSettings'
-import { getModifier, getStationCreditsMult, getModuleSubstatMult, SYNTH_CREDITS_STATS } from '../utils/calc'
+import { getModifier, getStationCreditsMult, getRemoteCreditsMult } from '../utils/calc'
 
 const props = defineProps({
   milestone: { type: Object, default: null },
@@ -49,7 +49,7 @@ const { settings } = useSettings()
 const loungeRaw = computed(() => getModifier('rooms', 'lounge', settings) || 1)
 const statRaw = computed(() => getStationCreditsMult(settings) || 1)
 const modRaw = computed(() => {
-  return getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_CREDITS_STATS) || 1
+  return getRemoteCreditsMult(settings) || 1
 })
 
 const loungeCredits = computed(() => {

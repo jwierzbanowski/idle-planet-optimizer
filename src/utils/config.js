@@ -909,7 +909,7 @@ export const SPECIAL_RARITIES = [
   'ancestral',
 ]
 
-export const DISABLED_MODULE_CATEGORIES = ['transport', 'remote']
+export const DISABLED_MODULE_CATEGORIES = ['transport']
 
 // Module substats that depend on a variable count (X).
 // Grouped by the shared X value — multiple substats share one X counter.
