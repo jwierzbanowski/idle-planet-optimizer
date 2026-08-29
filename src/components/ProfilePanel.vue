@@ -292,7 +292,11 @@ class="mgr-add" @click="addManager">+ Add</button>
                 <template v-else>{{ seg.text }}</template>
               </template>
             </div>
-            <div v-if="moduleSlot(cat.key).module" class="module-substats">
+            <div
+              v-if="moduleSlot(cat.key).module"
+              class="module-substats"
+              :class="{ 'module-substats-disabled': substatsDisabled(cat.key) }"
+            >
               <div class="module-substats-title">Substats</div>
               <div
                 v-for="slotIndex in MAX_MODULE_SUBSTATS"
@@ -306,7 +310,9 @@ class="mgr-add" @click="addManager">+ Add</button>
                 <button
                   class="module-substat-main"
                   :disabled="
-                    moduleCategoryDisabled(cat.key) || !substatSlotUnlocked(cat.key, slotIndex - 1)
+                    moduleCategoryDisabled(cat.key) ||
+                    substatsDisabled(cat.key) ||
+                    !substatSlotUnlocked(cat.key, slotIndex - 1)
                   "
                   :title="substatSlotTitle(cat.key, slotIndex - 1)"
                   @click="openSubstatDialog(cat.key, slotIndex - 1)"
@@ -330,7 +336,9 @@ class="mgr-add" @click="addManager">+ Add</button>
                   class="module-substat-remove"
                   title="Remove substat"
                   :disabled="
-                    moduleCategoryDisabled(cat.key) || !substatSlotUnlocked(cat.key, slotIndex - 1)
+                    moduleCategoryDisabled(cat.key) ||
+                    substatsDisabled(cat.key) ||
+                    !substatSlotUnlocked(cat.key, slotIndex - 1)
                   "
                   @click="setModuleSubstat(cat.key, slotIndex - 1, '', '')"
                 >
@@ -494,6 +502,7 @@ import {
   MODULE_CATEGORY_KEYS,
   SPECIAL_RARITIES,
   DISABLED_MODULE_CATEGORIES,
+  SUBSTAT_DISABLED_CATEGORIES,
 } from '../utils/config'
 import { getStationRecommendations, getModuleLevelMult } from '../utils/calc'
 import { Star } from '@lucide/vue'
@@ -637,6 +646,10 @@ function modulesFor(catKey) {
 
 function moduleCategoryDisabled(catKey) {
   return DISABLED_MODULE_CATEGORIES.includes(catKey)
+}
+
+function substatsDisabled(catKey) {
+  return SUBSTAT_DISABLED_CATEGORIES.includes(catKey)
 }
 
 function moduleLevelDisabled(catKey, dir) {
@@ -1298,6 +1311,14 @@ function switchCat(cat) {
   flex: 1;
   color: #4fc3f7;
   font-size: 12px;
+}
+.module-substats-disabled {
+  opacity: 0.55;
+}
+.module-substats-disabled .module-substat-label,
+.module-substats-disabled .module-substat-value,
+.module-substats-disabled .module-substat-placeholder {
+  text-decoration: line-through;
 }
 .module-substat-row-locked .module-substat-placeholder {
   color: #6b7a8f;
