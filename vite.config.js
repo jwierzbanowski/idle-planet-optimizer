@@ -4,4 +4,7 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig(({ command }) => ({
   plugins: [vue()],
   base: command === 'build' ? '/idle-planet-optimizer/' : '/',
+  optimizeDeps: {
+    noDiscovery: true,
+  },
 }))
