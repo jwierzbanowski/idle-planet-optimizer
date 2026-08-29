@@ -237,9 +237,9 @@ const SYNTH_ITEM_VALUE_STATS = ['item_value']
 
 export { SYNTH_ITEM_VALUE_STATS }
 
-const SYNTH_CREDITS_STATS = ['credit_multi_per_colonies_10_in_galaxy']
+const REMOTE_CREDITS_STATS = ['credit_multi_per_colonies_10_in_galaxy']
 
-export { SYNTH_CREDITS_STATS }
+export { REMOTE_CREDITS_STATS }
 
 // Returns the combined multiplier for the substats of one module category that
 // match `statKeys`, or null when none contribute. Mirrors the established
@@ -412,14 +412,23 @@ export function getStationCreditsMult(settings) {
   return getStationMult(settings, STATION_CREDITS_KEYS)
 }
 
+export function getRemoteCreditsMult(settings) {
+  let mult = 1
+  const lvl = moduleLevelMultHelper(settings, 'remote')
+  if (lvl) mult *= lvl
+  const sub = moduleSubstatMultHelper(settings, 'remote', REMOTE_CREDITS_STATS)
+  if (sub) mult *= sub
+  return mult > 1 ? mult : null
+}
+
 export function getCreditsMult(settings) {
   let mult = 1
   const lounge = getModifier('rooms', 'lounge', settings)
   if (lounge) mult *= lounge
   const station = getStationCreditsMult(settings)
   if (station) mult *= station
-  const synthSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_CREDITS_STATS)
-  if (synthSub) mult *= synthSub
+  const remote = getRemoteCreditsMult(settings)
+  if (remote) mult *= remote
   return mult > 1 ? mult : null
 }
 
