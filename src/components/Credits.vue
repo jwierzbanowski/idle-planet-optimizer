@@ -4,19 +4,17 @@
       <label class="goal-label">Run value goal</label>
       <div class="goal-row">
         <input
-          v-model="goalInput"
+          v-model.number="goalNum"
           class="goal-input"
-          placeholder="e.g. 5T"
+          type="number"
+          min="1"
           @input="parseGoal"
         />
-        <span v-if="parsedGoal" class="goal-result">
-          <strong>{{ goalCredits }}</strong> credits
-          <span class="goal-detail">({{ goalMilestones }} milestones)</span>
-          <span v-if="loungeMult > 1" class="goal-lounge">
-            ×{{ loungeMult.toFixed(2) }} with Lounge
-          </span>
-        </span>
-        <span v-else class="goal-hint">Enter a value to see total credits</span>
+        <div class="goal-suffix">
+          <button class="star-btn goal-arrow" @click="suffixDown" :disabled="suffixIdx <= 2">&lt;</button>
+          <span class="goal-suffix-val">{{ suffixLabel }}</span>
+          <button class="star-btn goal-arrow" @click="suffixUp" :disabled="suffixIdx >= SUFFIXES.length - 1">&gt;</button>
+        </div>
       </div>
     </div>
     <div class="credits-content">
@@ -39,7 +37,6 @@
               </tr>
               <tr
                 :class="{
-                  goal: goalMilestones > 0 && m.n <= goalMilestones,
                   selected: selected && selected.n === m.n,
                 }"
                 @click="selectMilestone(m)"
@@ -52,18 +49,14 @@
           </tbody>
         </table>
       </div>
-      <CreditsBreakdown :milestone="selectedBreakdown" />
+      <CreditsBreakdown :milestone="breakdownTarget" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useSettings } from '../composables/useSettings'
-import { getModifier } from '../utils/calc'
 import CreditsBreakdown from './CreditsBreakdown.vue'
-
-const { settings } = useSettings()
 
 const SUFFIXES = ['', 'K', 'M', 'B', 'T', 'q', 'Q', 's', 'S', 'O', 'N', 'D']
 const HARDCODED_CREDITS = [10, 30, 60, 101, 150, 210, 285, 367, 459]
@@ -125,59 +118,78 @@ function buildMilestones() {
 
 const milestones = buildMilestones()
 
-const loungeMult = computed(() => {
-  const m = getModifier('rooms', 'lounge', settings)
-  return m != null ? m : 1
-})
-
 const selected = ref(null)
 
-const selectedBreakdown = computed(() => {
+const goalNum = ref(10)
+const suffixIdx = ref(2)
+const suffixLabel = computed(() => SUFFIXES[suffixIdx.value])
+
+const parsedGoal = ref(null)
+const rawGoalCredits = ref(0)
+
+const breakdownTarget = computed(() => {
+  if (parsedGoal.value != null) {
+    const display = goalNum.value + SUFFIXES[suffixIdx.value]
+    return { display, credits: rawGoalCredits.value }
+  }
   if (!selected.value) return null
   return { display: selected.value.display, credits: selected.value.credits }
 })
 
+function suffixDown() {
+  if (suffixIdx.value > 2) {
+    suffixIdx.value--
+    parseGoal()
+  }
+}
+
+function suffixUp() {
+  if (suffixIdx.value < SUFFIXES.length - 1) {
+    suffixIdx.value++
+    parseGoal()
+  }
+}
+
 function selectMilestone(m) {
   selected.value = m
-}
-
-function parseUnfmt(str) {
-  const clean = str.trim().toUpperCase()
-  const match = clean.match(/^(\d+(?:\.\d+)?)\s*([KMBTqQsSOND]?)$/)
-  if (!match) return null
-  const num = parseFloat(match[1])
-  const suffix = match[2] || ''
+  const suffix = m.display.replace(/[\d.]/g, '')
+  const num = parseFloat(m.display.replace(/[^\d.]/g, ''))
   const idx = SUFFIXES.indexOf(suffix)
-  if (idx === -1) return null
-  return num * Math.pow(10, idx * 3)
+  if (idx >= 0) suffixIdx.value = idx
+  goalNum.value = num
+  parseGoal()
 }
 
-const goalInput = ref('')
-const parsedGoal = ref(null)
-const goalMilestones = ref(0)
-const goalCredits = ref(0)
+selectMilestone(milestones[0])
 
 function parseGoal() {
-  const v = parseUnfmt(goalInput.value)
-  if (v == null || v <= 0) {
+  const v = goalNum.value * Math.pow(10, suffixIdx.value * 3)
+  if (goalNum.value <= 0 || v < 10_000_000) {
     parsedGoal.value = null
-    goalMilestones.value = 0
-    goalCredits.value = 0
+    rawGoalCredits.value = 0
     return
   }
   parsedGoal.value = v
-  let reached = 0
-  let total = 0
-  for (const m of milestones) {
-    if (v >= m.value) {
-      reached = m.n
-      total = m.cumul
+
+  let lower = milestones[0]
+  let upper = milestones[milestones.length - 1]
+  for (let i = 0; i < milestones.length; i++) {
+    if (milestones[i].value <= v) {
+      lower = milestones[i]
     } else {
+      upper = milestones[i]
       break
     }
   }
-  goalMilestones.value = reached
-  goalCredits.value = Math.round(total * loungeMult.value)
+
+  let interpolated
+  if (lower.value === upper.value) {
+    interpolated = lower.credits
+  } else {
+    const ratio = (v - lower.value) / (upper.value - lower.value)
+    interpolated = lower.credits + ratio * (upper.credits - lower.credits)
+  }
+  rawGoalCredits.value = Math.round(interpolated)
 }
 </script>
 
@@ -205,7 +217,7 @@ function parseGoal() {
   flex-wrap: wrap;
 }
 .goal-input {
-  width: 140px;
+  width: 100px;
   background: #121824;
   border: 1px solid #2a3a4a;
   border-radius: 6px;
@@ -219,31 +231,23 @@ function parseGoal() {
 .goal-input:focus {
   border-color: #4fc3f7;
 }
-.goal-input::placeholder {
-  color: #3a4a5a;
-  font-weight: 400;
+.goal-suffix {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
-.goal-result {
+.goal-arrow {
+  width: 26px;
+  height: 26px;
+  padding: 0;
   font-size: 14px;
-  color: #c8d0dc;
 }
-.goal-result strong {
-  color: #4fc3f7;
-  font-size: 18px;
-}
-.goal-detail {
-  color: #6b7a8f;
-  font-size: 12px;
-  margin-left: 8px;
-}
-.goal-lounge {
-  color: #e8c547;
-  font-size: 12px;
-  margin-left: 4px;
-}
-.goal-hint {
-  color: #3a4a5a;
-  font-size: 13px;
+.goal-suffix-val {
+  min-width: 28px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e8edf5;
 }
 
 tr.tier-separator td {
@@ -254,12 +258,6 @@ tr.tier-separator td {
 }
 tr.tier-separator:hover td {
   background: #0d1520;
-}
-tr.goal {
-  background: rgba(30, 136, 229, 0.12);
-}
-tr.goal:hover {
-  background: rgba(30, 136, 229, 0.2);
 }
 tr.selected {
   background: rgba(79, 195, 247, 0.15);

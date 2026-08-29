@@ -11,7 +11,7 @@ The modal has seven tabs, each documented on its own page:
 | Tab | Contents | Page |
 | --- | --- | --- |
 | **Rooms** | Mine/smelt/craft speed, cost and value modifiers. | [Rooms](rooms.md) |
-| **Station** | Mining, crafting, smelting, alloy/item, market, manager, and planet cost station levels. | [Station](station.md) |
+| **Station** | Mining, crafting, smelting, alloy/item, market, manager, credits, and planet cost station levels. | [Station](station.md) |
 | **Beacon** | Beacon levels per planet range. | [Beacon](beacon.md) |
 | **Managers** | Manager cards with stars and skills. | [Managers](managers.md) |
 | **Badges** | Star ratings for every ore, alloy, and item. | [Badges](badges.md) |

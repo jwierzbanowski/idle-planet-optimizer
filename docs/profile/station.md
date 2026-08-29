@@ -81,6 +81,24 @@ The **Station** tab holds the levels of all station groups. Station levels stack
 | Manager 7 | Manager effects | +0.06 | 1 |
 | Manager 8 | Manager effects | +0.005 | 10 |
 
+## Credits
+
+| Station | Effect | Per level | Max level |
+| --- | --- | --- | --- |
+| Credits 1 | Credits earned | +0.036 | 5 |
+| Credits 2 | Credits earned | +0.04 | 4 |
+| Credits 3 | Credits earned | +0.04 | 4 |
+| Credits 4 | Credits earned | +0.005 | 4 |
+| Credits 5 | Credits earned | +0.005 | 6 |
+| Credits 6 | Credits earned | +0.005 | 8 |
+| Credits 7 | Credits earned | +0.06 | 1 |
+| Credits 8 | Credits earned | +0.005 | 10 |
+| Credits 9 | Credits earned | +0.02 | 5 |
+| Credits 10 | Credits earned | +0.02 | 5 |
+| Credits 11 | Credits earned | +0.03 | 6 |
+| Credits 12 | Credits earned | +0.03 | 6 |
+| Credits 13 | Credits earned | +0.07 | 2 |
+
 ## How stations combine
 
 - **Craft speed** = product of the active Crafting 1–5 station multipliers, combined with the Workshop room, craft projects, and ships.
@@ -90,6 +108,7 @@ The **Station** tab holds the levels of all station groups. Station levels stack
 - **Planet cost** = product of the Planet Cost 1–5 station reductions, combined with the Astronomy room (higher = cheaper upgrades).
 - **Market value** = product of the Market 1–7 station multipliers, combined with the Marketing room.
 - **Manager effects** = product of the Manager 1–8 station multipliers, combined with the Classroom room, Manager Training projects, and ships.
+- **Credits earned** = product of the Credits 1–13 station multipliers, combined with the Lounge room and synth module substats.
 
 Each station shows its current multiplier next to the level control. Turned off stations contribute nothing.
 
