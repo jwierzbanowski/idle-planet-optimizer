@@ -282,11 +282,11 @@ export function getModuleSubstatMult(modules, profileModules, cat, statKeys, per
   return any && mult > 1 ? mult : null
 }
 
-function moduleSubstatMultHelper(settings, cat, stats) {
+export function moduleSubstatMultHelper(settings, cat, stats) {
   return getModuleSubstatMult(settings.modulesData, settings.modules, cat, stats, settings.modulePerX)
 }
 
-function moduleLevelMultHelper(settings, cat) {
+export function moduleLevelMultHelper(settings, cat) {
   const slot = settings.modules && settings.modules[cat]
   if (!slot || !slot.rarity || !slot.level) return null
   const m = getModuleLevelMult(settings.modulesData, cat, slot.rarity, slot.level)

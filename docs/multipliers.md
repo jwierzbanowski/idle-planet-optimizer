@@ -12,7 +12,7 @@ Each value has a small **`i`** info icon — click it to see the tooltip with th
 
 ### Smelt
 Smelt speed multiplier, applied to alloy smelt times.
-Factors: **Forge room**, **Furnace projects** (Advanced/Superior Furnace), **Smelting stations** 1–5, **manager skill** (All Smelt Speed), **ships**.
+Factors: **Forge room**, **Furnace projects** (Advanced/Superior Furnace), **Smelting stations** 1–5, **manager skill** (All Smelt Speed), **ships**, **Synth module** (smelt substats and module level).
 
 ### Smelt Cost
 Smelting price modifier (below `1.00×` = cheaper smelting).
@@ -20,7 +20,7 @@ Factors: **Underforge room**.
 
 ### Craft
 Craft speed multiplier, applied to item craft times.
-Factors: **Workshop room**, **Crafter projects** (Advanced/Superior Crafter), **Crafting stations** 1–5, **manager skill** (All Craft Speed), **ships**.
+Factors: **Workshop room**, **Crafter projects** (Advanced/Superior Crafter), **Crafting stations** 1–5, **manager skill** (All Craft Speed), **ships**, **Synth module** (craft substats and module level).
 
 ### Craft Cost
 Crafting price modifier (below `1.00×` = cheaper crafting).
@@ -28,7 +28,7 @@ Factors: **Dorms room**.
 
 ### Mine Rate
 Mining speed multiplier for ore production.
-Factors: **Engineering room**, **Mining projects** (Advanced/Superior Mining), **Mining stations** 1–2, **Global 1.2×** station, **ships**.
+Factors: **Engineering room**, **Mining projects** (Advanced/Superior Mining), **Mining stations** 1–2, **Global 1.2×** station, **ships**, **Drill module** (mining substats and module level).
 Per planet, the mining rate additionally includes: **beacon**, **colonies**, **probe**, **rover**, **assigned manager**, and **Ore Targeting**.
 
 ### Planet Cost

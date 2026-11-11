@@ -200,7 +200,8 @@ import {
   getManagerTrainingMult,
   getMarketingMult,
   getShipMult,
-  getModuleSubstatMult,
+  moduleSubstatMultHelper,
+  moduleLevelMultHelper,
   SYNTH_CRAFT_STATS,
   SYNTH_SMELT_STATS,
   DRILL_MINING_STATS,
@@ -356,12 +357,14 @@ const debugStats = computed(() => {
 
   const salesMod = sales || 1
   const stnVal = stnValue || 1
-  const synthValSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_VALUE_STATS) || 1
-  const synthAlloySub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_ALLOY_VALUE_STATS) || 1
-  const synthItemSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_ITEM_VALUE_STATS) || 1
-  const synthCraftSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_CRAFT_STATS) || 1
-  const synthSmeltSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'synth', SYNTH_SMELT_STATS) || 1
-  const drillMineSub = getModuleSubstatMult(settings.modulesData, settings.modules, 'drill', DRILL_MINING_STATS) || 1
+  const synthValSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_VALUE_STATS) || 1
+  const synthAlloySub = moduleSubstatMultHelper(settings, 'synth', SYNTH_ALLOY_VALUE_STATS) || 1
+  const synthItemSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_ITEM_VALUE_STATS) || 1
+  const synthCraftSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_CRAFT_STATS) || 1
+  const synthSmeltSub = moduleSubstatMultHelper(settings, 'synth', SYNTH_SMELT_STATS) || 1
+  const drillMineSub = moduleSubstatMultHelper(settings, 'drill', DRILL_MINING_STATS) || 1
+  const synthLvl = moduleLevelMultHelper(settings, 'synth')
+  const drillLvl = moduleLevelMultHelper(settings, 'drill')
   const alloyV = (salesMod * stnVal * (alloyProj || 1) * (shipAlloyValue || 1) * synthValSub * synthAlloySub).toFixed(2) + '×'
   const itemV = (salesMod * stnVal * (itemProj || 1) * (shipItemValue || 1) * synthValSub * synthItemSub).toFixed(2) + '×'
 
@@ -376,6 +379,7 @@ const debugStats = computed(() => {
       ['Manager (allSmeltSpeed)', mgrSmelt],
       ['Ships', shipSmelt],
       ['Synth substats (smelt)', synthSmeltSub !== 1 ? synthSmeltSub : null],
+      ['Synth module level', synthLvl],
     ],
     smeltRate
   )
@@ -389,6 +393,7 @@ const debugStats = computed(() => {
       ['Manager (allCraftSpeed)', mgrCraft],
       ['Ships', shipCraft],
       ['Synth substats (craft)', synthCraftSub !== 1 ? synthCraftSub : null],
+      ['Synth module level', synthLvl],
     ],
     craftRate
   )
@@ -406,6 +411,7 @@ const debugStats = computed(() => {
       ['Global 1.2×', global12],
       ['Ships', shipMine],
       ['Drill substats (mine)', drillMineSub !== 1 ? drillMineSub : null],
+      ['Drill module level', drillLvl],
     ],
     mineRate
   )
