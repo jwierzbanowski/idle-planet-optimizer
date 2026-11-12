@@ -45,13 +45,13 @@ The slot shows the **base multiplier** for the selected rarity at the current le
 
 The value comes from the module level table bundled in `public/data/modules.json`:
 
-- Multipliers exist for **Rare and above** (Rare, Rare+, Epic, Epic+, Legendary, Legendary+, Mythic).
-- For **Common** there is no data, and **Mythic+ / Ancestral** are not yet verified — for those the preview shows **—**.
-- Between recorded levels the value is interpolated; above the highest recorded level the preview shows **—**.
+- **Epic through Ancestral** (Epic, Epic+, Legendary, Legendary+, Mythic, Mythic+, Ancestral) have a value for **every level from 1 to 300**, taken from the community [Module Info Sheet](https://docs.google.com/spreadsheets/d/14C66wyrzSFBlyImEtrG0lqg4a78FaefC6-2cskKjqNQ/) by Silversneakers and Taryth (tab *Module Upgrade Info vUAV*).
+- **Rare and Rare+** only have some levels recorded and are not verified against the game. Between recorded levels the value is interpolated; above the highest recorded level, the highest recorded value is used.
+- For **Common** there is no data — the preview shows **—**.
 
-The multiplier preview is informational only — it is **not** yet wired into the [Multipliers bar](../multipliers.md).
+The level multiplier is used by the calculator: **Drill** feeds the Mine Rate, **Synth** the Smelt and Craft speed, and **Remote** the credits multiplier (see the [Multipliers bar](../multipliers.md)). **Transport** is disabled.
 
-> Substats, on the other hand, **are** wired into the calculator — see [Substat effects](#substat-effects) below.
+> Substats are also wired into the calculator — see [Substat effects](#substat-effects) below.
 
 ## Substats
 
